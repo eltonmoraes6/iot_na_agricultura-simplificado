@@ -1,8 +1,6 @@
-import { Box, Container, Grid, Paper } from '@mui/material';
+import { Alert, Box, Container, Grid, Paper, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-import { useEffect } from 'react';
-import { toast } from 'react-toastify';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
 import HumidityGauge from '../components/sensor/HumidityGauge';
@@ -15,6 +13,7 @@ const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
   ...theme.typography.body2,
   padding: theme.spacing(1),
+  margin: theme.spacing(1),
   textAlign: 'center',
   color: theme.palette.text.secondary,
 }));
@@ -22,25 +21,33 @@ const Item = styled(Paper)(({ theme }) => ({
 const HomePage = () => {
   const { isLoading, isError, error, data: sensors } = useGetAllSensorsQuery();
 
-  useEffect(() => {
-    if (isError) {
-      if (Array.isArray((error as any).data.error)) {
-        (error as any).data.error.forEach((el: any) =>
-          toast.error(el.message, {
-            position: 'top-right',
-          })
-        );
-      } else {
-        toast.error((error as any).data.message, {
-          position: 'top-right',
-        });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
-
   if (isLoading) {
     return <FullScreenLoader />;
+  }
+
+  if (isError || !sensors) {
+    return (
+      <Box textAlign='center' mt={4}>
+        <Alert severity='error'>Failed to fetch data</Alert>{' '}
+        {/* Show an error message */}
+      </Box>
+    );
+  }
+
+  // Check if data is an array before using .map
+  if (!Array.isArray(sensors)) {
+    return (
+      <Box textAlign='center' mt={4}>
+        <Alert severity='warning'>No data available</Alert>
+        <Typography
+          variant='h2'
+          component='h1'
+          sx={{ color: '#1f1e1e', fontWeight: 500 }}
+        >
+          {error}
+        </Typography>
+      </Box>
+    );
   }
 
   return (
@@ -57,43 +64,39 @@ const HomePage = () => {
       ) : (
         <>
           {/* LineChart */}
-          <Box sx={{ height: 400, width: '100%' }}>
-            <Grid
-              container
-              rowSpacing={1}
-              columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-            >
-              <Grid item xs={6}>
-                <Item>
-                  <TemperatureLineChart />
-                </Item>
-              </Grid>
-              <Grid item xs={6}>
-                <Item>
-                  <HumidityLineChart />
-                </Item>
-              </Grid>
+          <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+          >
+            <Grid sm={12} xs={8} md={6}>
+              <Item>
+                <TemperatureLineChart />
+              </Item>
             </Grid>
-          </Box>
+            <Grid sm={12} xs={8} md={6}>
+              <Item>
+                <HumidityLineChart />
+              </Item>
+            </Grid>
+          </Grid>
           {/* Gauge */}
-          <Box sx={{ height: 400, width: '100%' }}>
-            <Grid
-              container
-              rowSpacing={1}
-              columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-            >
-              <Grid item xs={6}>
-                <Item>
-                  <TemperatureGauge />
-                </Item>
-              </Grid>
-              <Grid item xs={6}>
-                <Item>
-                  <HumidityGauge />
-                </Item>
-              </Grid>
+          <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+          >
+            <Grid item sm={12} xs={8} md={6}>
+              <Item>
+                <TemperatureGauge />
+              </Item>
             </Grid>
-          </Box>
+            <Grid item sm={12} xs={8} md={6}>
+              <Item>
+                <HumidityGauge />
+              </Item>
+            </Grid>
+          </Grid>
         </>
       )}
     </Container>

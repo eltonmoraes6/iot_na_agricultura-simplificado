@@ -48,8 +48,19 @@ export const sensorApi = createApi({
         };
       },
       providesTags: [{ type: 'DailyAndPeriodAverages', id: 'AVERAGES' }],
-      transformResponse: (response: IDailyAndPeriodAveragesResponse) =>
-        response.data,
+      transformResponse: (response: IDailyAndPeriodAveragesResponse) => {
+        // Check if the response has the expected fields
+        if (
+          typeof response.status === 'string' &&
+          Array.isArray(response.data) &&
+          response.data.every((item) => typeof item.period === 'string')
+        ) {
+          return response.data as unknown as IDailyAndPeriodAveragesResponse; // Explicitly cast to the expected type
+        } else {
+          // If the response doesn't meet expectations, throw an error or return a default value
+          throw new Error('Unexpected response format');
+        }
+      },
     }),
   }),
 });

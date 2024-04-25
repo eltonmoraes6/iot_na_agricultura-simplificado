@@ -1,7 +1,5 @@
-import { Box, Container, Typography } from '@mui/material';
+import { Alert, Box, Container, Typography } from '@mui/material';
 
-import { useEffect } from 'react';
-import { toast } from 'react-toastify';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
 import SensorDataBarChart from '../components/sensor/bar';
@@ -10,25 +8,39 @@ import { useGetAllSensorsQuery } from '../redux/api/sensorApi';
 const SeasonDataBarChart = () => {
   const { isLoading, isError, error, data: sensors } = useGetAllSensorsQuery();
 
-  useEffect(() => {
-    if (isError) {
-      if (Array.isArray((error as any).data.error)) {
-        (error as any).data.error.forEach((el: any) =>
-          toast.error(el.message, {
-            position: 'top-right',
-          })
-        );
-      } else {
-        toast.error((error as any).data.message, {
-          position: 'top-right',
-        });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
+  const formattedSensors =
+    sensors?.map((sensor) => ({
+      ...sensor,
+      temperature: sensor.temperature.toString(), // Convert to string
+    })) || [];
 
   if (isLoading) {
     return <FullScreenLoader />;
+  }
+
+  if (isError || !sensors) {
+    return (
+      <Box textAlign='center' mt={4}>
+        <Alert severity='error'>Failed to fetch data</Alert>{' '}
+        {/* Show an error message */}
+      </Box>
+    );
+  }
+
+  // Check if data is an array before using .map
+  if (!Array.isArray(sensors)) {
+    return (
+      <Box textAlign='center' mt={4}>
+        <Alert severity='warning'>No data available</Alert>
+        <Typography
+          variant='h2'
+          component='h1'
+          sx={{ color: '#1f1e1e', fontWeight: 500 }}
+        >
+          {error}
+        </Typography>
+      </Box>
+    );
   }
 
   return (
@@ -63,7 +75,7 @@ const SeasonDataBarChart = () => {
             </Typography>
           </Box>
           <Box sx={{ height: 400, width: '100%' }}>
-            <SensorDataBarChart sensorData={sensors} />
+            <SensorDataBarChart sensorData={formattedSensors} />
           </Box>
         </>
       )}

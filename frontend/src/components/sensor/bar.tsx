@@ -4,8 +4,10 @@ import React from 'react';
 interface Sensor {
   id: string;
   temperature: string;
-  humidity: string;
+  humidity: number;
   season: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Props {
@@ -24,8 +26,7 @@ const SensorDataBarChart: React.FC<Props> = ({ sensorData }) => {
 
     // Populate dataBySeason with temperature data for each season
     sensorData.forEach((sensor) => {
-      const seasonIndex = seasons.indexOf(sensor.season);
-      if (seasonIndex !== -1) {
+      if (seasons.includes(sensor.season)) {
         dataBySeason[sensor.season].push(parseFloat(sensor.temperature));
       }
     });
@@ -35,7 +36,7 @@ const SensorDataBarChart: React.FC<Props> = ({ sensorData }) => {
       data: dataBySeason[season],
     }));
 
-    const xAxisData = [{ data: seasons, scaleType: 'band' }];
+    const xAxisData = [{ data: seasons, scaleType: 'band' as const }]; // Explicit scale type
 
     return { series: seriesData, xAxis: xAxisData };
   };

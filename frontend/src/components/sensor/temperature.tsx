@@ -6,7 +6,7 @@ export default function TemperatureLineChart() {
   const { isLoading, isError, data: sensors } = useGetAllSensorsQuery();
 
   // Extract temperature values from sensorData array
-  const temperatures = sensors.map((data) => parseFloat(data.temperature));
+  const temperatures = sensors?.map((d) => d.temperature) || [];
 
   // Create an array of indices for x-axis
   const xAxis = Array.from({ length: temperatures.length }, (_, i) => i + 1);

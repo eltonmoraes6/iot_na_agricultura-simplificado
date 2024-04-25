@@ -42,6 +42,7 @@ AppDataSource.initialize()
     );
     // Serve static files from the build directory
     app.use(express.static(path.join(__dirname, '../build')));
+    app.use(express.static(path.join(__dirname, '../dist')));
 
     // ROUTES
     app.use('/api/sensors', sensorsRouter);
@@ -53,7 +54,7 @@ AppDataSource.initialize()
 
     // Handle all other requests by sending the index.html file
     app.get('*', (req: Request, res: Response) => {
-      res.sendFile(path.join(__dirname, '../build/index.html'));
+      res.sendFile(path.join(__dirname, 'index.html'));
     });
 
     // GLOBAL ERROR HANDLER
@@ -70,8 +71,9 @@ AppDataSource.initialize()
     );
 
     const port = config.get<number>('port');
-    app.listen(port);
-
-    console.log(`Server started on port: ${port}`);
+    // Listen on all network interfaces
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`Server started on port: ${port}`);
+    });
   })
   .catch((error) => console.log(error));

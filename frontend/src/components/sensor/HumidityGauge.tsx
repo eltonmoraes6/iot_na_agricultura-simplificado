@@ -7,9 +7,7 @@ export default function HumidityGauge() {
 
   // Extract last humidity value from sensorData array
   const lastHumidity =
-    sensors && sensors.length > 0
-      ? parseFloat(sensors[sensors.length - 1].humidity)
-      : 0;
+    sensors && sensors.length > 0 ? sensors[sensors.length - 1].humidity : 0;
 
   return (
     <>

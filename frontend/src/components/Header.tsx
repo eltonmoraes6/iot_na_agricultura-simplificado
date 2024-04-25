@@ -1,9 +1,7 @@
 import { LoadingButton as _LoadingButton } from '@mui/lab';
 import { AppBar, Box, Container, Toolbar, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 const LoadingButton = styled(_LoadingButton)`
   padding: 0.4rem;
@@ -19,26 +17,6 @@ const LoadingButton = styled(_LoadingButton)`
 
 const Header = () => {
   const navigate = useNavigate();
-  const isError = false;
-
-  const isLoading = false;
-
-  useEffect(() => {
-    if (isError) {
-      if (Array.isArray((error as any).data.error)) {
-        (error as any).data.error.forEach((el: any) =>
-          toast.error(el.message, {
-            position: 'top-right',
-          })
-        );
-      } else {
-        toast.error((error as any).data.message, {
-          position: 'top-right',
-        });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
 
   return (
     <>

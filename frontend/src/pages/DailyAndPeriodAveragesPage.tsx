@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts';
 import React from 'react';
+import Message from '../components/Message';
 import { useGetDailyAndPeriodAveragesQuery } from '../redux/api/sensorApi';
 
 const DailyAndPeriodAveragesPage: React.FC = () => {
@@ -40,15 +41,14 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
   }
 
   const periods = data?.map((d) => d.period) || [];
-  const temperatureData =
-    data?.map((d) => parseFloat(d.average_temperature)) || [];
-  const humidityData = data?.map((d) => parseFloat(d.average_humidity)) || [];
+  const temperatureData = data?.map((d) => d.average_temperature) || [];
+  const humidityData = data?.map((d) => d.average_humidity) || [];
 
   const xAxis = [
     {
-      type: 'band',
-      data: periods,
-      scaleType: 'band',
+      type: 'band' as const,
+      data: Array.isArray(periods) ? periods : [],
+      scaleType: 'band' as const,
     },
   ];
 

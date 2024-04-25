@@ -1,21 +1,10 @@
-import { Box, Container, Paper, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Alert, Box, Container, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
-import { useEffect } from 'react';
-import { toast } from 'react-toastify';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
 import { useGetAllSensorsQuery } from '../redux/api/sensorApi';
 import { ISensorResponse } from '../redux/api/types';
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
 
 const columns: GridColDef<ISensorResponse>[] = [
   { field: 'id', headerName: 'ID', width: 300 },
@@ -45,25 +34,33 @@ const columns: GridColDef<ISensorResponse>[] = [
 const DatabaseInfo = () => {
   const { isLoading, isError, error, data: sensors } = useGetAllSensorsQuery();
 
-  useEffect(() => {
-    if (isError) {
-      if (Array.isArray((error as any).data.error)) {
-        (error as any).data.error.forEach((el: any) =>
-          toast.error(el.message, {
-            position: 'top-right',
-          })
-        );
-      } else {
-        toast.error((error as any).data.message, {
-          position: 'top-right',
-        });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
-
   if (isLoading) {
     return <FullScreenLoader />;
+  }
+
+  if (isError || !sensors) {
+    return (
+      <Box textAlign='center' mt={4}>
+        <Alert severity='error'>Failed to fetch data</Alert>{' '}
+        {/* Show an error message */}
+      </Box>
+    );
+  }
+
+  // Check if data is an array before using .map
+  if (!Array.isArray(sensors)) {
+    return (
+      <Box textAlign='center' mt={4}>
+        <Alert severity='warning'>No data available</Alert>
+        <Typography
+          variant='h2'
+          component='h1'
+          sx={{ color: '#1f1e1e', fontWeight: 500 }}
+        >
+          {error}
+        </Typography>
+      </Box>
+    );
   }
 
   return (

@@ -5,8 +5,7 @@ import { useGetAllSensorsQuery } from '../../redux/api/sensorApi';
 export default function HumidityLineChart() {
   const { isLoading, isError, data: sensors } = useGetAllSensorsQuery();
 
-  // Extract humidity values from sensorData array
-  const humidity = sensors.map((data) => parseFloat(data.humidity));
+  const humidity = sensors?.map((d) => d.humidity) || [];
 
   // Create an array of indices for x-axis
   const xAxis = Array.from({ length: humidity.length }, (_, i) => i + 1);

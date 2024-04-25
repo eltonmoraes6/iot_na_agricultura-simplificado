@@ -7,9 +7,7 @@ export default function TemperatureGauge() {
 
   // Extract last temperature value from sensorData array
   const lastTemperature =
-    sensors && sensors.length > 0
-      ? parseFloat(sensors[sensors.length - 1].temperature)
-      : 0;
+    sensors && sensors.length > 0 ? sensors[sensors.length - 1].temperature : 0;
 
   return (
     <>
