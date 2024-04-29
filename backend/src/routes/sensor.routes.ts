@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   findSeasonByHandler,
+  getAllSensorsHandler,
   getDailyAndPeriodAveragesHandler,
   indexHandler,
   registerSensorHandler,
@@ -21,5 +22,7 @@ router.get('/:season', findSeasonByHandler);
 
 // Add a new route for calculating averages
 router.get('/info/daily-and-period-averages', getDailyAndPeriodAveragesHandler);
+
+router.get('/info/advanced', getAllSensorsHandler);
 
 export default router;

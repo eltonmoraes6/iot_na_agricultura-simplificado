@@ -37,6 +37,12 @@ export const secondaryListItems = (
       </ListItemIcon>
       <ListItemText primary='Season BarChart' />
     </ListItem>
+    <ListItem button component={Link} to='/info/advanced'>
+      <ListItemIcon>
+        <BarChartIcon />
+      </ListItemIcon>
+      <ListItemText primary='Season BarChart' />
+    </ListItem>
   </div>
 );
 

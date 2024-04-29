@@ -8,6 +8,7 @@ import DatabaseInfo from './pages/DatabaseInfo';
 import SeasonDataBarChart from './pages/SeasonDataBarChart';
 
 import HomePage from './pages/home.page';
+import SensorList from './pages/SensorList';
 
 function App() {
   return (
@@ -27,6 +28,8 @@ function App() {
             path='season-data-bar-chart'
             element={<SeasonDataBarChart />}
           />
+
+          <Route path='info/advanced' element={<SensorList />} />
 
           <Route path='database-info' element={<DatabaseInfo />} />
         </Route>

@@ -34,3 +34,9 @@ export interface IDailyAndPeriodAveragesResponse {
   status: string;
   data: IPeriodAverage[];
 }
+
+export interface SensorQueryParams {
+  filters?: { [key: string]: unknown };
+  sort?: { field: keyof ISensorResponse; order: 'ASC' | 'DESC' };
+  pagination?: { page: number; limit: number };
+}

@@ -1,6 +1,7 @@
-import { DeepPartial } from 'typeorm';
+import { DeepPartial, FindManyOptions } from 'typeorm';
 import { Sensor } from '../entities/sensor.entity';
 import { AppDataSource } from '../utils/data-source';
+import { SensorQueryOptions } from '../utils/types';
 
 const sensorRepository = AppDataSource.getRepository(Sensor);
 
@@ -74,4 +75,56 @@ export const getDailyAndPeriodAverages = async () => {
   GROUP BY period_averages.period, period_averages.average_temperature, period_averages.average_humidity
   -- ORDER BY period_averages.period
 `);
+};
+
+const validSensorKeys = [
+  'id',
+  'humidity',
+  'temperature',
+  'season',
+  // 'location',
+  'created_at',
+  'updated_at',
+] as const;
+
+type ValidSensorKeys = (typeof validSensorKeys)[number];
+
+const validateFields = (fields: string[]): ValidSensorKeys[] => {
+  return fields.filter((field): field is ValidSensorKeys =>
+    validSensorKeys.includes(field as ValidSensorKeys)
+  );
+};
+
+export const findSensorsAdvanced = async (
+  options: SensorQueryOptions
+): Promise<Sensor[]> => {
+  const findOptions: FindManyOptions<Sensor> = {};
+
+  // Apply filters with the parsed conditions
+  if (options.filters) {
+    findOptions.where = options.filters;
+  }
+
+  // Apply sorting
+  if (options.sort) {
+    const { field, order } = options.sort;
+    findOptions.order = { [field]: order };
+  } else {
+    findOptions.order = { created_at: 'DESC' };
+  }
+
+  // Apply pagination
+  if (options.pagination) {
+    const { page, limit } = options.pagination;
+    findOptions.skip = (page - 1) * limit;
+    findOptions.take = limit;
+  }
+
+  // Apply field selection
+  if (options.fields) {
+    const validFields = validateFields(options.fields); // Ensure these are valid
+    findOptions.select = validFields;
+  }
+
+  return await sensorRepository.find(findOptions);
 };

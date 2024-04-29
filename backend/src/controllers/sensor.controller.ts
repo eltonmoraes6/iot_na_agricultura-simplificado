@@ -4,6 +4,7 @@ import {
   createSensor,
   findSensor,
   findSensorBySeason,
+  findSensorsAdvanced,
   getDailyAndPeriodAverages,
 } from '../services/sensors.service';
 
@@ -95,5 +96,104 @@ export const getDailyAndPeriodAveragesHandler = async (
     });
   } catch (error) {
     next(error);
+  }
+};
+
+// Function to parse query parameters with operators
+const parseFilters = (query: { [key: string]: any }) => {
+  const excludedFields = ['sort', 'sortOrder', 'page', 'limit', 'fields'];
+  const filters: { [key: string]: any } = {};
+
+  for (const key in query) {
+    if (excludedFields.includes(key)) {
+      continue; // Skip excluded fields
+    }
+
+    let value = query[key];
+
+    // Handle advanced filtering with operators
+    if (
+      typeof value === 'string' &&
+      value.startsWith('{') &&
+      value.endsWith('}')
+    ) {
+      try {
+        value = JSON.parse(value); // Parse JSON-like strings
+      } catch (error) {
+        throw new Error(`Invalid filter format for key ${key}`);
+      }
+    }
+
+    // Handle operators like [eq], [neq], [gte], etc.
+    if (typeof value === 'object') {
+      for (const operator in value) {
+        const operatorValue = value[operator];
+
+        switch (operator) {
+          case 'eq':
+            filters[key] = operatorValue;
+            break;
+          case 'neq':
+            filters[key] = { $ne: operatorValue };
+            break;
+          case 'gte':
+            filters[key] = { $gte: operatorValue };
+            break;
+          case 'lte':
+            filters[key] = { $lte: operatorValue };
+            break;
+          default:
+            throw new Error(`Unknown operator: ${operator}`);
+        }
+      }
+    } else {
+      // If no operator, treat it as exact match
+      filters[key] = value; // Exact match
+    }
+  }
+
+  return filters;
+};
+
+export const getAllSensorsHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sort, sortOrder, page, limit, fields } = req.query;
+
+    // Parse filters with error handling for proper conversion to numeric
+    const filters = parseFilters(req.query);
+
+    const queryOptions = {
+      filters,
+      sort: sort
+        ? {
+            field: sort as string,
+            order: (sortOrder as 'ASC' | 'DESC') || 'ASC',
+          }
+        : undefined,
+      pagination: {
+        page: parseInt(page as string, 10) || 1,
+        limit: parseInt(limit as string, 10) || 10,
+      },
+      fields: fields ? (fields as string).split(',') : undefined,
+    };
+
+    const sensors = await findSensorsAdvanced(queryOptions);
+
+    res.status(200).json({
+      status: 'success',
+      results: sensors.length,
+      data: {
+        sensors,
+      },
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      status: 'error',
+      message: error.message,
+    });
   }
 };
