@@ -1,54 +1,118 @@
 import { ReadlineParser } from '@serialport/parser-readline';
 import config from 'config';
-import { SerialPort, SerialPortOptions } from 'serialport';
+import { SerialPort, SerialPortOpenOptions } from 'serialport';
+import { setInterval } from 'timers';
+import { createSensor } from './sensors.service';
 require('dotenv').config();
 
-const redisConfig = config.get<{
-  baudRate: number;
-  comPort: string;
-}>('serialPortConfig');
+const arduinoConfig = config.get<{ baudRate: string; comPort: string }>(
+  'serialPortConfig'
+);
 
-// Serial port connection options
-const serialPortOptions: SerialPortOptions = {
-  path: redisConfig.comPort,
-  baudRate: parseInt(redisConfig.baudRate),
+const serialPortOptions: SerialPortOpenOptions<any> = {
+  path: arduinoConfig.comPort,
+  baudRate: parseInt(arduinoConfig.baudRate, 10),
 };
 
-console.log('redisConfig.baudRate ====>', redisConfig.baudRate);
-// Connect to Arduino via serial port
-const arduinoPort: SerialPort = new SerialPort(serialPortOptions);
-
+const arduinoPort = new SerialPort(serialPortOptions);
 const parser = new ReadlineParser({ delimiter: '\r\n' });
 
-// Attach parser to the Arduino port
 arduinoPort.pipe(parser);
 
-// Handle Arduino port open event
+const dataBuffer: any[] = []; // Buffer to hold incoming data
+
 arduinoPort.on('open', () => {
-  console.log(`Connected to Arduino on ${redisConfig.comPort}`);
+  console.log(`Connected to Arduino on ${arduinoConfig.comPort}`);
 });
 
-// Listen for data from Arduino
-parser.on('data', (data: string) => {
+function getBrazilianSeason(date = new Date()) {
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  if (
+    (month === 12 && day >= 21) ||
+    (month >= 1 && month <= 2) ||
+    (month === 3 && day <= 20)
+  ) {
+    return 'Summer';
+  } else if (
+    (month === 3 && day >= 21) ||
+    (month >= 4 && month <= 5) ||
+    (month === 6 && day <= 20)
+  ) {
+    return 'Autumn';
+  } else if (
+    (month === 6 && day >= 21) ||
+    (month >= 7 && month <= 8) ||
+    (month === 9 && day <= 22)
+  ) {
+    return 'Winter';
+  } else {
+    return 'Spring';
+  }
+}
+
+// Handle incoming data
+parser.on('data', (data: any) => {
+  // Trim extra whitespace or non-printable characters
+  data = data.trim();
+
+  // Validate JSON structure
+  if (data === '') {
+    console.warn('Received empty data');
+    return;
+  }
+
+  console.log('Raw data received:', data);
+
   try {
-    console.log('Raw data received from Arduino:', data);
+    const parsedData = JSON.parse(data);
 
-    // Split the received data by a delimiter (e.g., comma)
-    const [temperatureStr, humidityStr] = data.split(',');
+    // Ensure required fields are present
+    if (!parsedData.temperature || !parsedData.humidity) {
+      console.warn('Incomplete data:', parsedData);
+      return;
+    }
 
-    // Convert strings to numbers
-    const temperature: number = parseFloat(temperatureStr);
-    const humidity: number = parseFloat(humidityStr);
+    const sensorData = {
+      temperature: parseFloat(parsedData.temperature),
+      humidity: parseFloat(parsedData.humidity),
+      season: getBrazilianSeason(),
+    };
 
-    const sensor = { temperature, humidity };
+    if (isNaN(sensorData.temperature) || isNaN(sensorData.humidity)) {
+      console.warn('Parsed NaN values:', sensorData);
+      return; // Skip invalid data
+    }
 
-    console.log('Arduino Info: ', sensor);
+    dataBuffer.push(sensorData);
+    console.log('Data from arduino:', data);
+    console.log('Data added to buffer:', sensorData);
   } catch (err: any) {
-    console.error('Error inserting data into PostgreSQL:', err);
+    console.error('Error processing data from Arduino:', err);
   }
 });
 
-// Handle serial port errors
-parser.on('error', (err) => {
+// Periodically insert data into the database
+setInterval(async () => {
+  if (dataBuffer.length === 0) {
+    return;
+  }
+
+  try {
+    const results = [];
+    while (dataBuffer.length > 0) {
+      const sensorData = dataBuffer.shift();
+      const result = await createSensor(sensorData);
+      results.push(result);
+    }
+
+    console.log('Data inserted successfully:', results);
+  } catch (err: any) {
+    console.error('Error inserting data into the database:', err);
+  }
+}, 10000); // Insert data every 10 seconds
+
+arduinoPort.on('error', (err) => {
   console.error('Serial port error:', err);
 });
