@@ -2,8 +2,8 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import customFetchBase from './customFetchBase';
 import {
   IDailyAndPeriodAveragesResponse,
+  ISensor,
   ISensorResponse,
-  SensorQueryParams,
 } from './types';
 
 export const sensorApi = createApi({
@@ -20,31 +20,17 @@ export const sensorApi = createApi({
       },
       providesTags: (_result, _error, id) => [{ type: 'Sensors', id }],
     }),
-    getSensors: builder.query<ISensorResponse[], SensorQueryParams>({
-      query: ({ filters, sort, pagination }) => {
-        let queryStr = '?';
-
-        // Adding filters to the query
-        if (filters) {
-          for (const key in filters) {
-            queryStr += `${key}=${filters[key]}&`;
-          }
-        }
-
-        // Adding sorting to the query
-        if (sort) {
-          queryStr += `sort=${sort.field},${sort.order}&`;
-        }
-
-        // Adding pagination to the query
-        if (pagination) {
-          queryStr += `page=${pagination.page}&limit=${pagination.limit}`;
-        }
-
-        return { url: `sensors/info/advanced${queryStr}` };
+    getSensors: builder.mutation<ISensor[], string>({
+      query: (queryString: string) => {
+        return {
+          url: `/sensors/info/advanced?${queryString.toString()}`,
+          credentials: 'include',
+        };
       },
+      transformResponse: (results: { data: { sensors: ISensor[] } }) =>
+        results.data.sensors,
     }),
-    getAllSensors: builder.query<ISensorResponse[], void>({
+    getAllSensors: builder.query<ISensor[], void>({
       query() {
         return {
           url: `/sensors/index`,
@@ -61,7 +47,7 @@ export const sensorApi = createApi({
               { type: 'Sensors', id: 'LIST' },
             ]
           : [{ type: 'Sensors', id: 'LIST' }],
-      transformResponse: (results: { data: { sensors: ISensorResponse[] } }) =>
+      transformResponse: (results: { data: { sensors: ISensor[] } }) =>
         results.data.sensors,
     }),
     // Query to get daily and period-based averages
@@ -96,5 +82,5 @@ export const sensorApi = createApi({
 export const {
   useGetAllSensorsQuery,
   useGetDailyAndPeriodAveragesQuery,
-  useGetSensorsQuery,
+  useGetSensorsMutation,
 } = sensorApi;

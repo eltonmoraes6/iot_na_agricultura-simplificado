@@ -4,9 +4,9 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
 import { useGetAllSensorsQuery } from '../redux/api/sensorApi';
-import { ISensorResponse } from '../redux/api/types';
+import { ISensor } from '../redux/api/types';
 
-const columns: GridColDef<ISensorResponse>[] = [
+const columns: GridColDef<ISensor>[] = [
   { field: 'id', headerName: 'ID', width: 300 },
   {
     field: 'humidity',

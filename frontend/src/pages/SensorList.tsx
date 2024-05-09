@@ -1,68 +1,163 @@
 import {
+  Box,
+  Button,
   CircularProgress,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
   Typography,
 } from '@mui/material';
-import { useGetSensorsQuery } from '../redux/api/sensorApi';
+import { DataGrid, GridPaginationModel } from '@mui/x-data-grid';
+import { useState } from 'react';
+import {
+  useGetAllSensorsQuery,
+  useGetSensorsMutation,
+} from '../redux/api/sensorApi';
+import { ISensor } from '../redux/api/types';
+import columns from './columns';
 
 const SensorList = () => {
-  // Correctly pass the query parameters to the hook
-  const { data, error, isLoading } = useGetSensorsQuery({
-    // filters: { season: 'Summer' }, // Correctly defined filter
-    // sort: { field: 'temperature', order: 'DESC' }, // Correctly defined sorting
-    pagination: { page: 1, limit: 10 }, // Correctly defined pagination
+  // Define states for filter criteria, pagination, sorting, and selection
+  const [seasonFilter, setSeasonFilter] = useState('');
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0, // Note: DataGrid uses zero-based indexing
+    pageSize: 10,
   });
+  const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
+  // Load initial data with the query hook
+  const {
+    data: allSensorsData,
+    error: allSensorsError,
+    isLoading: allSensorsLoading,
+  } = useGetAllSensorsQuery();
 
-  console.log('Data -----> ', data);
-  if (isLoading) {
+  // Use the mutation hook to fetch filtered data
+  const [getSensors, { isLoading: sensorsLoading, error: sensorsError }] =
+    useGetSensorsMutation();
+
+  const handleFilter = async () => {
+    const { page, pageSize } = paginationModel;
+
+    // Convert 0-based index to 1-based for server-side pagination
+    const pageNumber = page + 1;
+
+    let queryString = `limit=${pageSize}&page=${pageNumber}`;
+
+    if (seasonFilter) {
+      queryString += `&season=${seasonFilter}`;
+    }
+
+    try {
+      const result = (await getSensors(queryString).unwrap()) as ISensor[];
+      if (result) {
+        setFilteredData(result); // Store filtered data in state
+      }
+    } catch (error) {
+      console.error('Error fetching filtered data:', error);
+    }
+  };
+
+  // Render loading state
+  if (allSensorsLoading || sensorsLoading) {
     return <CircularProgress />;
   }
 
-  if (error) {
-    // Check if it's a FetchBaseQueryError and get status or other details
-    if ('status' in error) {
+  // Handle errors from both the initial query and the mutation
+  if (allSensorsError || sensorsError) {
+    const error = allSensorsError || sensorsError;
+    if (error) {
       return (
-        <Typography color='error'>
-          Error: {error.status} -{' '}
-          {typeof error.data === 'string' ? error.data : 'An error occurred'}
-        </Typography>
+        <Typography color='error'>An unexpected error occurred</Typography>
       );
-    } else if ('message' in error) {
-      return <Typography color='error'>Error: {error.message}</Typography>;
     }
-
-    return <Typography color='error'>An unexpected error occurred.</Typography>;
   }
 
+  // Determine which data set to use for the DataGrid
+  const dataToDisplay = filteredData ?? allSensorsData;
+
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Humidity</TableCell>
-            <TableCell>Temperature</TableCell>
-            <TableCell>Season</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data?.data.sensors.map((sensor) => (
-            <TableRow key={sensor.id}>
-              <TableCell>{sensor.id}</TableCell>
-              <TableCell>{sensor.humidity}</TableCell>
-              <TableCell>{sensor.temperature}</TableCell>
-              <TableCell>{sensor.season}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <>
+      <Grid
+        container
+        rowSpacing={1}
+        columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+        sx={{ mb: 4 }}
+      >
+        <Grid item sm={12} md={3} xs={4}>
+          <FormControl fullWidth>
+            <InputLabel>Season</InputLabel>
+            <Select
+              value={seasonFilter}
+              onChange={(e) => setSeasonFilter(e.target.value)}
+              size='small'
+            >
+              <MenuItem value='Spring'>Spring</MenuItem>
+              <MenuItem value='Summer'>Summer</MenuItem>
+              <MenuItem value='Fall'>Fall</MenuItem>
+              <MenuItem value='Winter'>Winter</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item sm={12} md={3} xs={4}>
+          <TextField
+            label='Page'
+            type='number'
+            value={paginationModel.page + 1} // Display 1-based index to user
+            onChange={(e) =>
+              setPaginationModel((prev) => ({
+                ...prev,
+                page: parseInt(e.target.value, 10) - 1,
+              }))
+            }
+            size='small'
+            fullWidth
+          />
+        </Grid>
+        <Grid item sm={12} md={3} xs={4}>
+          <TextField
+            label='Limit'
+            type='number'
+            value={paginationModel.pageSize}
+            onChange={(e) =>
+              setPaginationModel((prev) => ({
+                ...prev,
+                pageSize: parseInt(e.target.value, 10),
+              }))
+            }
+            size='small'
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item sm={12} md={3} xs={4}>
+          <Button variant='contained' color='primary' onClick={handleFilter}>
+            Apply Filters
+          </Button>
+        </Grid>
+      </Grid>
+
+      <Box
+        style={{
+          height: 'auto',
+          width: '100%',
+          marginBottom: '50px',
+        }}
+      >
+        <DataGrid
+          autoHeight
+          getRowId={(row) => row.id}
+          rows={dataToDisplay ?? []}
+          columns={columns}
+          pagination
+          checkboxSelection
+          paginationModel={paginationModel}
+          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+        />
+      </Box>
+    </>
   );
 };
 

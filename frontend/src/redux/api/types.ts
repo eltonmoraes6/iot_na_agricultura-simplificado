@@ -3,13 +3,17 @@ export interface GenericResponse {
   message: string;
 }
 
-export interface ISensorResponse {
+export interface ISensor {
   id: string;
   humidity: number;
   temperature: number;
   season: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface ISensorResponse {
+  sensors: ISensor[];
 }
 
 // Interface to represent a sensor reading
@@ -33,10 +37,4 @@ export interface IDailyAndPeriodAveragesResponse {
   map(arg0: (item: IPeriodAverage) => string): unknown;
   status: string;
   data: IPeriodAverage[];
-}
-
-export interface SensorQueryParams {
-  filters?: { [key: string]: unknown };
-  sort?: { field: keyof ISensorResponse; order: 'ASC' | 'DESC' };
-  pagination?: { page: number; limit: number };
 }

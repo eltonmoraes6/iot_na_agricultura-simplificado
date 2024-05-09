@@ -69,12 +69,12 @@ const HomePage = () => {
             rowSpacing={1}
             columnSpacing={{ xs: 1, sm: 2, md: 3 }}
           >
-            <Grid sm={12} xs={8} md={6}>
+            <Grid item sm={12} xs={8} md={6}>
               <Item>
                 <TemperatureLineChart />
               </Item>
             </Grid>
-            <Grid sm={12} xs={8} md={6}>
+            <Grid item sm={12} xs={8} md={6}>
               <Item>
                 <HumidityLineChart />
               </Item>

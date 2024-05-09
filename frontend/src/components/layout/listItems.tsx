@@ -41,7 +41,7 @@ export const secondaryListItems = (
       <ListItemIcon>
         <BarChartIcon />
       </ListItemIcon>
-      <ListItemText primary='Season BarChart' />
+      <ListItemText primary='Advanced Info' />
     </ListItem>
   </div>
 );

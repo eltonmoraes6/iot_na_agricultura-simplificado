@@ -97,12 +97,15 @@ export const getDailyAndPeriodAveragesHandler = async (
   } catch (error) {
     next(error);
   }
-};
+}; // Type for expected query parameters
+interface SensorQuery {
+  [key: string]: any;
+}
 
 // Function to parse query parameters with operators
-const parseFilters = (query: { [key: string]: any }) => {
+const parseFilters = (query: SensorQuery): SensorQuery => {
   const excludedFields = ['sort', 'sortOrder', 'page', 'limit', 'fields'];
-  const filters: { [key: string]: any } = {};
+  const filters: SensorQuery = {};
 
   for (const key in query) {
     if (excludedFields.includes(key)) {
@@ -124,7 +127,6 @@ const parseFilters = (query: { [key: string]: any }) => {
       }
     }
 
-    // Handle operators like [eq], [neq], [gte], etc.
     if (typeof value === 'object') {
       for (const operator in value) {
         const operatorValue = value[operator];
@@ -147,8 +149,8 @@ const parseFilters = (query: { [key: string]: any }) => {
         }
       }
     } else {
-      // If no operator, treat it as exact match
-      filters[key] = value; // Exact match
+      // If no operator, treat it as an exact match
+      filters[key] = value;
     }
   }
 
