@@ -10,21 +10,21 @@ const columns: GridColDef<ISensor>[] = [
   { field: 'id', headerName: 'ID', width: 300 },
   {
     field: 'humidity',
-    headerName: 'Humidity',
+    headerName: 'Umidade',
     type: 'number',
     width: 150,
     editable: true,
   },
   {
     field: 'temperature',
-    headerName: 'Temperature',
+    headerName: 'Temperatura',
     type: 'number',
     width: 150,
     editable: true,
   },
   {
     field: 'season',
-    headerName: 'Season',
+    headerName: 'Estações do Ano',
     type: 'string',
     width: 150,
     editable: true,
@@ -79,9 +79,10 @@ const DatabaseInfo = () => {
           <Box
             sx={{
               backgroundColor: '#ece9e9',
-              mt: '2rem',
+              // mt: '2rem',
               height: '15rem',
               display: 'flex',
+              textAlign: 'center',
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -91,11 +92,13 @@ const DatabaseInfo = () => {
               component='h1'
               sx={{ color: '#1f1e1e', fontWeight: 500 }}
             >
-              Database Info
+              {/* Database Info */}
+              Informações do Banco de Dados
             </Typography>
           </Box>
           <Box sx={{ height: 400, width: '100%' }}>
             <DataGrid
+              autoHeight
               rows={sensors}
               columns={columns}
               initialState={{
@@ -105,7 +108,7 @@ const DatabaseInfo = () => {
                   },
                 },
               }}
-              pageSizeOptions={[5, 10]}
+              pageSizeOptions={[5, 10, 20, 40, 80, 100]}
               checkboxSelection
               disableRowSelectionOnClick
             />

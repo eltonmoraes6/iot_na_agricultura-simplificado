@@ -79,9 +79,10 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
           <Box
             sx={{
               backgroundColor: '#ece9e9',
-              mt: '2rem',
+              // mt: '2rem',
               height: '15rem',
               display: 'flex',
+              textAlign: 'center',
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -91,7 +92,8 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
               component='h1'
               sx={{ color: '#1f1e1e', fontWeight: 500 }}
             >
-              Average Temperature and Humidity by Period
+              {/* Average Temperature and Humidity by Period */}
+              Média Diaria e por Periodo (Temperatura e Umidade)
             </Typography>
           </Box>
 

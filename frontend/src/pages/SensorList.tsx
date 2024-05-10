@@ -4,9 +4,7 @@ import {
   CircularProgress,
   FormControl,
   Grid,
-  InputLabel,
   MenuItem,
-  Select,
   TextField,
   Typography,
 } from '@mui/material';
@@ -80,6 +78,26 @@ const SensorList = () => {
 
   return (
     <>
+      <Box
+        sx={{
+          backgroundColor: '#ece9e9',
+          // mt: '2rem',
+          height: '15rem',
+          textAlign: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography
+          variant='h2'
+          component='h1'
+          sx={{ color: '#1f1e1e', fontWeight: 500 }}
+        >
+          {/* Season Data Bar Chart */}
+          Filtro de Dados
+        </Typography>
+      </Box>
       <Grid
         container
         rowSpacing={1}
@@ -88,22 +106,35 @@ const SensorList = () => {
       >
         <Grid item sm={12} md={3} xs={4}>
           <FormControl fullWidth>
-            <InputLabel>Season</InputLabel>
-            <Select
+            <TextField
+              label='Season'
+              variant='outlined'
+              margin='normal'
+              required
+              fullWidth
               value={seasonFilter}
+              select
               onChange={(e) => setSeasonFilter(e.target.value)}
               size='small'
+              InputLabelProps={{
+                shrink: true,
+              }}
             >
-              <MenuItem value='Spring'>Spring</MenuItem>
-              <MenuItem value='Summer'>Summer</MenuItem>
-              <MenuItem value='Fall'>Fall</MenuItem>
-              <MenuItem value='Winter'>Winter</MenuItem>
-            </Select>
+              {['Spring', 'Summer', 'Fall', 'Winter', 'Autumn'].map(
+                (option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                )
+              )}
+            </TextField>
           </FormControl>
         </Grid>
         <Grid item sm={12} md={3} xs={4}>
           <TextField
             label='Page'
+            variant='outlined'
+            margin='normal'
             type='number'
             value={paginationModel.page + 1} // Display 1-based index to user
             onChange={(e) =>
@@ -119,6 +150,8 @@ const SensorList = () => {
         <Grid item sm={12} md={3} xs={4}>
           <TextField
             label='Limit'
+            variant='outlined'
+            margin='normal'
             type='number'
             value={paginationModel.pageSize}
             onChange={(e) =>
@@ -133,7 +166,12 @@ const SensorList = () => {
         </Grid>
 
         <Grid item sm={12} md={3} xs={4}>
-          <Button variant='contained' color='primary' onClick={handleFilter}>
+          <Button
+            variant='contained'
+            color='primary'
+            sx={{ mt: 2 }}
+            onClick={handleFilter}
+          >
             Apply Filters
           </Button>
         </Grid>
@@ -151,9 +189,10 @@ const SensorList = () => {
           getRowId={(row) => row.id}
           rows={dataToDisplay ?? []}
           columns={columns}
-          pagination
           checkboxSelection
-          paginationModel={paginationModel}
+          pagination
+          pageSizeOptions={[5, 10, 20, 40, 80, 100]}
+          // paginationModel={paginationModel}
           onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
         />
       </Box>

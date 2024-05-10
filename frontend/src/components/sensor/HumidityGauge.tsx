@@ -11,7 +11,7 @@ export default function HumidityGauge() {
 
   return (
     <>
-      <Typography>Humidity</Typography>
+      <Typography>Umidade</Typography>
       {!isLoading && !isError && sensors && (
         <GaugeChart
           id='humidity-gauge'

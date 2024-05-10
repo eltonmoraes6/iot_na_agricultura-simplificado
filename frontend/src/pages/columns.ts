@@ -4,24 +4,24 @@ export const columns = [
   { field: 'id', headerName: 'ID', width: 250 },
   {
     field: 'temperature',
-    headerName: 'Temperature',
+    headerName: 'Temperatura',
     width: 250,
   },
   {
     field: 'humidity',
-    headerName: 'Humidity',
+    headerName: 'Umidade',
     width: 250,
   },
   {
     field: 'created_at',
-    headerName: 'CreatedAt',
+    headerName: 'Criado',
     width: 150,
     valueGetter: (params: { created_at: moment.MomentInput }) =>
       `${moment(params.created_at).format('DD/MM/YYYY') || ''}`,
   },
   {
     field: 'updated_at',
-    headerName: 'UpdatedAt',
+    headerName: 'Atualizado',
     width: 150,
     valueGetter: (params: { updated_at: moment.MomentInput }) =>
       `${moment(params.updated_at).format('DD/MM/YYYY') || ''}`,

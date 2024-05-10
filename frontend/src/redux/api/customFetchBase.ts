@@ -21,7 +21,6 @@ const customFetchBase: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   // Execute the base query with the provided arguments, API, and extra options
   const result = await baseQuery(args, api, extraOptions);
-  console.log('result =======>', result);
   return result; // Return the result of the query
 };
 

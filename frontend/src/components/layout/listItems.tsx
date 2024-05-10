@@ -12,12 +12,12 @@ import { Link } from 'react-router-dom';
 
 export const mainListItems = (
   <div>
-    <ListSubheader inset>Real-Time</ListSubheader>
+    <ListSubheader inset>Tempo Real</ListSubheader>
     <ListItem button component={Link} to='/'>
       <ListItemIcon>
         <ThermostatIcon />
       </ListItemIcon>
-      <ListItemText primary='Info' />
+      <ListItemText primary='Informações' />
     </ListItem>
   </div>
 );
@@ -29,31 +29,31 @@ export const secondaryListItems = (
       <ListItemIcon>
         <InsertChartIcon />
       </ListItemIcon>
-      <ListItemText primary='Daily Period-Averages' />
+      <ListItemText primary='Média' />
     </ListItem>
     <ListItem button component={Link} to='/season-data-bar-chart'>
       <ListItemIcon>
         <BarChartIcon />
       </ListItemIcon>
-      <ListItemText primary='Season BarChart' />
+      <ListItemText primary='Estações do Ano' />
     </ListItem>
     <ListItem button component={Link} to='/info/advanced'>
       <ListItemIcon>
         <BarChartIcon />
       </ListItemIcon>
-      <ListItemText primary='Advanced Info' />
+      <ListItemText primary='Filtro de Dados' />
     </ListItem>
   </div>
 );
 
 export const tertiaryListItems = (
   <div>
-    <ListSubheader inset>Database</ListSubheader>
+    <ListSubheader inset>Banco de Dados</ListSubheader>
     <ListItem button component={Link} to='/database-info'>
       <ListItemIcon>
         <StorageIcon />
       </ListItemIcon>
-      <ListItemText primary='Database Info' />
+      <ListItemText primary='Informações do Banco de Dados' />
     </ListItem>
   </div>
 );

@@ -11,7 +11,7 @@ export default function TemperatureGauge() {
 
   return (
     <>
-      <Typography>Temperature</Typography>
+      <Typography>Temperatura</Typography>
       {!isLoading && !isError && sensors && (
         <GaugeChart
           id='temperature-gauge'

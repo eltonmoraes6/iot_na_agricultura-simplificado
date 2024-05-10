@@ -40,7 +40,7 @@ function getBrazilianSeason(date = new Date()) {
     (month >= 4 && month <= 5) ||
     (month === 6 && day <= 20)
   ) {
-    return 'Autumn';
+    return 'Fall';
   } else if (
     (month === 6 && day >= 21) ||
     (month >= 7 && month <= 8) ||

@@ -120,7 +120,7 @@ export default function Layout() {
             <MenuIcon />
           </IconButton>
           <Typography variant='h6' noWrap component='div'>
-            3Claves
+            IOT na Agricultura
           </Typography>
         </Toolbar>
       </AppBar>

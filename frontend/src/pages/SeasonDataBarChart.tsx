@@ -59,7 +59,8 @@ const SeasonDataBarChart = () => {
           <Box
             sx={{
               backgroundColor: '#ece9e9',
-              mt: '2rem',
+              textAlign: 'center',
+              // mt: '2rem',
               height: '15rem',
               display: 'flex',
               alignItems: 'center',
@@ -71,7 +72,8 @@ const SeasonDataBarChart = () => {
               component='h1'
               sx={{ color: '#1f1e1e', fontWeight: 500 }}
             >
-              Season Data Bar Chart
+              {/* Season Data Bar Chart */}
+              Gráfico de Dados por Estações do Ano
             </Typography>
           </Box>
           <Box sx={{ height: 400, width: '100%' }}>
