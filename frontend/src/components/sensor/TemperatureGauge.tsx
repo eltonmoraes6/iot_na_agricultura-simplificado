@@ -1,10 +1,18 @@
 import { Typography } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
-import { useGetAllSensorsQuery } from '../../redux/api/sensorApi';
+import { ISensor } from '../../redux/api/types';
 
-export default function TemperatureGauge() {
-  const { isLoading, isError, data: sensors } = useGetAllSensorsQuery();
+interface TemperatureGaugeProps {
+  isLoading: boolean;
+  isError: unknown;
+  sensors: ISensor[]; // You might want to replace `any[]` with the appropriate type for your sensors
+}
 
+export const TemperatureGauge: React.FC<TemperatureGaugeProps> = ({
+  isLoading,
+  isError,
+  sensors,
+}) => {
   // Extract last temperature value from sensorData array
   const lastTemperature =
     sensors && sensors.length > 0 ? sensors[sensors.length - 1].temperature : 0;
@@ -27,4 +35,6 @@ export default function TemperatureGauge() {
       )}
     </>
   );
-}
+};
+
+export default TemperatureGauge;

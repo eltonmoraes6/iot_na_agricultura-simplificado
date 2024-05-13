@@ -1,16 +1,21 @@
 import moment from 'moment';
 
 export const columns = [
-  { field: 'id', headerName: 'ID', width: 250 },
+  { field: 'id', headerName: 'ID', width: 350 },
   {
     field: 'temperature',
     headerName: 'Temperatura',
-    width: 250,
+    width: 150,
   },
   {
     field: 'humidity',
     headerName: 'Umidade',
-    width: 250,
+    width: 150,
+  },
+  {
+    field: 'season',
+    headerName: 'Estações do Ano',
+    width: 150,
   },
   {
     field: 'created_at',

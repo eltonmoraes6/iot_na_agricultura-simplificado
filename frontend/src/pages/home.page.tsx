@@ -1,13 +1,22 @@
-import { Alert, Box, Container, Grid, Paper, Typography } from '@mui/material';
+import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { DataGrid, GridPaginationModel } from '@mui/x-data-grid';
+import { useState } from 'react';
+import HumidityLineChart from '../components/sensor/HumidityLineChart';
+import TemperatureLineChart from '../components/sensor/TemperatureLineChart';
+
+import HumidityGauge from '../components/sensor/HumidityGauge';
+import TemperatureGauge from '../components/sensor/TemperatureGauge';
 
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
-import HumidityGauge from '../components/sensor/HumidityGauge';
-import TemperatureGauge from '../components/sensor/TemperatureGauge';
-import HumidityLineChart from '../components/sensor/humidity';
-import TemperatureLineChart from '../components/sensor/temperature';
-import { useGetAllSensorsQuery } from '../redux/api/sensorApi';
+import SensorFilter from '../components/sensor/SensorFilter';
+import {
+  useGetAllSensorsQuery,
+  useGetSensorsMutation,
+} from '../redux/api/sensorApi';
+import { ISensor } from '../redux/api/types';
+import columns from './columns';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -18,89 +27,218 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const HomePage = () => {
-  const { isLoading, isError, error, data: sensors } = useGetAllSensorsQuery();
+const Home = () => {
+  // Define states for filter criteria, pagination, sorting, and selection
+  const [seasonFilter, setSeasonFilter] = useState('');
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0, // Note: DataGrid uses zero-based indexing
+    pageSize: 10,
+  });
+  const [viewType, setViewType] = useState('grid'); // State to manage the view type
+  const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
+  // Load initial data with the query hook
+  const {
+    data: allSensorsData,
+    error: allSensorsError,
+    isLoading: allSensorsLoading,
+  } = useGetAllSensorsQuery();
 
-  if (isLoading) {
+  // Use the mutation hook to fetch filtered data
+  const [getSensors, { isLoading: sensorsLoading, error: sensorsError }] =
+    useGetSensorsMutation();
+
+  const handleFilter = async () => {
+    const { page, pageSize } = paginationModel;
+
+    // Convert 0-based index to 1-based for server-side pagination
+    const pageNumber = page + 1;
+
+    let queryString = `limit=${pageSize}&page=${pageNumber}`;
+
+    if (seasonFilter) {
+      queryString += `&season=${seasonFilter}`;
+    }
+
+    try {
+      const result = (await getSensors(queryString).unwrap()) as ISensor[];
+      if (result) {
+        setFilteredData(result); // Store filtered data in state
+      }
+    } catch (error) {
+      console.error('Error fetching filtered data:', error);
+    }
+  };
+
+  // Render loading state
+  if (allSensorsLoading || sensorsLoading) {
     return <FullScreenLoader />;
   }
 
-  if (isError || !sensors) {
-    return (
-      <Box textAlign='center' mt={4}>
-        <Alert severity='error'>Failed to fetch data</Alert>{' '}
-        {/* Show an error message */}
-      </Box>
-    );
+  // Handle errors from both the initial query and the mutation
+  if (allSensorsError || sensorsError) {
+    const error = allSensorsError || sensorsError;
+    if (error) {
+      return (
+        <Typography color='error'>An unexpected error occurred</Typography>
+      );
+    }
   }
 
-  // Check if data is an array before using .map
-  if (!Array.isArray(sensors)) {
-    return (
-      <Box textAlign='center' mt={4}>
-        <Alert severity='warning'>No data available</Alert>
+  // Determine which data set to use for the DataGrid
+  const dataToDisplay = filteredData ?? allSensorsData;
+
+  const handleViewChange = () => {
+    setViewType((prevType) => (prevType === 'grid' ? 'kanban' : 'grid'));
+  };
+
+  return (
+    <>
+      <Box
+        sx={{
+          backgroundColor: '#ece9e9',
+          // mt: '2rem',
+          height: '15rem',
+          textAlign: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <Typography
           variant='h2'
           component='h1'
-          sx={{ color: '#1f1e1e', fontWeight: 500 }}
+          sx={{
+            color: '#1f1e1e',
+            fontWeight: 500,
+            marginLeft: 1,
+            transition: 'all 0.3s ease-in-out',
+            '&:hover': {
+              transform: 'scale(1.25)',
+              transformOrigin: 'center center', // Change transform origin to right side
+            },
+          }}
         >
-          {error}
+          {/* Season Data Bar Chart */}
+          Filtro de Dados
         </Typography>
       </Box>
-    );
-  }
 
-  return (
-    <Container
-      maxWidth={false}
-      sx={{ backgroundColor: '#fff', height: '100vh' }}
-    >
-      {sensors?.length === 0 ? (
-        <Box maxWidth='sm' sx={{ mx: 'auto', py: '5rem' }}>
-          <Message type='info' title='Info'>
-            No posts at the moment
-          </Message>
-        </Box>
-      ) : (
-        <>
-          {/* LineChart */}
-          <Grid
-            container
-            rowSpacing={1}
-            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+      <Box
+        style={{
+          height: 'auto',
+          width: '100%',
+          marginBottom: '50px',
+        }}
+      >
+        <div style={{ float: 'right' }}>
+          <Button
+            // fullWidth
+            sx={{ mb: 2, mt: 2 }}
+            variant='contained'
+            color='primary'
+            size='medium'
+            onClick={handleViewChange} // Function to toggle between views
           >
-            <Grid item sm={12} xs={8} md={6}>
-              <Item>
-                <TemperatureLineChart />
-              </Item>
-            </Grid>
-            <Grid item sm={12} xs={8} md={6}>
-              <Item>
-                <HumidityLineChart />
-              </Item>
-            </Grid>
-          </Grid>
-          {/* Gauge */}
-          <Grid
-            container
-            rowSpacing={1}
-            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+            {viewType === 'grid'
+              ? 'Vizualizar como Tabela'
+              : 'Vizualizar como Gráfico'}
+          </Button>
+        </div>
+        <SensorFilter
+          seasonFilter={seasonFilter}
+          setSeasonFilter={setSeasonFilter}
+          paginationModel={paginationModel}
+          setPaginationModel={setPaginationModel}
+          handleFilter={handleFilter}
+        />
+
+        {viewType === 'grid' ? (
+          <Container
+            maxWidth={false}
+            sx={{ backgroundColor: '#fff', height: '100vh' }}
           >
-            <Grid item sm={12} xs={8} md={6}>
-              <Item>
-                <TemperatureGauge />
-              </Item>
-            </Grid>
-            <Grid item sm={12} xs={8} md={6}>
-              <Item>
-                <HumidityGauge />
-              </Item>
-            </Grid>
+            {dataToDisplay?.length === 0 ? (
+              <Box maxWidth='sm' sx={{ mx: 'auto', py: '5rem' }}>
+                <Message type='info' title='Info'>
+                  No posts at the moment
+                </Message>
+              </Box>
+            ) : (
+              <>
+                {/* LineChart */}
+                <Grid
+                  container
+                  rowSpacing={1}
+                  columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+                >
+                  <Grid item sm={12} xs={8} md={6}>
+                    <Item>
+                      <HumidityLineChart
+                        sensors={dataToDisplay ?? []}
+                        isError={allSensorsError}
+                        isLoading={allSensorsLoading}
+                      />
+                    </Item>
+                  </Grid>
+                  <Grid item sm={12} xs={8} md={6}>
+                    <Item>
+                      <TemperatureLineChart
+                        sensors={dataToDisplay ?? []}
+                        isError={allSensorsError}
+                        isLoading={allSensorsLoading}
+                      />
+                    </Item>
+                  </Grid>
+                </Grid>
+                {/* Gauge */}
+                <Grid
+                  container
+                  rowSpacing={1}
+                  columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+                >
+                  <Grid item sm={12} xs={8} md={6}>
+                    <Item>
+                      <TemperatureGauge
+                        sensors={allSensorsData ?? []}
+                        isError={allSensorsError}
+                        isLoading={allSensorsLoading}
+                      />
+                    </Item>
+                  </Grid>
+                  <Grid item sm={12} xs={8} md={6}>
+                    <Item>
+                      <HumidityGauge
+                        sensors={allSensorsData ?? []}
+                        isError={allSensorsError}
+                        isLoading={allSensorsLoading}
+                      />
+                    </Item>
+                  </Grid>
+                </Grid>
+              </>
+            )}
+          </Container>
+        ) : (
+          <Grid container spacing={2} mb={4}>
+            <DataGrid
+              autoHeight
+              getRowId={(row) => row.id}
+              rows={dataToDisplay ?? []}
+              columns={columns}
+              checkboxSelection
+              pagination
+              rowHeight={30}
+              pageSizeOptions={[5, 10, 20, 40, 80, 100]}
+              // paginationModel={paginationModel}
+              onPaginationModelChange={(newModel) =>
+                setPaginationModel(newModel)
+              }
+            />
           </Grid>
-        </>
-      )}
-    </Container>
+        )}
+      </Box>
+    </>
   );
 };
 
-export default HomePage;
+export default Home;

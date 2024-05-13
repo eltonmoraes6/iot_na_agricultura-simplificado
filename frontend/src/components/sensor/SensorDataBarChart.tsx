@@ -14,7 +14,7 @@ interface Props {
   sensorData: Sensor[];
 }
 
-const SensorDataBarChart: React.FC<Props> = ({ sensorData }) => {
+export const SensorDataBarChart: React.FC<Props> = ({ sensorData }) => {
   const convertDataForBarChart = (sensorData: Sensor[]) => {
     const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
     const dataBySeason: { [key: string]: number[] } = {};

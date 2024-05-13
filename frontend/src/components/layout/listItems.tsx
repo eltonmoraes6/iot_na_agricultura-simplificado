@@ -37,12 +37,6 @@ export const secondaryListItems = (
       </ListItemIcon>
       <ListItemText primary='Estações do Ano' />
     </ListItem>
-    <ListItem button component={Link} to='/info/advanced'>
-      <ListItemIcon>
-        <BarChartIcon />
-      </ListItemIcon>
-      <ListItemText primary='Filtro de Dados' />
-    </ListItem>
   </div>
 );
 

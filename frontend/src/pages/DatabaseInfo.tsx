@@ -1,121 +1,136 @@
-import { Alert, Box, Container, Typography } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { Box, Grid, Typography } from '@mui/material';
+import { DataGrid, GridPaginationModel } from '@mui/x-data-grid';
+import { useState } from 'react';
 
 import FullScreenLoader from '../components/FullScreenLoader';
-import Message from '../components/Message';
-import { useGetAllSensorsQuery } from '../redux/api/sensorApi';
+import SensorFilter from '../components/sensor/SensorFilter';
+import {
+  useGetAllSensorsQuery,
+  useGetSensorsMutation,
+} from '../redux/api/sensorApi';
 import { ISensor } from '../redux/api/types';
-
-const columns: GridColDef<ISensor>[] = [
-  { field: 'id', headerName: 'ID', width: 300 },
-  {
-    field: 'humidity',
-    headerName: 'Umidade',
-    type: 'number',
-    width: 150,
-    editable: true,
-  },
-  {
-    field: 'temperature',
-    headerName: 'Temperatura',
-    type: 'number',
-    width: 150,
-    editable: true,
-  },
-  {
-    field: 'season',
-    headerName: 'Estações do Ano',
-    type: 'string',
-    width: 150,
-    editable: true,
-  },
-];
+import columns from './columns';
 
 const DatabaseInfo = () => {
-  const { isLoading, isError, error, data: sensors } = useGetAllSensorsQuery();
+  // Define states for filter criteria, pagination, sorting, and selection
+  const [seasonFilter, setSeasonFilter] = useState('');
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0, // Note: DataGrid uses zero-based indexing
+    pageSize: 10,
+  });
+  const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
+  // Load initial data with the query hook
+  const {
+    data: allSensorsData,
+    error: allSensorsError,
+    isLoading: allSensorsLoading,
+  } = useGetAllSensorsQuery();
 
-  if (isLoading) {
+  // Use the mutation hook to fetch filtered data
+  const [getSensors, { isLoading: sensorsLoading, error: sensorsError }] =
+    useGetSensorsMutation();
+
+  const handleFilter = async () => {
+    const { page, pageSize } = paginationModel;
+
+    // Convert 0-based index to 1-based for server-side pagination
+    const pageNumber = page + 1;
+
+    let queryString = `limit=${pageSize}&page=${pageNumber}`;
+
+    if (seasonFilter) {
+      queryString += `&season=${seasonFilter}`;
+    }
+
+    try {
+      const result = (await getSensors(queryString).unwrap()) as ISensor[];
+      if (result) {
+        setFilteredData(result); // Store filtered data in state
+      }
+    } catch (error) {
+      console.error('Error fetching filtered data:', error);
+    }
+  };
+
+  // Render loading state
+  if (allSensorsLoading || sensorsLoading) {
     return <FullScreenLoader />;
   }
 
-  if (isError || !sensors) {
-    return (
-      <Box textAlign='center' mt={4}>
-        <Alert severity='error'>Failed to fetch data</Alert>{' '}
-        {/* Show an error message */}
-      </Box>
-    );
+  // Handle errors from both the initial query and the mutation
+  if (allSensorsError || sensorsError) {
+    const error = allSensorsError || sensorsError;
+    if (error) {
+      return (
+        <Typography color='error'>An unexpected error occurred</Typography>
+      );
+    }
   }
 
-  // Check if data is an array before using .map
-  if (!Array.isArray(sensors)) {
-    return (
-      <Box textAlign='center' mt={4}>
-        <Alert severity='warning'>No data available</Alert>
+  // Determine which data set to use for the DataGrid
+  const dataToDisplay = filteredData ?? allSensorsData;
+
+  return (
+    <>
+      <Box
+        sx={{
+          backgroundColor: '#ece9e9',
+          // mt: '2rem',
+          height: '15rem',
+          textAlign: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <Typography
           variant='h2'
           component='h1'
-          sx={{ color: '#1f1e1e', fontWeight: 500 }}
+          sx={{
+            color: '#1f1e1e',
+            fontWeight: 500,
+            marginLeft: 1,
+            transition: 'all 0.3s ease-in-out',
+            '&:hover': {
+              transform: 'scale(1.25)',
+              transformOrigin: 'center center', // Change transform origin to right side
+            },
+          }}
         >
-          {error}
+          Banco de Dados
         </Typography>
       </Box>
-    );
-  }
+      <SensorFilter
+        seasonFilter={seasonFilter}
+        setSeasonFilter={setSeasonFilter}
+        paginationModel={paginationModel}
+        setPaginationModel={setPaginationModel}
+        handleFilter={handleFilter}
+      />
 
-  return (
-    <Container
-      maxWidth={false}
-      sx={{ backgroundColor: '#fff', height: '100vh' }}
-    >
-      {sensors?.length === 0 ? (
-        <Box maxWidth='sm' sx={{ mx: 'auto', py: '5rem' }}>
-          <Message type='info' title='Info'>
-            No Database Info at the moment
-          </Message>
-        </Box>
-      ) : (
-        <>
-          <Box
-            sx={{
-              backgroundColor: '#ece9e9',
-              // mt: '2rem',
-              height: '15rem',
-              display: 'flex',
-              textAlign: 'center',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Typography
-              variant='h2'
-              component='h1'
-              sx={{ color: '#1f1e1e', fontWeight: 500 }}
-            >
-              {/* Database Info */}
-              Informações do Banco de Dados
-            </Typography>
-          </Box>
-          <Box sx={{ height: 400, width: '100%' }}>
-            <DataGrid
-              autoHeight
-              rows={sensors}
-              columns={columns}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 10,
-                  },
-                },
-              }}
-              pageSizeOptions={[5, 10, 20, 40, 80, 100]}
-              checkboxSelection
-              disableRowSelectionOnClick
-            />
-          </Box>
-        </>
-      )}
-    </Container>
+      <Box
+        style={{
+          height: 'auto',
+          width: '100%',
+          marginBottom: '50px',
+        }}
+      >
+        <Grid container spacing={2} mb={4}>
+          <DataGrid
+            autoHeight
+            getRowId={(row) => row.id}
+            rows={dataToDisplay ?? []}
+            columns={columns}
+            checkboxSelection
+            pagination
+            rowHeight={30}
+            pageSizeOptions={[5, 10, 20, 40, 80, 100]}
+            // paginationModel={paginationModel}
+            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+          />
+        </Grid>
+      </Box>
+    </>
   );
 };
 

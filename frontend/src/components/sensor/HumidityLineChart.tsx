@@ -2,11 +2,19 @@ import { Button, ButtonGroup, Typography } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import moment from 'moment-timezone'; // Correct import for time zone handling
 import { useState } from 'react';
-import { useGetAllSensorsQuery } from '../../redux/api/sensorApi';
+import { ISensor } from '../../redux/api/types';
 
-export default function HumidityLineChart() {
-  const { isLoading, isError, data: sensors } = useGetAllSensorsQuery();
+interface HumidityGaugeProps {
+  isLoading: boolean;
+  isError: unknown;
+  sensors: ISensor[]; // You might want to replace `any[]` with the appropriate type for your sensors
+}
 
+export const HumidityLineChart: React.FC<HumidityGaugeProps> = ({
+  isLoading,
+  isError,
+  sensors,
+}) => {
   const [selectedRange, setSelectedRange] = useState('today');
 
   const tz = 'America/Sao_Paulo'; // Correct time zone
@@ -85,4 +93,6 @@ export default function HumidityLineChart() {
       )}
     </>
   );
-}
+};
+
+export default HumidityLineChart;

@@ -2,7 +2,7 @@ import { Alert, Box, Container, Typography } from '@mui/material';
 
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
-import SensorDataBarChart from '../components/sensor/bar';
+import SensorDataBarChart from '../components/sensor/SensorDataBarChart';
 import { useGetAllSensorsQuery } from '../redux/api/sensorApi';
 
 const SeasonDataBarChart = () => {
@@ -70,10 +70,19 @@ const SeasonDataBarChart = () => {
             <Typography
               variant='h2'
               component='h1'
-              sx={{ color: '#1f1e1e', fontWeight: 500 }}
+              sx={{
+                color: '#1f1e1e',
+                fontWeight: 500,
+                marginLeft: 1,
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'scale(1.25)',
+                  transformOrigin: 'center center', // Change transform origin to right side
+                },
+              }}
             >
               {/* Season Data Bar Chart */}
-              Gráfico de Dados por Estações do Ano
+              Gráfico de Dados - Estações do Ano
             </Typography>
           </Box>
           <Box sx={{ height: 400, width: '100%' }}>

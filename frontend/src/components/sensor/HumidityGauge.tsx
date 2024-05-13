@@ -1,10 +1,18 @@
 import { Typography } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
-import { useGetAllSensorsQuery } from '../../redux/api/sensorApi';
+import { ISensor } from '../../redux/api/types';
 
-export default function HumidityGauge() {
-  const { isLoading, isError, data: sensors } = useGetAllSensorsQuery();
+interface HumidityGaugeProps {
+  isLoading: boolean;
+  isError: unknown;
+  sensors: ISensor[]; // You might want to replace `any[]` with the appropriate type for your sensors
+}
 
+export const HumidityGauge: React.FC<HumidityGaugeProps> = ({
+  isLoading,
+  isError,
+  sensors,
+}) => {
   // Extract last humidity value from sensorData array
   const lastHumidity =
     sensors && sensors.length > 0 ? sensors[sensors.length - 1].humidity : 0;
@@ -27,4 +35,6 @@ export default function HumidityGauge() {
       )}
     </>
   );
-}
+};
+
+export default HumidityGauge;

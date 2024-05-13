@@ -11,7 +11,7 @@ import { AppDataSource } from './utils/data-source';
 import path from 'path';
 import validateEnv from './utils/validateEnv';
 
-import './services/arduino.service';
+// import './services/arduino.service';
 
 AppDataSource.initialize()
   .then(async () => {

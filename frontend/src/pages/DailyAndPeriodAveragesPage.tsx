@@ -1,12 +1,7 @@
-import {
-  Alert,
-  Box,
-  CircularProgress,
-  Container,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Container, Typography } from '@mui/material';
 import { BarChart } from '@mui/x-charts';
 import React from 'react';
+import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
 import { useGetDailyAndPeriodAveragesQuery } from '../redux/api/sensorApi';
 
@@ -14,11 +9,7 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
   const { data, isLoading, isError } = useGetDailyAndPeriodAveragesQuery(); // Fetch the data
 
   if (isLoading) {
-    return (
-      <Box textAlign='center' mt={4}>
-        <CircularProgress /> {/* Show a loading spinner */}
-      </Box>
-    );
+    return <FullScreenLoader />;
   }
 
   if (isError || !data) {
@@ -90,10 +81,19 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
             <Typography
               variant='h2'
               component='h1'
-              sx={{ color: '#1f1e1e', fontWeight: 500 }}
+              sx={{
+                color: '#1f1e1e',
+                fontWeight: 500,
+                marginLeft: 1,
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'scale(1.25)',
+                  transformOrigin: 'center center', // Change transform origin to right side
+                },
+              }}
             >
               {/* Average Temperature and Humidity by Period */}
-              Média Diaria e por Periodo (Temperatura e Umidade)
+              Média Diaria e por Período
             </Typography>
           </Box>
 

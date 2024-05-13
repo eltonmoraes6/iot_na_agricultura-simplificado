@@ -17,8 +17,12 @@ export const findSensorById = async (sensorId: string) => {
   return await sensorRepository.findOneBy({ id: sensorId });
 };
 
-export const findSensor = async (query: Object) => {
-  return await sensorRepository.find(query);
+export const findSensor = async (query: FindManyOptions<Sensor>) => {
+  // Modify the query object to include the limit of 10
+  const modifiedQuery: FindManyOptions<Sensor> = { ...query, take: 10 };
+
+  // Call the find method of sensorRepository with the modified query
+  return await sensorRepository.find(modifiedQuery);
 };
 
 export const getDailyAndPeriodAverages = async () => {
