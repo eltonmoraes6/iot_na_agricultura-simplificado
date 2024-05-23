@@ -89,7 +89,7 @@ const SensorFilter: React.FC<SensorFilterProps> = ({
           sx={{ mt: 2 }}
           onClick={handleFilter}
         >
-          Apply Filters
+          Aplicar Filto
         </Button>
       </Grid>
     </Grid>

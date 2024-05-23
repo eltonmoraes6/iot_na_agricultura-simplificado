@@ -1,12 +1,21 @@
-import { Alert, Box, Container, Typography } from '@mui/material';
+import { Alert, Box, Button, Container, Grid, Typography } from '@mui/material';
 import { BarChart } from '@mui/x-charts';
-import React from 'react';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import React, { useState } from 'react';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
 import { useGetDailyAndPeriodAveragesQuery } from '../redux/api/sensorApi';
 
+interface DataItem {
+  period: string;
+  average_temperature: number;
+  average_humidity: number;
+}
+
 const DailyAndPeriodAveragesPage: React.FC = () => {
   const { data, isLoading, isError } = useGetDailyAndPeriodAveragesQuery(); // Fetch the data
+
+  const [viewType, setViewType] = useState<'chart' | 'grid'>('chart');
 
   if (isLoading) {
     return <FullScreenLoader />;
@@ -45,14 +54,36 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
 
   const series = [
     {
-      label: 'Avg Temperature (°C)',
+      label: 'Avg Temperatura (°C)',
       data: temperatureData,
     },
     {
-      label: 'Avg Humidity (%)',
+      label: 'Avg Umidade (%)',
       data: humidityData,
     },
   ];
+
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'period', headerName: 'Período', width: 150 },
+    {
+      field: 'average_temperature',
+      headerName: 'Avg Temperatura (°C)',
+      width: 180,
+    },
+    { field: 'average_humidity', headerName: 'Avg Umidade (%)', width: 150 },
+  ];
+
+  const rows = data.map((d: DataItem, index: number) => ({
+    id: index + 1,
+    period: d.period,
+    average_temperature: d.average_temperature,
+    average_humidity: d.average_humidity,
+  }));
+
+  const handleViewChange = () => {
+    setViewType((prevType) => (prevType === 'chart' ? 'grid' : 'chart'));
+  };
 
   return (
     <Container
@@ -96,14 +127,41 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
               Média Diaria e por Período
             </Typography>
           </Box>
-
-          <BarChart
-            xAxis={xAxis}
-            series={series}
-            height={300}
-            margin={{ top: 20, bottom: 30, left: 40, right: 10 }}
-            colors={['#1f77b4', '#ff7f0e']} // Distinct colors for temperature and humidity
-          />
+          <div style={{ float: 'right' }}>
+            <Button
+              sx={{ mb: 2, mt: 2 }}
+              variant='contained'
+              color='primary'
+              size='medium'
+              onClick={handleViewChange}
+            >
+              {viewType === 'chart'
+                ? 'Vizualizar como Tabela'
+                : 'Vizualizar como Gráfico'}
+            </Button>
+          </div>
+          {viewType === 'chart' ? (
+            <BarChart
+              xAxis={xAxis}
+              series={series}
+              height={300}
+              margin={{ top: 20, bottom: 30, left: 40, right: 10 }}
+              colors={['#1f77b4', '#ff7f0e']} // Distinct colors for temperature and humidity
+            />
+          ) : (
+            <Grid container spacing={2} mb={4}>
+              <DataGrid
+                autoHeight
+                getRowId={(row) => row.id}
+                rows={rows ?? []}
+                columns={columns}
+                checkboxSelection
+                pagination
+                rowHeight={30}
+                pageSizeOptions={[5, 10, 20, 40, 80, 100]}
+              />
+            </Grid>
+          )}
         </>
       )}
     </Container>

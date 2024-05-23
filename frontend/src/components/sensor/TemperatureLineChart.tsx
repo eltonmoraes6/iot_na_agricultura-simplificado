@@ -73,10 +73,30 @@ export const TemperatureLineChart: React.FC<TemperatureGaugeProps> = ({
 
       {/* Date Range Selection */}
       <ButtonGroup>
-        <Button onClick={() => setSelectedRange('today')}>Today</Button>
-        <Button onClick={() => setSelectedRange('one_week')}>1 Week</Button>
-        <Button onClick={() => setSelectedRange('one_month')}>1 Month</Button>
-        <Button onClick={() => setSelectedRange('one_year')}>1 Year</Button>
+        <Button
+          onClick={() => setSelectedRange('today')}
+          variant={selectedRange === 'today' ? 'contained' : 'outlined'} // Apply different style for the selected Button
+        >
+          Hoje
+        </Button>
+        <Button
+          onClick={() => setSelectedRange('one_week')}
+          variant={selectedRange === 'one_week' ? 'contained' : 'outlined'} // Apply different style for the selected Button
+        >
+          1 Semana
+        </Button>
+        <Button
+          onClick={() => setSelectedRange('one_month')}
+          variant={selectedRange === 'one_month' ? 'contained' : 'outlined'} // Apply different style for the selected Button
+        >
+          1 Mês
+        </Button>
+        <Button
+          onClick={() => setSelectedRange('one_year')}
+          variant={selectedRange === 'one_year' ? 'contained' : 'outlined'} // Apply different style for the selected Button
+        >
+          1 Ano
+        </Button>
       </ButtonGroup>
 
       {/* Line Chart with filtered data */}

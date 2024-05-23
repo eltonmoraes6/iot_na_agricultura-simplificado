@@ -21,15 +21,17 @@ export const columns = [
     field: 'created_at',
     headerName: 'Criado',
     width: 150,
-    valueGetter: (params: { created_at: moment.MomentInput }) =>
-      `${moment(params.created_at).format('DD/MM/YYYY') || ''}`,
+    valueGetter: (params: moment.MomentInput) =>
+      `${moment(params).format('DD/MM/YYYY') || ''}`,
   },
   {
     field: 'updated_at',
     headerName: 'Atualizado',
     width: 150,
-    valueGetter: (params: { updated_at: moment.MomentInput }) =>
-      `${moment(params.updated_at).format('DD/MM/YYYY') || ''}`,
+    valueGetter: (params: moment.MomentInput) => {
+      // console.log('created_at:', params);
+      return `${moment(params).format('DD/MM/YYYY') || ''}`;
+    },
   },
 ];
 
