@@ -12,7 +12,8 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { CSSObject, Theme, styled, useTheme } from '@mui/material/styles';
 import * as React from 'react';
-import { Outlet } from 'react-router-dom';
+
+import { Outlet, useNavigate } from 'react-router-dom';
 import {
   mainListItems,
   secondaryListItems,
@@ -92,6 +93,8 @@ const Drawer = styled(MuiDrawer, {
 
 export default function Layout() {
   const theme = useTheme();
+  const navigate = useNavigate();
+
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -114,12 +117,30 @@ export default function Layout() {
             edge='start'
             sx={{
               marginRight: 5,
+              transition: 'all 0.3s ease-in-out',
+              '&:hover': {
+                transform: 'scale(1.25)',
+                transformOrigin: 'center center',
+              },
               ...(open && { display: 'none' }),
             }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant='h6' noWrap component='div'>
+          <Typography
+            variant='h6'
+            noWrap
+            component='div'
+            onClick={() => navigate('/')}
+            sx={{
+              cursor: 'pointer',
+              transition: 'all 0.3s ease-in-out',
+              '&:hover': {
+                transform: 'scale(1.25)',
+                transformOrigin: 'center center',
+              },
+            }}
+          >
             IOT na Agricultura
           </Typography>
         </Toolbar>

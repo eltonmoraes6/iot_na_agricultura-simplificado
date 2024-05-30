@@ -29,7 +29,7 @@ export const columns = [
     headerName: 'Atualizado',
     width: 150,
     valueGetter: (params: moment.MomentInput) => {
-      // console.log('created_at:', params);
+      // console.log('updated_at:', params);
       return `${moment(params).format('DD/MM/YYYY') || ''}`;
     },
   },

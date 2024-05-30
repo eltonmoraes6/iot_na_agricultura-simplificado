@@ -10,7 +10,7 @@ const FullScreenLoader = () => {
         justifyContent: 'center',
       }}
     >
-      <CircularProgress />
+      <CircularProgress size={120} />
     </Container>
   );
 };

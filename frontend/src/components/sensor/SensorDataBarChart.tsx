@@ -1,5 +1,14 @@
-import { BarChart } from '@mui/x-charts/BarChart';
 import React from 'react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 interface Sensor {
   id: string;
@@ -31,25 +40,35 @@ export const SensorDataBarChart: React.FC<Props> = ({ sensorData }) => {
       }
     });
 
-    // Convert dataBySeason to format compatible with BarChart component
-    const seriesData = seasons.map((season) => ({
-      data: dataBySeason[season],
+    // Calculate average temperature for each season
+    const chartData = seasons.map((season) => ({
+      season,
+      temperature:
+        dataBySeason[season].reduce((sum, temp) => sum + temp, 0) /
+          dataBySeason[season].length || 0,
     }));
 
-    const xAxisData = [{ data: seasons, scaleType: 'band' as const }]; // Explicit scale type
-
-    return { series: seriesData, xAxis: xAxisData };
+    return chartData;
   };
 
   const chartData = convertDataForBarChart(sensorData);
 
   return (
-    <BarChart
-      series={chartData.series}
-      height={290}
-      xAxis={chartData.xAxis}
-      margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-    />
+    <ResponsiveContainer width='100%' height='100%'>
+      <BarChart
+        width={500}
+        height={300}
+        data={chartData}
+        // margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
+      >
+        <CartesianGrid strokeDasharray='3 3' />
+        <XAxis dataKey='season' />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey='temperature' fill='#8884d8' />
+      </BarChart>
+    </ResponsiveContainer>
   );
 };
 

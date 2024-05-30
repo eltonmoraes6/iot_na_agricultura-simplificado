@@ -1,0 +1,88 @@
+.data-table {
+  width: 100%;
+  border: 1px solid #ddd; /* Adding border to the entire table */
+  border-collapse: collapse;
+}
+
+.data-table th {
+  border: 1px solid #ddd; /* Adding border to table header cells */
+  background-color: #f2f2f2; /* Adding background color to table header cells */
+  padding: 8px;
+  text-align: left;
+}
+
+.data-table td {
+  border: 1px solid #ddd; /* Adding border to table body cells */
+  padding: 8px;
+  text-align: left;
+}
+
+.search-bar {
+  margin-bottom: 20px;
+  transition: 'all 0.3s ease-in-out';
+}
+
+/* Search Input */
+.search-bar input[type='text'] {
+  padding: 8px;
+  padding: 12px 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 200px;
+  font-size: 14px;
+}
+
+.search-bar input[type='text']:hover {
+  transform: scale(
+    1.25
+  ); /* (115% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+  transform-origin: left center;
+  border: 1px solid #000000;
+}
+
+.search-bar input[type='text']:focus {
+  border: none;
+  outline: 2px solid; /* Set the outline width and style */
+  outline-color: #1976d2; /* Make the outline blue */
+  margin: 5px;
+}
+
+/* Pagination Buttons */
+.pagination button {
+  background-color: #1976d2; /* Green */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button:hover {
+  background-color: #3498db; /* Darker green */
+}
+
+.pagination button:disabled {
+  background-color: #ddd; /* Grey */
+  color: #555; /* Dark grey */
+  cursor: not-allowed;
+}
+
+/* Pagination Select */
+.pagination select {
+  background-color: #1976d2; /* Green */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}

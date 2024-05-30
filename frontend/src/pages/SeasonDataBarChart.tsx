@@ -1,9 +1,11 @@
 import { Alert, Box, Button, Container, Grid, Typography } from '@mui/material';
+import { SerializedError } from '@reduxjs/toolkit';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import moment from 'moment';
 import { useState } from 'react';
-
-import { DataGrid } from '@mui/x-data-grid';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
+import DataTable from '../components/sensor/DataTable';
 import SensorDataBarChart from '../components/sensor/SensorDataBarChart';
 import SensorFilter from '../components/sensor/SensorFilter';
 import {
@@ -12,10 +14,6 @@ import {
 } from '../redux/api/sensorApi';
 import { ISensor } from '../redux/api/types';
 
-import { SerializedError } from '@reduxjs/toolkit';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import columns from './columns';
-
 const SeasonDataBarChart = () => {
   const [seasonFilter, setSeasonFilter] = useState('');
   const [paginationModel, setPaginationModel] = useState({
@@ -23,11 +21,10 @@ const SeasonDataBarChart = () => {
     pageSize: 10,
   });
   const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
-  const [viewType, setViewType] = useState('chart');
+  const [viewType, setViewType] = useState<'chart' | 'grid'>('chart');
 
   const {
     isLoading: allSensorsLoading,
-    // isError: allSensorsError,
     error: allSensorsFetchError,
     data: allSensorsData,
   } = useGetAllSensorsQuery();
@@ -61,7 +58,7 @@ const SeasonDataBarChart = () => {
 
   const getErrorMessage = (error: FetchBaseQueryError | SerializedError) => {
     if ('status' in error) {
-      const result = error.data as { message?: string }; // Assert the type of error.data
+      const result = error.data as { message?: string };
       return result?.message || 'An unexpected error occurred';
     }
     return error.message || 'An unexpected error occurred';
@@ -83,6 +80,18 @@ const SeasonDataBarChart = () => {
   }
 
   const dataToDisplay = filteredData ?? allSensorsData;
+
+  // Convert data to IDataTable format for DataTable component
+  const dataTableData =
+    dataToDisplay?.map((sensor) => ({
+      id: sensor.id,
+      temperature: sensor.temperature,
+      season: sensor.season,
+      humidity: sensor.humidity,
+      created_at: moment(sensor.created_at).format('DD/MM/YYYY'),
+      updated_at: moment(sensor.updated_at).format('DD/MM/YYYY'),
+    })) ?? [];
+
   const formattedSensors =
     dataToDisplay?.map((sensor) => ({
       ...sensor,
@@ -124,7 +133,7 @@ const SeasonDataBarChart = () => {
       </Box>
 
       <Box style={{ height: 'auto', width: '100%', marginBottom: '50px' }}>
-        <div style={{ float: 'right' }}>
+        <Box textAlign='right'>
           <Button
             sx={{ mb: 2, mt: 2 }}
             variant='contained'
@@ -136,7 +145,7 @@ const SeasonDataBarChart = () => {
               ? 'Vizualizar como Tabela'
               : 'Vizualizar como Gráfico'}
           </Button>
-        </div>
+        </Box>
         <SensorFilter
           seasonFilter={seasonFilter}
           setSeasonFilter={setSeasonFilter}
@@ -164,20 +173,9 @@ const SeasonDataBarChart = () => {
           </Container>
         ) : (
           <Grid container spacing={2} mb={4}>
-            <DataGrid
-              autoHeight
-              getRowId={(row) => row.id}
-              rows={dataToDisplay ?? []}
-              columns={columns}
-              checkboxSelection
-              pagination
-              rowHeight={30}
-              pageSizeOptions={[5, 10, 20, 40, 80, 100]}
-              // paginationModel={paginationModel}
-              onPaginationModelChange={(newModel) =>
-                setPaginationModel(newModel)
-              }
-            />
+            <Container maxWidth={false}>
+              <DataTable data={dataTableData || []} />
+            </Container>
           </Grid>
         )}
       </Box>

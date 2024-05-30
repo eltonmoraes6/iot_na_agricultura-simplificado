@@ -1,20 +1,20 @@
-import { Box, Grid, Typography } from '@mui/material';
-import { DataGrid, GridPaginationModel } from '@mui/x-data-grid';
+import { Box, Container, Grid, Typography } from '@mui/material';
 import { useState } from 'react';
 
+import moment from 'moment';
 import FullScreenLoader from '../components/FullScreenLoader';
+import DataTable from '../components/sensor/DataTable';
 import SensorFilter from '../components/sensor/SensorFilter';
 import {
   useGetAllSensorsQuery,
   useGetSensorsMutation,
 } from '../redux/api/sensorApi';
 import { ISensor } from '../redux/api/types';
-import columns from './columns';
 
 const DatabaseInfo = () => {
   // Define states for filter criteria, pagination, sorting, and selection
   const [seasonFilter, setSeasonFilter] = useState('');
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+  const [paginationModel, setPaginationModel] = useState({
     page: 0, // Note: DataGrid uses zero-based indexing
     pageSize: 10,
   });
@@ -70,6 +70,17 @@ const DatabaseInfo = () => {
   // Determine which data set to use for the DataGrid
   const dataToDisplay = filteredData ?? allSensorsData;
 
+  // Convert data to IDataTable format for DataTable component
+  const dataTableData =
+    dataToDisplay?.map((sensor) => ({
+      id: sensor.id,
+      temperature: sensor.temperature,
+      season: sensor.season,
+      humidity: sensor.humidity,
+      created_at: moment(sensor.created_at).format('DD/MM/YYYY'),
+      updated_at: moment(sensor.updated_at).format('DD/MM/YYYY'),
+    })) ?? [];
+
   return (
     <>
       <Box
@@ -116,18 +127,9 @@ const DatabaseInfo = () => {
         }}
       >
         <Grid container spacing={2} mb={4}>
-          <DataGrid
-            autoHeight
-            getRowId={(row) => row.id}
-            rows={dataToDisplay ?? []}
-            columns={columns}
-            checkboxSelection
-            pagination
-            rowHeight={30}
-            pageSizeOptions={[5, 10, 20, 40, 80, 100]}
-            // paginationModel={paginationModel}
-            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-          />
+          <Container maxWidth={false}>
+            <DataTable data={dataTableData || []} />
+          </Container>
         </Grid>
       </Box>
     </>

@@ -1,6 +1,5 @@
 import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { DataGrid, GridPaginationModel } from '@mui/x-data-grid';
 import { useState } from 'react';
 import HumidityLineChart from '../components/sensor/HumidityLineChart';
 import TemperatureLineChart from '../components/sensor/TemperatureLineChart';
@@ -8,15 +7,16 @@ import TemperatureLineChart from '../components/sensor/TemperatureLineChart';
 import HumidityGauge from '../components/sensor/HumidityGauge';
 import TemperatureGauge from '../components/sensor/TemperatureGauge';
 
+import moment from 'moment';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
+import DataTable from '../components/sensor/DataTable';
 import SensorFilter from '../components/sensor/SensorFilter';
 import {
   useGetAllSensorsQuery,
   useGetSensorsMutation,
 } from '../redux/api/sensorApi';
 import { ISensor } from '../redux/api/types';
-import columns from './columns';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -30,7 +30,7 @@ const Item = styled(Paper)(({ theme }) => ({
 const Home = () => {
   // Define states for filter criteria, pagination, sorting, and selection
   const [seasonFilter, setSeasonFilter] = useState('');
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+  const [paginationModel, setPaginationModel] = useState({
     page: 0, // Note: DataGrid uses zero-based indexing
     pageSize: 10,
   });
@@ -87,6 +87,17 @@ const Home = () => {
   // Determine which data set to use for the DataGrid
   const dataToDisplay = filteredData ?? allSensorsData;
 
+  // Convert data to IDataTable format for DataTable component
+  const dataTableData =
+    dataToDisplay?.map((sensor) => ({
+      id: sensor.id,
+      temperature: sensor.temperature,
+      season: sensor.season,
+      humidity: sensor.humidity,
+      created_at: moment(sensor.created_at).format('DD/MM/YYYY'),
+      updated_at: moment(sensor.updated_at).format('DD/MM/YYYY'),
+    })) ?? [];
+
   const handleViewChange = () => {
     setViewType((prevType) => (prevType === 'grid' ? 'kanban' : 'grid'));
   };
@@ -130,7 +141,7 @@ const Home = () => {
           marginBottom: '50px',
         }}
       >
-        <div style={{ float: 'right' }}>
+        <Box textAlign='right'>
           <Button
             // fullWidth
             sx={{ mb: 2, mt: 2 }}
@@ -143,7 +154,7 @@ const Home = () => {
               ? 'Vizualizar como Tabela'
               : 'Vizualizar como Gráfico'}
           </Button>
-        </div>
+        </Box>
         <SensorFilter
           seasonFilter={seasonFilter}
           setSeasonFilter={setSeasonFilter}
@@ -198,7 +209,7 @@ const Home = () => {
                 >
                   <Grid item sm={12} xs={8} md={6}>
                     <Item>
-                      <TemperatureGauge
+                      <HumidityGauge
                         sensors={allSensorsData ?? []}
                         isError={allSensorsError}
                         isLoading={allSensorsLoading}
@@ -207,7 +218,7 @@ const Home = () => {
                   </Grid>
                   <Grid item sm={12} xs={8} md={6}>
                     <Item>
-                      <HumidityGauge
+                      <TemperatureGauge
                         sensors={allSensorsData ?? []}
                         isError={allSensorsError}
                         isLoading={allSensorsLoading}
@@ -220,20 +231,9 @@ const Home = () => {
           </Container>
         ) : (
           <Grid container spacing={2} mb={4}>
-            <DataGrid
-              autoHeight
-              getRowId={(row) => row.id}
-              rows={dataToDisplay ?? []}
-              columns={columns}
-              checkboxSelection
-              pagination
-              rowHeight={30}
-              pageSizeOptions={[5, 10, 20, 40, 80, 100]}
-              // paginationModel={paginationModel}
-              onPaginationModelChange={(newModel) =>
-                setPaginationModel(newModel)
-              }
-            />
+            <Container maxWidth={false}>
+              <DataTable data={dataTableData || []} />
+            </Container>
           </Grid>
         )}
       </Box>

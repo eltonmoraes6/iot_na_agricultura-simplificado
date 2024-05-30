@@ -19,7 +19,7 @@ export const TemperatureGauge: React.FC<TemperatureGaugeProps> = ({
 
   return (
     <>
-      <Typography>Temperatura</Typography>
+      <Typography color={'red'}>Temperatura</Typography>
       {!isLoading && !isError && sensors && (
         <GaugeChart
           id='temperature-gauge'

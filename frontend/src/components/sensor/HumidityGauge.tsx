@@ -19,7 +19,7 @@ export const HumidityGauge: React.FC<HumidityGaugeProps> = ({
 
   return (
     <>
-      <Typography>Umidade</Typography>
+      <Typography color={'#8884d8'}>Umidade</Typography>
       {!isLoading && !isError && sensors && (
         <GaugeChart
           id='humidity-gauge'

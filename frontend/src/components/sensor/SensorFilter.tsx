@@ -1,11 +1,18 @@
 import { Button, FormControl, Grid, MenuItem, TextField } from '@mui/material';
-import { GridPaginationModel } from '@mui/x-data-grid';
+import React from 'react';
+
+interface SensorPaginationModel {
+  page: number;
+  pageSize: number;
+}
 
 interface SensorFilterProps {
   seasonFilter: string;
   setSeasonFilter: React.Dispatch<React.SetStateAction<string>>;
-  paginationModel: GridPaginationModel;
-  setPaginationModel: React.Dispatch<React.SetStateAction<GridPaginationModel>>;
+  paginationModel: SensorPaginationModel;
+  setPaginationModel: React.Dispatch<
+    React.SetStateAction<SensorPaginationModel>
+  >;
   handleFilter: () => void;
 }
 

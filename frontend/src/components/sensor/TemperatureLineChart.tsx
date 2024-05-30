@@ -1,51 +1,92 @@
 import { Button, ButtonGroup, Typography } from '@mui/material';
-import { LineChart } from '@mui/x-charts/LineChart';
 import moment from 'moment-timezone';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  Tooltip,
+  TooltipProps,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { ISensor } from '../../redux/api/types';
 
-interface TemperatureGaugeProps {
+interface TemperatureLineChartProps {
   isLoading: boolean;
   isError: unknown;
-  sensors: ISensor[]; // You might want to replace `any[]` with the appropriate type for your sensors
+  sensors: ISensor[];
 }
 
-export const TemperatureLineChart: React.FC<TemperatureGaugeProps> = ({
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  active?: boolean;
+  payload?: {
+    payload: {
+      time: number;
+      temperature: number;
+      created_at: string;
+    };
+  }[];
+}
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const sensor = payload[0].payload;
+    const formattedDate = moment(sensor.created_at).format(
+      'YYYY-MM-DD HH:mm:ss'
+    );
+    return (
+      <div
+        className='custom-tooltip'
+        style={{
+          backgroundColor: 'white',
+          padding: '5px',
+          border: '1px solid #ccc',
+        }}
+      >
+        <p>{`Time: ${sensor.time}`}</p>
+        <p>{`Temperature: ${sensor.temperature}%`}</p>
+        <p>{`Created at: ${formattedDate}`}</p>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+export const TemperatureLineChart: React.FC<TemperatureLineChartProps> = ({
   isLoading,
   isError,
   sensors,
 }) => {
   const [selectedRange, setSelectedRange] = useState('today');
 
-  const tz = 'America/Sao_Paulo'; // Set your desired time zone
-  // Function to get the date range based on the selected option
-  const getDateRange = (range: unknown) => {
-    const today = moment.tz(tz); // Use tz() to set the time zone
+  const tz = 'America/Sao_Paulo';
+
+  const getDateRange = (range: string) => {
+    const today = moment.tz(tz);
     let start, end;
 
     switch (range) {
       case 'today':
-        start = today.clone().startOf('day'); // Start of today
-        end = today.clone().endOf('day'); // End of today
+        start = today.clone().startOf('day');
+        end = today.clone().endOf('day');
         break;
-
       case 'one_week':
-        start = today.clone().subtract(7, 'days').startOf('day'); // One week ago
-        end = today.clone().endOf('day'); // End of today
+        start = today.clone().subtract(7, 'days').startOf('day');
+        end = today.clone().endOf('day');
         break;
-
       case 'one_month':
-        start = today.clone().subtract(1, 'month').startOf('day'); // One month ago
-        end = today.clone().endOf('day'); // End of today
+        start = today.clone().subtract(1, 'month').startOf('day');
+        end = today.clone().endOf('day');
         break;
-
       case 'one_year':
-        start = today.clone().subtract(1, 'year').startOf('day'); // One year ago
-        end = today.clone().endOf('day'); // End of today
+        start = today.clone().subtract(1, 'year').startOf('day');
+        end = today.clone().endOf('day');
         break;
-
       default:
-        start = today.clone().subtract(1, 'year').startOf('day'); // Default to one year
+        start = today.clone().subtract(1, 'year').startOf('day');
         end = today.clone().endOf('day');
         break;
     }
@@ -55,64 +96,72 @@ export const TemperatureLineChart: React.FC<TemperatureGaugeProps> = ({
 
   const { start, end } = getDateRange(selectedRange);
 
-  // Filter sensors within the selected date range
   const filteredSensors = sensors?.filter((sensor) => {
-    const sensorDate = moment(sensor.created_at).tz(tz); // Use correct time zone
-    return sensorDate.isBetween(start, end, undefined, '[]'); // Inclusive boundaries
+    const sensorDate = moment(sensor.created_at).tz(tz);
+    return sensorDate.isBetween(start, end, undefined, '[]');
   });
 
   const temperatures =
     filteredSensors?.map((sensor) => sensor.temperature) || [];
 
-  // Create an array of indices for x-axis
-  const xAxis = Array.from({ length: temperatures.length }, (_, i) => i + 1);
+  // const xAxis = Array.from({ length: temperatures.length }, (_, i) => i + 1);
 
   return (
     <>
-      <Typography variant='h6'>Temperatura - Gráfico de Linha</Typography>
+      <Typography variant='h6' color={'red'}>
+        Temperatura
+      </Typography>
 
-      {/* Date Range Selection */}
-      <ButtonGroup>
+      <ButtonGroup sx={{ paddingBottom: 2, paddingTop: 2 }}>
         <Button
           onClick={() => setSelectedRange('today')}
-          variant={selectedRange === 'today' ? 'contained' : 'outlined'} // Apply different style for the selected Button
+          variant={selectedRange === 'today' ? 'contained' : 'outlined'}
         >
           Hoje
         </Button>
         <Button
           onClick={() => setSelectedRange('one_week')}
-          variant={selectedRange === 'one_week' ? 'contained' : 'outlined'} // Apply different style for the selected Button
+          variant={selectedRange === 'one_week' ? 'contained' : 'outlined'}
         >
           1 Semana
         </Button>
         <Button
           onClick={() => setSelectedRange('one_month')}
-          variant={selectedRange === 'one_month' ? 'contained' : 'outlined'} // Apply different style for the selected Button
+          variant={selectedRange === 'one_month' ? 'contained' : 'outlined'}
         >
           1 Mês
         </Button>
         <Button
           onClick={() => setSelectedRange('one_year')}
-          variant={selectedRange === 'one_year' ? 'contained' : 'outlined'} // Apply different style for the selected Button
+          variant={selectedRange === 'one_year' ? 'contained' : 'outlined'}
         >
           1 Ano
         </Button>
       </ButtonGroup>
 
-      {/* Line Chart with filtered data */}
       {!isLoading && !isError && filteredSensors && (
         <LineChart
-          xAxis={[{ data: xAxis }]}
-          series={[
-            {
-              data: temperatures,
-              area: true,
-              color: 'red', // Color for temperature
-            },
-          ]}
           width={500}
           height={300}
-        />
+          data={temperatures.map((temp, index) => ({
+            time: index + 1,
+            temperature: temp,
+          }))}
+        >
+          <CartesianGrid strokeDasharray='3 3' />
+          <XAxis dataKey='time' />
+          <YAxis />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          <Line
+            dot={false} // Remove dots from the line chart
+            type='monotone'
+            dataKey='temperature'
+            stroke='red'
+            fillOpacity={1}
+            fill='url(#colorUv)'
+          />
+        </LineChart>
       )}
     </>
   );

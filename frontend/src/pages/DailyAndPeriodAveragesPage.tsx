@@ -1,9 +1,18 @@
 import { Alert, Box, Button, Container, Grid, Typography } from '@mui/material';
-import { BarChart } from '@mui/x-charts';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import React, { useState } from 'react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
+import DailyAndPeriodAveragesDataTable from '../components/sensor/DailyAndPeriodAveragesDataTable';
 import { useGetDailyAndPeriodAveragesQuery } from '../redux/api/sensorApi';
 
 interface DataItem {
@@ -24,8 +33,7 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
   if (isError || !data) {
     return (
       <Box textAlign='center' mt={4}>
-        <Alert severity='error'>Failed to fetch data</Alert>{' '}
-        {/* Show an error message */}
+        <Alert severity='error'>Failed to fetch data</Alert>
       </Box>
     );
   }
@@ -34,45 +42,16 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
   if (!Array.isArray(data)) {
     return (
       <Box textAlign='center' mt={4}>
-        <Alert severity='warning'>No data available</Alert>{' '}
-        {/* Show a warning if data isn't as expected */}
+        <Alert severity='warning'>No data available</Alert>
       </Box>
     );
   }
 
-  const periods = data?.map((d) => d.period) || [];
-  const temperatureData = data?.map((d) => d.average_temperature) || [];
-  const humidityData = data?.map((d) => d.average_humidity) || [];
-
-  const xAxis = [
-    {
-      type: 'band' as const,
-      data: Array.isArray(periods) ? periods : [],
-      scaleType: 'band' as const,
-    },
-  ];
-
-  const series = [
-    {
-      label: 'Avg Temperatura (°C)',
-      data: temperatureData,
-    },
-    {
-      label: 'Avg Umidade (%)',
-      data: humidityData,
-    },
-  ];
-
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'period', headerName: 'Período', width: 150 },
-    {
-      field: 'average_temperature',
-      headerName: 'Avg Temperatura (°C)',
-      width: 180,
-    },
-    { field: 'average_humidity', headerName: 'Avg Umidade (%)', width: 150 },
-  ];
+  const chartData = data.map((d) => ({
+    period: d.period,
+    average_temperature: d.average_temperature,
+    average_humidity: d.average_humidity,
+  }));
 
   const rows = data.map((d: DataItem, index: number) => ({
     id: index + 1,
@@ -101,7 +80,6 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
           <Box
             sx={{
               backgroundColor: '#ece9e9',
-              // mt: '2rem',
               height: '15rem',
               display: 'flex',
               textAlign: 'center',
@@ -119,53 +97,74 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
                   transform: 'scale(1.25)',
-                  transformOrigin: 'center center', // Change transform origin to right side
+                  transformOrigin: 'center center',
                 },
               }}
             >
-              {/* Average Temperature and Humidity by Period */}
               Média Diaria e por Período
             </Typography>
           </Box>
-          <div style={{ float: 'right' }}>
-            <Button
-              sx={{ mb: 2, mt: 2 }}
-              variant='contained'
-              color='primary'
-              size='medium'
-              onClick={handleViewChange}
-            >
-              {viewType === 'chart'
-                ? 'Vizualizar como Tabela'
-                : 'Vizualizar como Gráfico'}
-            </Button>
-          </div>
-          {viewType === 'chart' ? (
-            <BarChart
-              xAxis={xAxis}
-              series={series}
-              height={300}
-              margin={{ top: 20, bottom: 30, left: 40, right: 10 }}
-              colors={['#1f77b4', '#ff7f0e']} // Distinct colors for temperature and humidity
-            />
-          ) : (
-            <Grid container spacing={2} mb={4}>
-              <DataGrid
-                autoHeight
-                getRowId={(row) => row.id}
-                rows={rows ?? []}
-                columns={columns}
-                checkboxSelection
-                pagination
-                rowHeight={30}
-                pageSizeOptions={[5, 10, 20, 40, 80, 100]}
-              />
-            </Grid>
-          )}
+          <Box
+            style={{
+              height: 'auto',
+              width: '100%',
+              marginBottom: '50px',
+            }}
+          >
+            <Box textAlign='right'>
+              <Button
+                sx={{ mb: 2, mt: 2 }}
+                variant='contained'
+                color='primary'
+                size='medium'
+                onClick={handleViewChange}
+              >
+                {viewType === 'chart'
+                  ? 'Vizualizar como Tabela'
+                  : 'Vizualizar como Gráfico'}
+              </Button>
+            </Box>
+            {viewType === 'chart' ? (
+              <Box sx={{ height: 400 }}>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 50, bottom: 30, left: 40, right: 10 }}
+                  >
+                    <CartesianGrid strokeDasharray='3 3' />
+                    <XAxis dataKey='period' />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend
+                      layout='horizontal'
+                      verticalAlign='top'
+                      align='center'
+                    />
+                    <Bar
+                      dataKey='average_temperature'
+                      fill='#1f77b4'
+                      name='Avg Temperatura (°C)'
+                    />
+                    <Bar
+                      dataKey='average_humidity'
+                      fill='#ff7f0e'
+                      name='Avg Umidade (%)'
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
+            ) : (
+              <Grid container spacing={2} mt={4} mb={4}>
+                <Container maxWidth={false}>
+                  <DailyAndPeriodAveragesDataTable data={rows || []} />
+                </Container>
+              </Grid>
+            )}
+          </Box>
         </>
       )}
     </Container>
   );
 };
 
-export default DailyAndPeriodAveragesPage; // Export the component for use in your app
+export default DailyAndPeriodAveragesPage;
