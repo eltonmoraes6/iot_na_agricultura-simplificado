@@ -1,8 +1,7 @@
 import { ReadlineParser } from '@serialport/parser-readline';
 import config from 'config';
+import { Kafka } from 'kafkajs';
 import { SerialPort, SerialPortOpenOptions } from 'serialport';
-import { setInterval } from 'timers';
-import { createSensor } from './sensors.service';
 require('dotenv').config();
 
 const arduinoConfig = config.get<{ baudRate: string; comPort: string }>(
@@ -19,13 +18,14 @@ const parser = new ReadlineParser({ delimiter: '\r\n' });
 
 arduinoPort.pipe(parser);
 
-const dataBuffer: any[] = []; // Buffer to hold incoming data
-
-arduinoPort.on('open', () => {
-  console.log(`Connected to Arduino on ${arduinoConfig.comPort}`);
+const kafka = new Kafka({
+  clientId: 'my-app',
+  brokers: ['localhost:19092'],
 });
 
-function getBrazilianSeason(date = new Date()) {
+const producer = kafka.producer();
+
+const getBrazilianSeason = (date = new Date()) => {
   const month = date.getMonth() + 1;
   const day = date.getDate();
 
@@ -50,14 +50,15 @@ function getBrazilianSeason(date = new Date()) {
   } else {
     return 'Spring';
   }
-}
+};
 
-// Handle incoming data
-parser.on('data', (data: any) => {
-  // Trim extra whitespace or non-printable characters
+arduinoPort.on('open', () => {
+  console.log(`Connected to Arduino on ${arduinoConfig.comPort}`);
+});
+
+parser.on('data', async (data: any) => {
   data = data.trim();
 
-  // Validate JSON structure
   if (data === '') {
     console.warn('Received empty data');
     return;
@@ -68,7 +69,6 @@ parser.on('data', (data: any) => {
   try {
     const parsedData = JSON.parse(data);
 
-    // Ensure required fields are present
     if (!parsedData.temperature || !parsedData.humidity) {
       console.warn('Incomplete data:', parsedData);
       return;
@@ -82,36 +82,19 @@ parser.on('data', (data: any) => {
 
     if (isNaN(sensorData.temperature) || isNaN(sensorData.humidity)) {
       console.warn('Parsed NaN values:', sensorData);
-      return; // Skip invalid data
+      return;
     }
 
-    dataBuffer.push(sensorData);
-    console.log('Data from arduino:', data);
-    console.log('Data added to buffer:', sensorData);
+    await producer.connect();
+    await producer.send({
+      topic: 'sensor',
+      messages: [{ value: JSON.stringify(sensorData) }],
+    });
+    console.log('Data sent to Kafka:', sensorData);
   } catch (err: any) {
     console.error('Error processing data from Arduino:', err);
   }
 });
-
-// Periodically insert data into the database
-setInterval(async () => {
-  if (dataBuffer.length === 0) {
-    return;
-  }
-
-  try {
-    const results = [];
-    while (dataBuffer.length > 0) {
-      const sensorData = dataBuffer.shift();
-      const result = await createSensor(sensorData);
-      results.push(result);
-    }
-
-    console.log('Data inserted successfully:', results);
-  } catch (err: any) {
-    console.error('Error inserting data into the database:', err);
-  }
-}, 10000); // Insert data every 10 seconds
 
 arduinoPort.on('error', (err) => {
   console.error('Serial port error:', err);

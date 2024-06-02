@@ -13,6 +13,9 @@ import validateEnv from './utils/validateEnv';
 
 // import './services/arduino.service';
 
+import './services/consumer.service';
+import './services/producer.service';
+
 AppDataSource.initialize()
   .then(async () => {
     // VALIDATE ENV
