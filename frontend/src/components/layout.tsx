@@ -16,6 +16,7 @@ import * as React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import {
   mainListItems,
+  quaternaryListItems,
   secondaryListItems,
   tertiaryListItems,
 } from './layout/listItems';
@@ -162,6 +163,8 @@ export default function Layout() {
         <List>{secondaryListItems}</List>
         <Divider />
         <List>{tertiaryListItems}</List>
+        <Divider />
+        <List>{quaternaryListItems}</List>
       </Drawer>
       <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />

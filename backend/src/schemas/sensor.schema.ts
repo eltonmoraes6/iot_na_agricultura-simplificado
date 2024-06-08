@@ -11,6 +11,9 @@ export const createSensorSchema = object({
     season: string({
       required_error: 'season is required',
     }),
+    soil: string({
+      required_error: 'soil is required',
+    }),
   }),
 });
 

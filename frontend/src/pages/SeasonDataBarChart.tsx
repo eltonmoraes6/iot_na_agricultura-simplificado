@@ -3,20 +3,27 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import moment from 'moment';
 import { useState } from 'react';
+import SensorFilter from '../components/Filter';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
+import PageTitle from '../components/PageTitle';
 import DataTable from '../components/sensor/DataTable';
 import SensorDataBarChart from '../components/sensor/SensorDataBarChart';
-import SensorFilter from '../components/sensor/SensorFilter';
 import {
   useGetAllSensorsQuery,
   useGetSensorsMutation,
 } from '../redux/api/sensorApi';
-import { ISensor } from '../redux/api/types';
+import { ISensor, PaginationModel } from '../redux/api/types';
+import { filterItems, sortItem } from '../utils/filterInfo';
 
 const SeasonDataBarChart = () => {
-  const [seasonFilter, setSeasonFilter] = useState('');
-  const [paginationModel, setPaginationModel] = useState({
+  // Define states for filter criteria, pagination, sorting, and selection
+
+  const [filter, setFilter] = useState('');
+  const [sort, setSort] = useState('');
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
+  const [fields, setFields] = useState('');
+  const [paginationModel, setPaginationModel] = useState<PaginationModel>({
     page: 0,
     pageSize: 10,
   });
@@ -36,8 +43,8 @@ const SeasonDataBarChart = () => {
     const pageNumber = page + 1;
     let queryString = `limit=${pageSize}&page=${pageNumber}`;
 
-    if (seasonFilter) {
-      queryString += `&season=${seasonFilter}`;
+    if (filter) {
+      queryString += `&season=${filter}`;
     }
 
     try {
@@ -104,33 +111,7 @@ const SeasonDataBarChart = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          backgroundColor: '#ece9e9',
-          height: '15rem',
-          textAlign: 'center',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Typography
-          variant='h2'
-          component='h1'
-          sx={{
-            color: '#1f1e1e',
-            fontWeight: 500,
-            marginLeft: 1,
-            transition: 'all 0.3s ease-in-out',
-            '&:hover': {
-              transform: 'scale(1.25)',
-              transformOrigin: 'center center',
-            },
-          }}
-        >
-          Gráfico de Dados - Estações do Ano
-        </Typography>
-      </Box>
+      <PageTitle title={'Gráfico de Dados - Estações do Ano'} />
 
       <Box style={{ height: 'auto', width: '100%', marginBottom: '50px' }}>
         <Box textAlign='right'>
@@ -147,8 +128,16 @@ const SeasonDataBarChart = () => {
           </Button>
         </Box>
         <SensorFilter
-          seasonFilter={seasonFilter}
-          setSeasonFilter={setSeasonFilter}
+          filterItem={filterItems}
+          filter={filter}
+          setFilter={setFilter}
+          sort={sort}
+          sortItem={sortItem}
+          setSort={setSort}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          fields={fields}
+          setFields={setFields}
           paginationModel={paginationModel}
           setPaginationModel={setPaginationModel}
           handleFilter={handleFilter}

@@ -20,6 +20,16 @@ export const sensorApi = createApi({
       },
       providesTags: (_result, _error, id) => [{ type: 'Sensors', id }],
     }),
+    getOneSensor: builder.query<ISensor[], string>({
+      query() {
+        return {
+          url: `/sensors/info/one`,
+          credentials: 'include',
+        };
+      },
+      transformResponse: (results: { data: { sensors: ISensor[] } }) =>
+        results.data.sensors,
+    }),
     getSensors: builder.mutation<ISensor[], string>({
       query: (queryString: string) => {
         return {
@@ -81,6 +91,7 @@ export const sensorApi = createApi({
 
 export const {
   useGetAllSensorsQuery,
+  useGetOneSensorQuery,
   useGetDailyAndPeriodAveragesQuery,
   useGetSensorsMutation,
 } = sensorApi;

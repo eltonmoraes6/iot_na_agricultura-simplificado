@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useState } from 'react';
-import './dataTable.css';
+import '../styles/dataTable.css';
 
 interface DataItem {
   period: string;

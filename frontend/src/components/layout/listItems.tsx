@@ -1,5 +1,6 @@
 import BarChartIcon from '@mui/icons-material/BarChart';
 // import InfoIcon from '@mui/icons-material/Info';
+import GrassIcon from '@mui/icons-material/Grass';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import StorageIcon from '@mui/icons-material/Storage';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
@@ -48,6 +49,18 @@ export const tertiaryListItems = (
         <StorageIcon />
       </ListItemIcon>
       <ListItemText primary='Informações do Banco de Dados' />
+    </ListItem>
+  </div>
+);
+
+export const quaternaryListItems = (
+  <div>
+    <ListSubheader inset>Dados do Solo</ListSubheader>
+    <ListItem button component={Link} to='/soil-info'>
+      <ListItemIcon>
+        <GrassIcon />
+      </ListItemIcon>
+      <ListItemText primary='Informações do Solo' />
     </ListItem>
   </div>
 );

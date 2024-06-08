@@ -10,7 +10,8 @@
     "migration:generate": "yarn typeorm migration:generate ./src/migrations/default-entity -d ./src/utils/data-source.ts",
     "migration:run": "yarn typeorm migration:run -d src/utils/data-source.ts",
     "migrate": "rm -rf build && yarn build && yarn typeorm migration:generate ./src/migrations/added-user-entity -d ./src/utils/data-source.ts",
-    "db:push": "rm -rf build && yarn build && yarn typeorm migration:run -d src/utils/data-source.ts"
+    "db:push": "rm -rf build && yarn build && yarn typeorm migration:run -d src/utils/data-source.ts",
+    "seed": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d src/utils/data-source.ts"
   },
   "dependencies": {
     "@jm18457/kafkajs-msk-iam-authentication-mechanism": "^3.1.2",
@@ -27,6 +28,7 @@
     "reflect-metadata": "^0.1.13",
     "serialport": "^12.0.0",
     "typeorm": "0.3.6",
+    "typeorm-extension": "^3.5.1",
     "zod": "^3.14.4"
   },
   "devDependencies": {
@@ -38,7 +40,7 @@
     "@types/node": "^16.11.10",
     "@types/serialport": "^8.0.5",
     "morgan": "^1.10.0",
-    "ts-node": "10.7.0",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^1.1.8",
     "typescript": "4.5.2"
   }

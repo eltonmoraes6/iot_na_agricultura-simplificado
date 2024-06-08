@@ -4,6 +4,7 @@ import DailyAndPeriodAveragesPage from '../pages/DailyAndPeriodAveragesPage';
 import DatabaseInfo from '../pages/DatabaseInfo';
 import NotFound from '../pages/NotFound';
 import SeasonDataBarChart from '../pages/SeasonDataBarChart';
+import Soil from '../pages/Soil';
 import HomePage from '../pages/home.page';
 
 const AppRoutes = () => {
@@ -17,6 +18,7 @@ const AppRoutes = () => {
         />
         <Route path='season-data-bar-chart' element={<SeasonDataBarChart />} />
         <Route path='database-info' element={<DatabaseInfo />} />
+        <Route path='soil-info' element={<Soil />} />
         <Route path='*' element={<NotFound />} />
       </Route>
     </Routes>

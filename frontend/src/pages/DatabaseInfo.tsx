@@ -2,22 +2,47 @@ import { Box, Container, Grid, Typography } from '@mui/material';
 import { useState } from 'react';
 
 import moment from 'moment';
+import Filter from '../components/Filter';
 import FullScreenLoader from '../components/FullScreenLoader';
+import PageTitle from '../components/PageTitle';
 import DataTable from '../components/sensor/DataTable';
-import SensorFilter from '../components/sensor/SensorFilter';
 import {
   useGetAllSensorsQuery,
   useGetSensorsMutation,
 } from '../redux/api/sensorApi';
-import { ISensor } from '../redux/api/types';
+import { ISensor, PaginationModel } from '../redux/api/types';
+import { FilterItem, SortItem } from '../utils/types';
+
+// Define your filter items array
+const filterItems: FilterItem[] = [
+  { id: 1, value: 'Spring' },
+  { id: 2, value: 'Summer' },
+  { id: 3, value: 'Fall' },
+  { id: 4, value: 'Winter' },
+  { id: 5, value: 'Autumn' },
+];
+
+const sortItem: SortItem[] = [
+  { id: 0, value: 'id' },
+  { id: 1, value: 'temperature' },
+  { id: 2, value: 'humidity' },
+  { id: 3, value: 'season' },
+  { id: 4, value: 'created_at' },
+  { id: 5, value: 'updated_at' },
+  { id: 6, value: 'soil' },
+];
 
 const DatabaseInfo = () => {
   // Define states for filter criteria, pagination, sorting, and selection
-  const [seasonFilter, setSeasonFilter] = useState('');
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0, // Note: DataGrid uses zero-based indexing
+  const [filter, setFilter] = useState('');
+  const [sort, setSort] = useState('');
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
+  const [fields, setFields] = useState('');
+  const [paginationModel, setPaginationModel] = useState<PaginationModel>({
+    page: 0,
     pageSize: 10,
   });
+
   const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
   // Load initial data with the query hook
   const {
@@ -38,8 +63,8 @@ const DatabaseInfo = () => {
 
     let queryString = `limit=${pageSize}&page=${pageNumber}`;
 
-    if (seasonFilter) {
-      queryString += `&season=${seasonFilter}`;
+    if (filter) {
+      queryString += `&season=${filter}`;
     }
 
     try {
@@ -79,41 +104,24 @@ const DatabaseInfo = () => {
       humidity: sensor.humidity,
       created_at: moment(sensor.created_at).format('DD/MM/YYYY'),
       updated_at: moment(sensor.updated_at).format('DD/MM/YYYY'),
+      soil: sensor.soil,
     })) ?? [];
 
   return (
     <>
-      <Box
-        sx={{
-          backgroundColor: '#ece9e9',
-          // mt: '2rem',
-          height: '15rem',
-          textAlign: 'center',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Typography
-          variant='h2'
-          component='h1'
-          sx={{
-            color: '#1f1e1e',
-            fontWeight: 500,
-            marginLeft: 1,
-            transition: 'all 0.3s ease-in-out',
-            '&:hover': {
-              transform: 'scale(1.25)',
-              transformOrigin: 'center center', // Change transform origin to right side
-            },
-          }}
-        >
-          Banco de Dados
-        </Typography>
-      </Box>
-      <SensorFilter
-        seasonFilter={seasonFilter}
-        setSeasonFilter={setSeasonFilter}
+      <PageTitle title={'Banco de Dados'} />
+
+      <Filter
+        filterItem={filterItems}
+        filter={filter}
+        setFilter={setFilter}
+        sort={sort}
+        sortItem={sortItem}
+        setSort={setSort}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        fields={fields}
+        setFields={setFields}
         paginationModel={paginationModel}
         setPaginationModel={setPaginationModel}
         handleFilter={handleFilter}

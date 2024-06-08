@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Container, Grid, Typography } from '@mui/material';
+import { Alert, Box, Button, Container, Grid } from '@mui/material';
 import React, { useState } from 'react';
 import {
   Bar,
@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
+import PageTitle from '../components/PageTitle';
 import DailyAndPeriodAveragesDataTable from '../components/sensor/DailyAndPeriodAveragesDataTable';
 import { useGetDailyAndPeriodAveragesQuery } from '../redux/api/sensorApi';
 
@@ -77,33 +78,8 @@ const DailyAndPeriodAveragesPage: React.FC = () => {
         </Box>
       ) : (
         <>
-          <Box
-            sx={{
-              backgroundColor: '#ece9e9',
-              height: '15rem',
-              display: 'flex',
-              textAlign: 'center',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Typography
-              variant='h2'
-              component='h1'
-              sx={{
-                color: '#1f1e1e',
-                fontWeight: 500,
-                marginLeft: 1,
-                transition: 'all 0.3s ease-in-out',
-                '&:hover': {
-                  transform: 'scale(1.25)',
-                  transformOrigin: 'center center',
-                },
-              }}
-            >
-              Média Diaria e por Período
-            </Typography>
-          </Box>
+          <PageTitle title={'Média Diaria e por Período'} />
+
           <Box
             style={{
               height: 'auto',

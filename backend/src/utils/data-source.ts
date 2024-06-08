@@ -1,7 +1,10 @@
 require('dotenv').config();
 import config from 'config';
 import 'reflect-metadata';
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
+import { SeederOptions } from 'typeorm-extension';
+
+import { MainSeeder } from '../seeds/MainSeeder';
 
 const postgresConfig = config.get<{
   host: string;
@@ -11,7 +14,7 @@ const postgresConfig = config.get<{
   database: string;
 }>('postgresConfig');
 
-export const AppDataSource = new DataSource({
+const options: DataSourceOptions & SeederOptions = {
   ...postgresConfig,
   type: 'postgres',
   synchronize: false,
@@ -19,4 +22,7 @@ export const AppDataSource = new DataSource({
   entities: ['src/entities/**/*.entity{.ts,.js}'],
   migrations: ['src/migrations/**/*{.ts,.js}'],
   subscribers: ['src/subscribers/**/*{.ts,.js}'],
-});
+  seeds: [MainSeeder],
+};
+
+export const AppDataSource = new DataSource(options);

@@ -2,11 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import { CreateSensorInput } from '../schemas/sensor.schema';
 import {
   createSensor,
+  findOneSensor,
   findSensor,
   findSensorBySeason,
   findSensorsAdvanced,
   getDailyAndPeriodAverages,
 } from '../services/sensors.service';
+import { parseFilters } from '../utils/queryParams';
 
 export const indexHandler = async (
   req: Request,
@@ -57,12 +59,13 @@ export const registerSensorHandler = async (
   next: NextFunction
 ) => {
   try {
-    const { humidity, season, temperature } = req.body;
-
+    const { humidity, season, temperature, soil } = req.body;
+    // const soilData = { id: '4d8b5a3d-36c7-4fa1-b3f9-5dd16a1e1103' }; // Assuming 'id' is the primary key
     const sensor = await createSensor({
       humidity,
       season,
       temperature,
+      soil: { id: soil },
     });
 
     res.status(201).json({
@@ -98,64 +101,6 @@ export const getDailyAndPeriodAveragesHandler = async (
     next(error);
   }
 }; // Type for expected query parameters
-interface SensorQuery {
-  [key: string]: any;
-}
-
-// Function to parse query parameters with operators
-const parseFilters = (query: SensorQuery): SensorQuery => {
-  const excludedFields = ['sort', 'sortOrder', 'page', 'limit', 'fields'];
-  const filters: SensorQuery = {};
-
-  for (const key in query) {
-    if (excludedFields.includes(key)) {
-      continue; // Skip excluded fields
-    }
-
-    let value = query[key];
-
-    // Handle advanced filtering with operators
-    if (
-      typeof value === 'string' &&
-      value.startsWith('{') &&
-      value.endsWith('}')
-    ) {
-      try {
-        value = JSON.parse(value); // Parse JSON-like strings
-      } catch (error) {
-        throw new Error(`Invalid filter format for key ${key}`);
-      }
-    }
-
-    if (typeof value === 'object') {
-      for (const operator in value) {
-        const operatorValue = value[operator];
-
-        switch (operator) {
-          case 'eq':
-            filters[key] = operatorValue;
-            break;
-          case 'neq':
-            filters[key] = { $ne: operatorValue };
-            break;
-          case 'gte':
-            filters[key] = { $gte: operatorValue };
-            break;
-          case 'lte':
-            filters[key] = { $lte: operatorValue };
-            break;
-          default:
-            throw new Error(`Unknown operator: ${operator}`);
-        }
-      }
-    } else {
-      // If no operator, treat it as an exact match
-      filters[key] = value;
-    }
-  }
-
-  return filters;
-};
 
 export const getAllSensorsHandler = async (
   req: Request,
@@ -196,6 +141,30 @@ export const getAllSensorsHandler = async (
     res.status(400).json({
       status: 'error',
       message: error.message,
+    });
+  }
+};
+
+export const getLastSensor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const sensors = await findOneSensor();
+
+    res.status(200).json({
+      status: 'success',
+      results: sensors.length,
+      data: {
+        sensors,
+      },
+    });
+  } catch (error) {
+    // Handle errors appropriately
+    res.status(400).json({
+      status: 'error',
+      message: error,
     });
   }
 };

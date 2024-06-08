@@ -11,26 +11,34 @@ import {
 } from '@tanstack/react-table';
 import moment from 'moment';
 import { useState } from 'react';
-import { ISensor } from '../../redux/api/types';
+import { ISoil } from '../../redux/api/types';
 import '../styles/dataTable.css';
 
-const columnHelper = createColumnHelper<ISensor>();
+const columnHelper = createColumnHelper<ISoil>();
 
 const columns = [
   columnHelper.accessor('id', {
     header: () => 'ID',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('temperature', {
-    header: () => 'Temperatura',
+  columnHelper.accessor('minTemperature', {
+    header: () => 'Temperatura Mínima',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('humidity', {
-    header: () => 'Umidade',
+  columnHelper.accessor('maxTemperature', {
+    header: () => 'Temperatura Máxia',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('season', {
-    header: () => 'Estações do Ano',
+  columnHelper.accessor('minHumidity', {
+    header: () => 'Umidade Mínima',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('maxHumidity', {
+    header: () => 'Umidade Máxima',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('soilType', {
+    header: () => 'Tipo de Solo',
     cell: (info) => info.getValue(),
   }),
   columnHelper.accessor('created_at', {
@@ -41,17 +49,13 @@ const columns = [
     header: () => 'Edição',
     cell: (info) => moment(info.getValue()).format('DD/MM/YYYY'),
   }),
-  columnHelper.accessor('soil', {
-    header: () => 'Solo',
-    cell: (info) => info.getValue()?.soilType || 'N/A',
-  }),
-  columnHelper.accessor('soil', {
-    header: () => 'Umidade Máxima',
-    cell: (info) => info.getValue()?.maxHumidity || 'N/A',
+  columnHelper.accessor('sensor', {
+    header: () => 'Sensor ID',
+    cell: (info) => info.getValue() || 'N/A',
   }),
 ];
 
-const DataTable = ({ data }: { data: ISensor[] }) => {
+const SoilDataTable = ({ data }: { data: ISoil[] }) => {
   const [searchValue, setSearchValue] = useState('');
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -165,4 +169,4 @@ const DataTable = ({ data }: { data: ISensor[] }) => {
   );
 };
 
-export default DataTable;
+export default SoilDataTable;

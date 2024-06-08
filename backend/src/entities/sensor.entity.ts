@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 import Model from './model.entity';
+import { Soil } from './soil.entity';
 
 @Entity('sensors')
 export class Sensor extends Model {
@@ -12,4 +13,9 @@ export class Sensor extends Model {
 
   @Column()
   season: string;
+
+  @ManyToOne(() => Soil, (soil) => soil.sensor, {
+    onDelete: 'SET NULL',
+  })
+  soil: Soil;
 }

@@ -4,11 +4,13 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
+import path from 'path';
+
 import sensorsRouter from './routes/sensor.routes';
+import soilsRouter from './routes/soil.routes';
 import AppError from './utils/appError';
 import { AppDataSource } from './utils/data-source';
 
-import path from 'path';
 import validateEnv from './utils/validateEnv';
 
 // import './services/arduino.service';
@@ -49,6 +51,7 @@ AppDataSource.initialize()
 
     // ROUTES
     app.use('/api/sensors', sensorsRouter);
+    app.use('/api/soils', soilsRouter);
 
     // UNHANDLED ROUTE
     app.all('/404', (req: Request, res: Response, next: NextFunction) => {

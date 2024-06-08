@@ -1,7 +1,7 @@
-import { DeepPartial, FindManyOptions } from 'typeorm';
+import { DeepPartial, FindManyOptions, FindOptionsOrder } from 'typeorm';
 import { Sensor } from '../entities/sensor.entity';
 import { AppDataSource } from '../utils/data-source';
-import { SensorQueryOptions } from '../utils/types';
+import { QueryOptions } from '../utils/types';
 
 const sensorRepository = AppDataSource.getRepository(Sensor);
 
@@ -10,16 +10,36 @@ export const createSensor = async (input: DeepPartial<Sensor>) => {
 };
 
 export const findSensorBySeason = async (season: string) => {
-  return await sensorRepository.findBy({ season: season });
+  return await sensorRepository.find({
+    where: { season: season },
+    relations: { soil: true },
+  });
 };
 
 export const findSensorById = async (sensorId: string) => {
-  return await sensorRepository.findOneBy({ id: sensorId });
+  return await sensorRepository.findOne({
+    where: { id: sensorId },
+    relations: { soil: true },
+  });
+};
+
+export const findOneSensor = async () => {
+  const options: FindManyOptions<Sensor> = {
+    take: 1,
+    order: { created_at: 1 },
+    relations: { soil: true },
+  };
+  console.log('options =====> ', options);
+  return await sensorRepository.find(options);
 };
 
 export const findSensor = async (query: FindManyOptions<Sensor>) => {
   // Modify the query object to include the limit of 10
-  const modifiedQuery: FindManyOptions<Sensor> = { ...query, take: 10 };
+  const modifiedQuery: FindManyOptions<Sensor> = {
+    ...query,
+    take: 10,
+    relations: { soil: true },
+  };
   // Call the find method of sensorRepository with the modified query
   return await sensorRepository.find(modifiedQuery);
 };
@@ -70,20 +90,31 @@ const validSensorKeys = [
   // 'location',
   'created_at',
   'updated_at',
+  'soil',
 ] as const;
 
-type ValidSensorKeys = (typeof validSensorKeys)[number];
-
-const validateFields = (fields: string[]): ValidSensorKeys[] => {
-  return fields.filter((field): field is ValidSensorKeys =>
-    validSensorKeys.includes(field as ValidSensorKeys)
-  );
+const validateFields = (fields: string[]): (keyof Sensor)[] => {
+  const validFields: (keyof Sensor)[] = [
+    'id',
+    'temperature',
+    'humidity',
+    'season',
+    'soil',
+    'created_at',
+    'updated_at',
+  ];
+  return fields.filter((field) =>
+    validFields.includes(field as keyof Sensor)
+  ) as (keyof Sensor)[];
 };
 
 export const findSensorsAdvanced = async (
-  options: SensorQueryOptions
+  options: QueryOptions
 ): Promise<Sensor[]> => {
   const findOptions: FindManyOptions<Sensor> = {};
+
+  // Ensure relations are included if requested in fields
+  findOptions.relations = { soil: true };
 
   // Apply filters with the parsed conditions
   if (options.filters) {
@@ -93,9 +124,7 @@ export const findSensorsAdvanced = async (
   // Apply sorting
   if (options.sort) {
     const { field, order } = options.sort;
-    findOptions.order = { [field]: order };
-  } else {
-    findOptions.order = { created_at: 'DESC' };
+    findOptions.order = { [field]: order } as FindOptionsOrder<Sensor>;
   }
 
   // Apply pagination

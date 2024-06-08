@@ -78,6 +78,7 @@ parser.on('data', async (data: any) => {
       temperature: parseFloat(parsedData.temperature),
       humidity: parseFloat(parsedData.humidity),
       season: getBrazilianSeason(),
+      soil: '4d8b5a3d-36c7-4fa1-b3f9-5dd16a1e1103',
     };
 
     if (isNaN(sensorData.temperature) || isNaN(sensorData.humidity)) {

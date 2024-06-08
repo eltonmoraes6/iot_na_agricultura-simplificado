@@ -8,15 +8,17 @@ import HumidityGauge from '../components/sensor/HumidityGauge';
 import TemperatureGauge from '../components/sensor/TemperatureGauge';
 
 import moment from 'moment';
+import Filter from '../components/Filter';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
+import PageTitle from '../components/PageTitle';
 import DataTable from '../components/sensor/DataTable';
-import SensorFilter from '../components/sensor/SensorFilter';
 import {
   useGetAllSensorsQuery,
   useGetSensorsMutation,
 } from '../redux/api/sensorApi';
-import { ISensor } from '../redux/api/types';
+import { ISensor, PaginationModel } from '../redux/api/types';
+import { filterItems, sortItem } from '../utils/filterInfo';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -30,10 +32,14 @@ const Item = styled(Paper)(({ theme }) => ({
 const Home = () => {
   // Define states for filter criteria, pagination, sorting, and selection
   const [seasonFilter, setSeasonFilter] = useState('');
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0, // Note: DataGrid uses zero-based indexing
+  const [sort, setSort] = useState('');
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
+  const [fields, setFields] = useState('');
+  const [paginationModel, setPaginationModel] = useState<PaginationModel>({
+    page: 0,
     pageSize: 10,
   });
+
   const [viewType, setViewType] = useState('grid'); // State to manage the view type
   const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
   // Load initial data with the query hook
@@ -104,35 +110,7 @@ const Home = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          backgroundColor: '#ece9e9',
-          // mt: '2rem',
-          height: '15rem',
-          textAlign: 'center',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Typography
-          variant='h2'
-          component='h1'
-          sx={{
-            color: '#1f1e1e',
-            fontWeight: 500,
-            marginLeft: 1,
-            transition: 'all 0.3s ease-in-out',
-            '&:hover': {
-              transform: 'scale(1.25)',
-              transformOrigin: 'center center', // Change transform origin to right side
-            },
-          }}
-        >
-          {/* Season Data Bar Chart */}
-          Filtro de Dados
-        </Typography>
-      </Box>
+      <PageTitle title={'Filtro de Dados'} />
 
       <Box
         style={{
@@ -155,9 +133,17 @@ const Home = () => {
               : 'Vizualizar como Gráfico'}
           </Button>
         </Box>
-        <SensorFilter
-          seasonFilter={seasonFilter}
-          setSeasonFilter={setSeasonFilter}
+        <Filter
+          filterItem={filterItems}
+          filter={seasonFilter}
+          setFilter={setSeasonFilter}
+          sort={sort}
+          sortItem={sortItem}
+          setSort={setSort}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          fields={fields}
+          setFields={setFields}
           paginationModel={paginationModel}
           setPaginationModel={setPaginationModel}
           handleFilter={handleFilter}
