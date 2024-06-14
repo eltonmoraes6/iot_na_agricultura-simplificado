@@ -11,7 +11,7 @@ export const PageTitle: React.FC<PageTitleProps> = ({ title }) => {
       sx={{
         backgroundColor: '#ece9e9',
         // mt: '2rem',
-        height: '15rem',
+        height: '8rem',
         textAlign: 'center',
         display: 'flex',
         alignItems: 'center',

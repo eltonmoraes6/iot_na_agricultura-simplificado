@@ -6,7 +6,7 @@ export const filterItems: FilterItem[] = [
   { id: 2, value: 'Summer' },
   { id: 3, value: 'Fall' },
   { id: 4, value: 'Winter' },
-  { id: 5, value: 'Autumn' },
+  // { id: 5, value: 'Autumn' },
 ];
 
 export const sortItem: SortItem[] = [

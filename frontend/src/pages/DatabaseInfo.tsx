@@ -1,41 +1,19 @@
 import { Box, Container, Grid, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import moment from 'moment';
 import Filter from '../components/Filter';
 import FullScreenLoader from '../components/FullScreenLoader';
 import PageTitle from '../components/PageTitle';
 import DataTable from '../components/sensor/DataTable';
-import {
-  useGetAllSensorsQuery,
-  useGetSensorsMutation,
-} from '../redux/api/sensorApi';
+import { useGetSensorsMutation } from '../redux/api/sensorApi';
 import { ISensor, PaginationModel } from '../redux/api/types';
-import { FilterItem, SortItem } from '../utils/types';
-
-// Define your filter items array
-const filterItems: FilterItem[] = [
-  { id: 1, value: 'Spring' },
-  { id: 2, value: 'Summer' },
-  { id: 3, value: 'Fall' },
-  { id: 4, value: 'Winter' },
-  { id: 5, value: 'Autumn' },
-];
-
-const sortItem: SortItem[] = [
-  { id: 0, value: 'id' },
-  { id: 1, value: 'temperature' },
-  { id: 2, value: 'humidity' },
-  { id: 3, value: 'season' },
-  { id: 4, value: 'created_at' },
-  { id: 5, value: 'updated_at' },
-  { id: 6, value: 'soil' },
-];
+import { filterItems, sortItem } from '../utils/filterInfo';
 
 const DatabaseInfo = () => {
   // Define states for filter criteria, pagination, sorting, and selection
   const [filter, setFilter] = useState('');
-  const [sort, setSort] = useState('');
+  const [sort, setSort] = useState('created_at'); // Default sort field
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
   const [fields, setFields] = useState('');
   const [paginationModel, setPaginationModel] = useState<PaginationModel>({
@@ -44,16 +22,36 @@ const DatabaseInfo = () => {
   });
 
   const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
-  // Load initial data with the query hook
-  const {
-    data: allSensorsData,
-    error: allSensorsError,
-    isLoading: allSensorsLoading,
-  } = useGetAllSensorsQuery();
 
   // Use the mutation hook to fetch filtered data
   const [getSensors, { isLoading: sensorsLoading, error: sensorsError }] =
     useGetSensorsMutation();
+
+  const fetchSensors = useCallback(
+    async (queryString: string) => {
+      try {
+        const result = (await getSensors(queryString).unwrap()) as ISensor[];
+        if (result) {
+          setFilteredData(result);
+        }
+      } catch (error) {
+        console.error('Error fetching filtered data:', error);
+      }
+    },
+    [getSensors]
+  );
+
+  useEffect(() => {
+    const { page, pageSize } = paginationModel;
+    const pageNumber = page + 1;
+    let queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sortOrder}&sort=${sort}&fields=${fields}`;
+
+    if (filter) {
+      queryString += `&season=${filter}`;
+    }
+
+    fetchSensors(queryString);
+  }, [filter, sort, sortOrder, fields, paginationModel, fetchSensors]);
 
   const handleFilter = async () => {
     const { page, pageSize } = paginationModel;
@@ -61,7 +59,7 @@ const DatabaseInfo = () => {
     // Convert 0-based index to 1-based for server-side pagination
     const pageNumber = page + 1;
 
-    let queryString = `limit=${pageSize}&page=${pageNumber}`;
+    let queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sortOrder}&sort=${sort}&fields=${fields}`;
 
     if (filter) {
       queryString += `&season=${filter}`;
@@ -78,13 +76,13 @@ const DatabaseInfo = () => {
   };
 
   // Render loading state
-  if (allSensorsLoading || sensorsLoading) {
+  if (sensorsLoading) {
     return <FullScreenLoader />;
   }
 
   // Handle errors from both the initial query and the mutation
-  if (allSensorsError || sensorsError) {
-    const error = allSensorsError || sensorsError;
+  if (sensorsError) {
+    const error = sensorsError;
     if (error) {
       return (
         <Typography color='error'>An unexpected error occurred</Typography>
@@ -93,7 +91,7 @@ const DatabaseInfo = () => {
   }
 
   // Determine which data set to use for the DataGrid
-  const dataToDisplay = filteredData ?? allSensorsData;
+  const dataToDisplay = filteredData;
 
   // Convert data to IDataTable format for DataTable component
   const dataTableData =

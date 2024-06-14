@@ -9,7 +9,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import moment from 'moment';
 import { useState } from 'react';
 import { ISensor } from '../../redux/api/types';
 import '../styles/dataTable.css';
@@ -35,11 +34,11 @@ const columns = [
   }),
   columnHelper.accessor('created_at', {
     header: () => 'Criação',
-    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY'),
+    cell: (info) => info.getValue(),
   }),
   columnHelper.accessor('updated_at', {
     header: () => 'Edição',
-    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY'),
+    cell: (info) => info.getValue(),
   }),
   columnHelper.accessor('soil', {
     header: () => 'Solo',

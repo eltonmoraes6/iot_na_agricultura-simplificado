@@ -65,7 +65,7 @@ const Soil = () => {
   useEffect(() => {
     const { page, pageSize } = paginationModel;
     const pageNumber = page + 1;
-    let queryString = `limit=${pageSize}&page=${pageNumber}`;
+    let queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sortOrder}&sort=${sort}&fields=${fields}`;
 
     if (filter) {
       queryString += `&soilType=${filter}`;
@@ -77,8 +77,7 @@ const Soil = () => {
   const handleFilter = () => {
     const { page, pageSize } = paginationModel;
     const pageNumber = page + 1;
-    let queryString = `limit=${pageSize}&page=${pageNumber}`;
-
+    let queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sortOrder}&sort=${sort}&fields=${fields}`;
     if (filter) {
       queryString += `&soilType=${filter}`;
     }

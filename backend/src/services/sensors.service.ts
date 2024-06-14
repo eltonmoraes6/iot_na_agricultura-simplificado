@@ -29,7 +29,6 @@ export const findOneSensor = async () => {
     order: { created_at: 1 },
     relations: { soil: true },
   };
-  console.log('options =====> ', options);
   return await sensorRepository.find(options);
 };
 

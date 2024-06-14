@@ -1,6 +1,6 @@
 import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import HumidityLineChart from '../components/sensor/HumidityLineChart';
 import TemperatureLineChart from '../components/sensor/TemperatureLineChart';
 
@@ -13,10 +13,7 @@ import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
 import PageTitle from '../components/PageTitle';
 import DataTable from '../components/sensor/DataTable';
-import {
-  useGetAllSensorsQuery,
-  useGetSensorsMutation,
-} from '../redux/api/sensorApi';
+import { useGetSensorsMutation } from '../redux/api/sensorApi';
 import { ISensor, PaginationModel } from '../redux/api/types';
 import { filterItems, sortItem } from '../utils/filterInfo';
 
@@ -32,9 +29,9 @@ const Item = styled(Paper)(({ theme }) => ({
 const Home = () => {
   // Define states for filter criteria, pagination, sorting, and selection
   const [seasonFilter, setSeasonFilter] = useState('');
-  const [sort, setSort] = useState('');
-  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
-  const [fields, setFields] = useState('');
+  const [sort, setSort] = useState('created_at'); // Default sort field
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC'); // Default sort order
+  const [fields, setFields] = useState(''); // Default fields
   const [paginationModel, setPaginationModel] = useState<PaginationModel>({
     page: 0,
     pageSize: 10,
@@ -42,16 +39,35 @@ const Home = () => {
 
   const [viewType, setViewType] = useState('grid'); // State to manage the view type
   const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
-  // Load initial data with the query hook
-  const {
-    data: allSensorsData,
-    error: allSensorsError,
-    isLoading: allSensorsLoading,
-  } = useGetAllSensorsQuery();
 
   // Use the mutation hook to fetch filtered data
-  const [getSensors, { isLoading: sensorsLoading, error: sensorsError }] =
-    useGetSensorsMutation();
+  const [getSensors, { isLoading, error }] = useGetSensorsMutation();
+
+  const fetchSensors = useCallback(
+    async (queryString: string) => {
+      try {
+        const result = (await getSensors(queryString).unwrap()) as ISensor[];
+        if (result) {
+          setFilteredData(result);
+        }
+      } catch (error) {
+        console.error('Error fetching filtered data:', error);
+      }
+    },
+    [getSensors]
+  );
+
+  useEffect(() => {
+    const { page, pageSize } = paginationModel;
+    const pageNumber = page + 1;
+    let queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sortOrder}&sort=${sort}&fields=${fields}`;
+
+    if (seasonFilter) {
+      queryString += `&season=${seasonFilter}`;
+    }
+
+    fetchSensors(queryString);
+  }, [seasonFilter, sort, sortOrder, fields, paginationModel, fetchSensors]);
 
   const handleFilter = async () => {
     const { page, pageSize } = paginationModel;
@@ -59,7 +75,7 @@ const Home = () => {
     // Convert 0-based index to 1-based for server-side pagination
     const pageNumber = page + 1;
 
-    let queryString = `limit=${pageSize}&page=${pageNumber}`;
+    let queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sortOrder}&sort=${sort}&fields=${fields}`;
 
     if (seasonFilter) {
       queryString += `&season=${seasonFilter}`;
@@ -76,22 +92,17 @@ const Home = () => {
   };
 
   // Render loading state
-  if (allSensorsLoading || sensorsLoading) {
+  if (isLoading) {
     return <FullScreenLoader />;
   }
 
   // Handle errors from both the initial query and the mutation
-  if (allSensorsError || sensorsError) {
-    const error = allSensorsError || sensorsError;
-    if (error) {
-      return (
-        <Typography color='error'>An unexpected error occurred</Typography>
-      );
-    }
+  if (error) {
+    return <Typography color='error'>An unexpected error occurred</Typography>;
   }
 
   // Determine which data set to use for the DataGrid
-  const dataToDisplay = filteredData ?? allSensorsData;
+  const dataToDisplay = filteredData;
 
   // Convert data to IDataTable format for DataTable component
   const dataTableData =
@@ -172,8 +183,8 @@ const Home = () => {
                     <Item>
                       <HumidityLineChart
                         sensors={dataToDisplay ?? []}
-                        isError={allSensorsError}
-                        isLoading={allSensorsLoading}
+                        isError={error}
+                        isLoading={isLoading}
                       />
                     </Item>
                   </Grid>
@@ -181,8 +192,8 @@ const Home = () => {
                     <Item>
                       <TemperatureLineChart
                         sensors={dataToDisplay ?? []}
-                        isError={allSensorsError}
-                        isLoading={allSensorsLoading}
+                        isError={error}
+                        isLoading={isLoading}
                       />
                     </Item>
                   </Grid>
@@ -196,18 +207,18 @@ const Home = () => {
                   <Grid item sm={12} xs={8} md={6}>
                     <Item>
                       <HumidityGauge
-                        sensors={allSensorsData ?? []}
-                        isError={allSensorsError}
-                        isLoading={allSensorsLoading}
+                        sensors={dataTableData ?? []}
+                        isError={error}
+                        isLoading={isLoading}
                       />
                     </Item>
                   </Grid>
                   <Grid item sm={12} xs={8} md={6}>
                     <Item>
                       <TemperatureGauge
-                        sensors={allSensorsData ?? []}
-                        isError={allSensorsError}
-                        isLoading={allSensorsLoading}
+                        sensors={dataTableData ?? []}
+                        isError={error}
+                        isLoading={isLoading}
                       />
                     </Item>
                   </Grid>
