@@ -2,8 +2,11 @@ import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { sensorApi } from './api/sensorApi';
 import { soilApi } from './api/soilApi';
+import { weatherApi } from './api/weatherApi';
+
 import sensorReducer from './features/sensorSlice';
 import soilReducer from './features/soilSlice';
+import weatherReducer from './features/weatherSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,10 +14,16 @@ export const store = configureStore({
     sensorState: sensorReducer,
     [soilApi.reducerPath]: soilApi.reducer,
     soilState: soilReducer,
+    [weatherApi.reducerPath]: weatherApi.reducer,
+    weatherState: weatherReducer,
   },
   devTools: import.meta.env.VITE_NODE_ENV === 'development',
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({}).concat([sensorApi.middleware, soilApi.middleware]),
+    getDefaultMiddleware({}).concat([
+      sensorApi.middleware,
+      soilApi.middleware,
+      weatherApi.middleware,
+    ]),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -44,15 +44,11 @@ enum SoilType {
 
 // Monitoramento de Estresse Térmico
 export const idealTemperatureAverage = async (soilType: SoilType) => {
-  console.log('soilType back =======> ', soilType);
   const soil = await soilRepository.findOne({ where: { soilType } });
-  console.log('Soil found: ', soil);
-
   if (soil) {
     const minTemperature = parseFloat(soil.minTemperature as unknown as string);
     const maxTemperature = parseFloat(soil.maxTemperature as unknown as string);
     const idealTemperature = (maxTemperature + minTemperature) / 2;
-
     return { idealTemperature };
   }
   throw new Error('Soil type not found');

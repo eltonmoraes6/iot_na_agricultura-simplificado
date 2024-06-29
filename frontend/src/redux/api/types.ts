@@ -46,6 +46,25 @@ export interface ISoilResponse {
   soils: ISoil[];
 }
 
+export interface IWeather {
+  id: string;
+  lat: number;
+  lon: number;
+  temp: number;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  humidity: number;
+  pressure: number;
+  wind_speed: number;
+  name: string;
+  feels_like: number;
+}
+
+export interface IWeatherResponse {
+  weather: IWeather[];
+}
+
 // Interface to represent a sensor reading
 export interface ISensorData {
   temperature: number;

@@ -1,4 +1,12 @@
-import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  Paper,
+  Switch,
+  Typography,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useCallback, useEffect, useState } from 'react';
 import HumidityLineChart from '../components/sensor/HumidityLineChart';
@@ -13,6 +21,7 @@ import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
 import PageTitle from '../components/PageTitle';
 import DataTable from '../components/sensor/DataTable';
+import Weather from '../components/weather/Weather';
 import { useGetSensorsMutation } from '../redux/api/sensorApi';
 import { ISensor, PaginationModel } from '../redux/api/types';
 import { filterItems, sortItem } from '../utils/filterInfo';
@@ -24,6 +33,16 @@ const Item = styled(Paper)(({ theme }) => ({
   margin: theme.spacing(1),
   textAlign: 'center',
   color: theme.palette.text.secondary,
+  overflow: 'hidden',
+}));
+
+const FloatingCard = styled(Paper)(({ theme }) => ({
+  position: 'fixed',
+  top: theme.spacing(30),
+  right: theme.spacing(40),
+  zIndex: 1000,
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
 }));
 
 const Home = () => {
@@ -39,6 +58,7 @@ const Home = () => {
 
   const [viewType, setViewType] = useState('grid'); // State to manage the view type
   const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
+  const [weatherEnabled, setWeatherEnabled] = useState(true);
 
   // Use the mutation hook to fetch filtered data
   const [getSensors, { isLoading, error }] = useGetSensorsMutation();
@@ -113,6 +133,7 @@ const Home = () => {
       humidity: sensor.humidity,
       created_at: moment(sensor.created_at).format('DD/MM/YYYY'),
       updated_at: moment(sensor.updated_at).format('DD/MM/YYYY'),
+      soil: sensor.soil,
     })) ?? [];
 
   const handleViewChange = () => {
@@ -130,7 +151,27 @@ const Home = () => {
           marginBottom: '50px',
         }}
       >
-        <Box textAlign='right'>
+        {weatherEnabled && (
+          <FloatingCard>
+            <Weather />
+          </FloatingCard>
+        )}
+        <Box
+          textAlign='right'
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+        >
+          <Box display='flex' alignItems='center'>
+            <Switch
+              checked={weatherEnabled}
+              onChange={() => setWeatherEnabled(!weatherEnabled)}
+              name='weatherSwitch'
+              color='primary'
+            />
+            <Typography>Ativar clima</Typography>
+          </Box>
+
           <Button
             // fullWidth
             sx={{ mb: 2, mt: 2 }}
@@ -144,6 +185,7 @@ const Home = () => {
               : 'Vizualizar como Gráfico'}
           </Button>
         </Box>
+
         <Filter
           filterItem={filterItems}
           filter={seasonFilter}

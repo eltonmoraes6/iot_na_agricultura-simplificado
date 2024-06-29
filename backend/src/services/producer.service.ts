@@ -2,7 +2,11 @@ import { ReadlineParser } from '@serialport/parser-readline';
 import config from 'config';
 import { Kafka } from 'kafkajs';
 import { SerialPort, SerialPortOpenOptions } from 'serialport';
+import { Soil } from '../entities/soil.entity';
+import { AppDataSource } from '../utils/data-source';
 require('dotenv').config();
+
+const soilRepository = AppDataSource.getRepository(Soil);
 
 const arduinoConfig = config.get<{ baudRate: string; comPort: string }>(
   'serialPortConfig'
@@ -74,11 +78,18 @@ parser.on('data', async (data: any) => {
       return;
     }
 
+    const soil = await soilRepository.findOneBy({ soilType: 'Argissolos' });
+
+    if (!soil) {
+      console.warn('Soil value required:', soil);
+      return;
+    }
+
     const sensorData = {
       temperature: parseFloat(parsedData.temperature),
       humidity: parseFloat(parsedData.humidity),
       season: getBrazilianSeason(),
-      soil: '4d8b5a3d-36c7-4fa1-b3f9-5dd16a1e1103',
+      soil: soil?.id,
     };
 
     if (isNaN(sensorData.temperature) || isNaN(sensorData.humidity)) {

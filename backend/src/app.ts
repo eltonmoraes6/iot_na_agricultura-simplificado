@@ -3,11 +3,14 @@ import config from 'config';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import path from 'path';
 
 import sensorsRouter from './routes/sensor.routes';
 import soilsRouter from './routes/soil.routes';
+import weatherRouter from './routes/weather.routes';
+
 import AppError from './utils/appError';
 import { AppDataSource } from './utils/data-source';
 
@@ -45,6 +48,11 @@ AppDataSource.initialize()
         credentials: true,
       })
     );
+    const limiter = rateLimit({
+      windowMs: 30 * 60 * 1000, // 30 minutes
+      max: 2, // limit each IP to 1 request per windowMs
+    });
+
     // Serve static files from the build directory
     app.use(express.static(path.join(__dirname, '../build')));
     app.use(express.static(path.join(__dirname, '../dist')));
@@ -52,6 +60,7 @@ AppDataSource.initialize()
     // ROUTES
     app.use('/api/sensors', sensorsRouter);
     app.use('/api/soils', soilsRouter);
+    app.use('/api/weather', weatherRouter);
 
     // UNHANDLED ROUTE
     app.all('/404', (req: Request, res: Response, next: NextFunction) => {

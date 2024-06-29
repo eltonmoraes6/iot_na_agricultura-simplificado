@@ -17,6 +17,10 @@ export default {
     // database: 'REDIS_DB',
   },
 
+  openWeatherMap: {
+    apiKey: 'OPEN_WEATHER_MAP_API_KEY',
+  },
+
   serialPortConfig: {
     baudRate: 'BAUD_RATE',
     comPort: 'COM_PORT',

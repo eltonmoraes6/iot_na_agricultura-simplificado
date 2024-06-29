@@ -1,5 +1,4 @@
 import { Box, Button, Container, Grid, Typography } from '@mui/material';
-import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
 import SensorFilter from '../components/Filter';
 import FullScreenLoader from '../components/FullScreenLoader';
@@ -104,8 +103,8 @@ const Soil = () => {
       minHumidity: soil.minHumidity,
       maxHumidity: soil.maxHumidity,
       soilType: soil.soilType,
-      created_at: moment(soil.created_at).format('DD/MM/YYYY'),
-      updated_at: moment(soil.updated_at).format('DD/MM/YYYY'),
+      created_at: soil.created_at,
+      updated_at: soil.updated_at,
     })) ?? [];
 
   const handleViewChange = () => {

@@ -1,0 +1,71 @@
+.weather-info {
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.weather-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.weather-city {
+  font-weight: bold;
+}
+
+.weather-icon {
+  font-size: 48px;
+}
+
+.weather-details {
+  margin-top: 16px;
+}
+
+.sunny {
+  color: #fbc02d;
+  animation: spin 10s linear infinite;
+}
+
+.cloudy {
+  color: #90a4ae;
+  animation: pulse 2s infinite;
+}
+
+.windy {
+  color: #1976d2;
+  animation: shake 0.5s infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-10px);
+  }
+}
