@@ -24,7 +24,7 @@ const Filter: React.FC<SensorFilterProps> = ({
       columnSpacing={{ xs: 1, sm: 2, md: 3 }}
       sx={{ mb: 4 }}
     >
-      <Grid item sm={6} md={2} xs={4}>
+      <Grid item sm={6} md={2} xs={12}>
         <FormControl fullWidth>
           <TextField
             label='Filtrar por'
@@ -48,7 +48,7 @@ const Filter: React.FC<SensorFilterProps> = ({
           </TextField>
         </FormControl>
       </Grid>
-      <Grid item sm={6} md={1} xs={4}>
+      <Grid item sm={6} md={1} xs={12}>
         <TextField
           label='Página'
           variant='outlined'
@@ -65,7 +65,7 @@ const Filter: React.FC<SensorFilterProps> = ({
           fullWidth
         />
       </Grid>
-      <Grid item sm={6} md={1} xs={4}>
+      <Grid item sm={6} md={1} xs={12}>
         <TextField
           label='Limite'
           variant='outlined'
@@ -82,7 +82,7 @@ const Filter: React.FC<SensorFilterProps> = ({
           fullWidth
         />
       </Grid>
-      <Grid item sm={6} md={2} xs={4}>
+      <Grid item sm={6} md={2} xs={12}>
         <TextField
           label='Ordenar por'
           variant='outlined'
@@ -100,7 +100,7 @@ const Filter: React.FC<SensorFilterProps> = ({
           ))}
         </TextField>
       </Grid>
-      <Grid item sm={6} md={2} xs={4}>
+      <Grid item sm={6} md={2} xs={12}>
         <TextField
           label='Ordem'
           variant='outlined'
@@ -118,7 +118,7 @@ const Filter: React.FC<SensorFilterProps> = ({
           ))}
         </TextField>
       </Grid>
-      <Grid item sm={6} md={2} xs={4}>
+      <Grid item sm={6} md={2} xs={12}>
         <TextField
           label='Campos'
           variant='outlined'
@@ -130,7 +130,7 @@ const Filter: React.FC<SensorFilterProps> = ({
           placeholder='Ex: temperature,humidity'
         />
       </Grid>
-      <Grid item sm={6} md={2} xs={4}>
+      <Grid item sm={6} md={2} xs={12}>
         <Button
           variant='contained'
           color='primary'

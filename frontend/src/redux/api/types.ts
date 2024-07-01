@@ -37,9 +37,9 @@ export interface ISoil {
   maxHumidity: number; // Capacidade de Campo => CC => Limite máximo de umidade do solo para as plantas
   minTemperature: number;
   maxTemperature: number;
-  sensor: string;
   created_at: string;
   updated_at: string;
+  sensor: ISensor[];
 }
 
 export interface ISoilResponse {

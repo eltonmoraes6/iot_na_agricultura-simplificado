@@ -1,7 +1,4 @@
-import { Paper } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import {
-  PaginationState,
   SortingState,
   createColumnHelper,
   flexRender,
@@ -13,86 +10,44 @@ import {
 } from '@tanstack/react-table';
 import moment from 'moment';
 import { useState } from 'react';
-import { ISensor, ISoil } from '../../redux/api/types';
-import '../styles/dataTable.css';
-import SensorDataTable from './SensorDataTable'; // import the new SensorDataTable component
+import { ISensor } from '../../redux/api/types'; // Make sure you have a proper interface for sensor
 
-const FloatingCard = styled(Paper)(({ theme }) => ({
-  position: 'fixed',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  zIndex: 1000,
-  padding: theme.spacing(2),
-  backgroundColor: theme.palette.primary.light,
-  boxShadow: theme.shadows[5],
-  maxHeight: '80vh',
-  overflowY: 'auto',
-}));
+const columnHelper = createColumnHelper<ISensor>();
 
-const columnHelper = createColumnHelper<ISoil>();
+const columns = [
+  columnHelper.accessor('id', {
+    header: () => 'Sensor ID',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('humidity', {
+    header: () => 'Umidade',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('temperature', {
+    header: () => 'Temperatura',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('season', {
+    header: () => 'Estação do Ano',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('created_at', {
+    header: () => 'Criação',
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY'),
+  }),
+  columnHelper.accessor('updated_at', {
+    header: () => 'Edição',
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY'),
+  }),
+];
 
-const SoilDataTable = ({ data }: { data: ISoil[] }) => {
+const SensorDataTable = ({ data }: { data: ISensor[] }) => {
   const [searchValue, setSearchValue] = useState('');
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const [visibleCardId, setVisibleCardId] = useState<string | null>(null);
-  const handleToggle = (soilId: string) => {
-    setVisibleCardId((prevId) => (prevId === soilId ? null : soilId));
-  };
-  const isCardVisible = (soilId: string) => visibleCardId === soilId;
-
-  const columns = [
-    columnHelper.accessor('id', {
-      header: () => 'ID',
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor('minTemperature', {
-      header: () => 'Temperatura Mínima',
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor('maxTemperature', {
-      header: () => 'Temperatura Máxia',
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor('minHumidity', {
-      header: () => 'Umidade Mínima',
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor('maxHumidity', {
-      header: () => 'Umidade Máxima',
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor('soilType', {
-      header: () => 'Tipo de Solo',
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor('created_at', {
-      header: () => 'Criação',
-      cell: (info) => moment(info.getValue()).format('DD/MM/YYYY'),
-    }),
-    columnHelper.accessor('updated_at', {
-      header: () => 'Edição',
-      cell: (info) => moment(info.getValue()).format('DD/MM/YYYY'),
-    }),
-    columnHelper.accessor('sensor', {
-      header: () => 'Ações',
-      cell: (info) => (
-        <button onClick={() => handleToggle(info.row.original.id)}>
-          {isCardVisible(info.row.original.id)
-            ? 'Ocultar Sensores'
-            : 'Mostrar Sensores'}
-        </button>
-      ),
-    }),
-  ];
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
   const table = useReactTable({
-    data: data,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -156,11 +111,6 @@ const SoilDataTable = ({ data }: { data: ISoil[] }) => {
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
-              {isCardVisible(row.original.id) && (
-                <FloatingCard>
-                  <SensorDataTable data={row.original.sensor as ISensor[]} />
-                </FloatingCard>
-              )}
             </tr>
           ))}
         </tbody>
@@ -202,4 +152,4 @@ const SoilDataTable = ({ data }: { data: ISoil[] }) => {
   );
 };
 
-export default SoilDataTable;
+export default SensorDataTable;

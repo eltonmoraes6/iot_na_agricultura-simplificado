@@ -1,11 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateSoilInput } from '../schemas/soil.schema';
 import {
+  calculateAndSaveSoilHumidityLimits,
   createSoil,
   findSoil,
   findSoilAdvanced,
   idealTemperatureAverage,
+  idealTemperatures,
   potentialEvapotranspiration,
+  soilHumidityLimits,
   waterDeficiency,
 } from '../services/soil.service';
 import { parseFilters } from '../utils/queryParams';
@@ -148,5 +151,38 @@ export const getIdealTemperature = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Error getting ideal temperature', error });
+  }
+};
+
+export const getSoilHumidityLimits = async (req: Request, res: Response) => {
+  try {
+    const data = await soilHumidityLimits();
+    res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error get soil humidity limits', error });
+  }
+};
+
+export const predictIdealTemperatures = async (req: Request, res: Response) => {
+  try {
+    const data = await idealTemperatures();
+    res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error predict ideal temperature', error });
+  }
+};
+
+export const calculateSoilHumidityLimits = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const data = await calculateAndSaveSoilHumidityLimits();
+    res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error calculate humidity limits', error });
   }
 };

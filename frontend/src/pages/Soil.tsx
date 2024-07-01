@@ -99,13 +99,15 @@ const Soil = () => {
       id: soil.id,
       minTemperature: soil.minTemperature,
       maxTemperature: soil.maxTemperature,
-      sensor: soil.sensor,
       minHumidity: soil.minHumidity,
       maxHumidity: soil.maxHumidity,
       soilType: soil.soilType,
       created_at: soil.created_at,
       updated_at: soil.updated_at,
+      sensor: soil.sensor,
     })) ?? [];
+
+  console.log('dataTableData =====> ', dataTableData);
 
   const handleViewChange = () => {
     setViewType((prevType) => (prevType === 'grid' ? 'kanban' : 'grid'));

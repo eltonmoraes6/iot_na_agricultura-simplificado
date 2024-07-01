@@ -11,6 +11,19 @@
   text-align: left;
 }
 
+/* Styles for floating card */
+.floating-card {
+  position: absolute;
+  top: 30;
+  right: 40;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  z-index: 1000;
+  margin-top: 20px;
+}
+
 .data-table td {
   border: 1px solid #ddd; /* Adding border to table body cells */
   padding: 8px;

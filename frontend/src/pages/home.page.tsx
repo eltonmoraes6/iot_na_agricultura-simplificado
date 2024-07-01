@@ -38,13 +38,16 @@ const Item = styled(Paper)(({ theme }) => ({
 
 const FloatingCard = styled(Paper)(({ theme }) => ({
   position: 'fixed',
-  top: theme.spacing(30),
-  right: theme.spacing(40),
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   zIndex: 1000,
   padding: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.primary.light,
+  boxShadow: theme.shadows[5],
+  maxHeight: '80vh',
+  overflowY: 'auto',
 }));
-
 const Home = () => {
   // Define states for filter criteria, pagination, sorting, and selection
   const [seasonFilter, setSeasonFilter] = useState('');
@@ -221,7 +224,7 @@ const Home = () => {
                   rowSpacing={1}
                   columnSpacing={{ xs: 1, sm: 2, md: 3 }}
                 >
-                  <Grid item sm={12} xs={8} md={6}>
+                  <Grid item sm={12} xs={12} md={6}>
                     <Item>
                       <HumidityLineChart
                         sensors={dataToDisplay ?? []}
@@ -230,7 +233,7 @@ const Home = () => {
                       />
                     </Item>
                   </Grid>
-                  <Grid item sm={12} xs={8} md={6}>
+                  <Grid item sm={12} xs={12} md={6}>
                     <Item>
                       <TemperatureLineChart
                         sensors={dataToDisplay ?? []}
@@ -246,7 +249,7 @@ const Home = () => {
                   rowSpacing={1}
                   columnSpacing={{ xs: 1, sm: 2, md: 3 }}
                 >
-                  <Grid item sm={12} xs={8} md={6}>
+                  <Grid item sm={12} xs={12} md={6}>
                     <Item>
                       <HumidityGauge
                         sensors={dataTableData ?? []}
@@ -255,7 +258,7 @@ const Home = () => {
                       />
                     </Item>
                   </Grid>
-                  <Grid item sm={12} xs={8} md={6}>
+                  <Grid item sm={12} xs={12} md={6}>
                     <Item>
                       <TemperatureGauge
                         sensors={dataTableData ?? []}
