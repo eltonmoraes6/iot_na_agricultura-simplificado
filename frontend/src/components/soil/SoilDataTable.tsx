@@ -12,7 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ISensor, ISoil } from '../../redux/api/types';
 import '../styles/dataTable.css';
 import SensorDataTable from './SensorDataTable'; // import the new SensorDataTable component
@@ -41,10 +41,33 @@ const SoilDataTable = ({ data }: { data: ISoil[] }) => {
   });
 
   const [visibleCardId, setVisibleCardId] = useState<string | null>(null);
+  const floatingCardRef = useRef<HTMLDivElement | null>(null);
+
   const handleToggle = (soilId: string) => {
     setVisibleCardId((prevId) => (prevId === soilId ? null : soilId));
   };
+
   const isCardVisible = (soilId: string) => visibleCardId === soilId;
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      floatingCardRef.current &&
+      !floatingCardRef.current.contains(event.target as Node)
+    ) {
+      setVisibleCardId(null);
+    }
+  };
+
+  useEffect(() => {
+    if (visibleCardId) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [visibleCardId]);
 
   const columns = [
     columnHelper.accessor('id', {
@@ -157,7 +180,7 @@ const SoilDataTable = ({ data }: { data: ISoil[] }) => {
                 </td>
               ))}
               {isCardVisible(row.original.id) && (
-                <FloatingCard>
+                <FloatingCard ref={floatingCardRef}>
                   <SensorDataTable data={row.original.sensor as ISensor[]} />
                 </FloatingCard>
               )}

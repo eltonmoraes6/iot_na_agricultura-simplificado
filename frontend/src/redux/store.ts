@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import { alertApi } from './api/alertApi';
 import { sensorApi } from './api/sensorApi';
 import { soilApi } from './api/soilApi';
 import { weatherApi } from './api/weatherApi';
@@ -16,6 +17,7 @@ export const store = configureStore({
     soilState: soilReducer,
     [weatherApi.reducerPath]: weatherApi.reducer,
     weatherState: weatherReducer,
+    [alertApi.reducerPath]: alertApi.reducer,
   },
   devTools: import.meta.env.VITE_NODE_ENV === 'development',
   middleware: (getDefaultMiddleware) =>
@@ -23,6 +25,7 @@ export const store = configureStore({
       sensorApi.middleware,
       soilApi.middleware,
       weatherApi.middleware,
+      alertApi.middleware,
     ]),
 });
 

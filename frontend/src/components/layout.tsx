@@ -13,6 +13,11 @@ import Typography from '@mui/material/Typography';
 import { CSSObject, Theme, styled, useTheme } from '@mui/material/styles';
 import * as React from 'react';
 
+import NotificationsIcon from '@mui/icons-material/Notifications';
+
+import { Alert as AlertType, useFetchAlertsQuery } from '../redux/api/alertApi';
+
+import { Alert, Badge, CircularProgress, Paper } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
 import {
   mainListItems,
@@ -92,11 +97,40 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
+const FloatingCard = styled(Paper)(({ theme }) => ({
+  position: 'fixed',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  zIndex: 1000,
+  padding: theme.spacing(2),
+  marginTop: theme.spacing(4),
+  backgroundColor: theme.palette.primary.light,
+  boxShadow: theme.shadows[5],
+  maxHeight: '80vh',
+  overflowY: 'auto',
+}));
+
 export default function Layout() {
   const theme = useTheme();
   const navigate = useNavigate();
 
   const [open, setOpen] = React.useState(false);
+  const [alertOpen, setAlertOpen] = React.useState(false);
+  const floatingCardRef = React.useRef<HTMLDivElement | null>(null);
+
+  const { data: alerts = [], isLoading: isLoadingAlerts } =
+    useFetchAlertsQuery('');
+
+  React.useEffect(() => {
+    if (!alerts) {
+      return;
+    }
+    if (alerts.length > 0) {
+      // setOpen(true);
+      console.log('alerts ====> ', alerts);
+    }
+  }, [alerts]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -105,6 +139,33 @@ export default function Layout() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const handleAlertClick = () => {
+    setAlertOpen(!alertOpen);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      floatingCardRef.current &&
+      !floatingCardRef.current.contains(event.target as Node)
+    ) {
+      setAlertOpen(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (alertOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [alertOpen]);
+
+  if (isLoadingAlerts) return <CircularProgress />;
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -144,6 +205,12 @@ export default function Layout() {
           >
             IOT na Agricultura
           </Typography>
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton color='inherit' onClick={handleAlertClick}>
+            <Badge badgeContent={alerts.length} color='error'>
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
         </Toolbar>
       </AppBar>
       <Drawer variant='permanent' open={open}>
@@ -170,6 +237,31 @@ export default function Layout() {
         <DrawerHeader />
         <Outlet />
       </Box>
+      {alertOpen && (
+        <FloatingCard ref={floatingCardRef}>
+          {alerts.map((alert: AlertType) => (
+            <Alert
+              onClose={() => setAlertOpen(false)}
+              severity={'warning'}
+              sx={{ width: '100%', marginBottom: 2 }}
+              key={alert.id}
+            >
+              <Typography
+                variant='h2'
+                component='h1'
+                sx={{
+                  color: '#1f1e1e',
+                  fontWeight: 500,
+                  marginLeft: 1,
+                }}
+              >
+                {alert.type}
+              </Typography>
+              {alert.message}
+            </Alert>
+          ))}
+        </FloatingCard>
+      )}
     </Box>
   );
 }

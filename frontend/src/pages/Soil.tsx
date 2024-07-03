@@ -107,8 +107,6 @@ const Soil = () => {
       sensor: soil.sensor,
     })) ?? [];
 
-  console.log('dataTableData =====> ', dataTableData);
-
   const handleViewChange = () => {
     setViewType((prevType) => (prevType === 'grid' ? 'kanban' : 'grid'));
   };

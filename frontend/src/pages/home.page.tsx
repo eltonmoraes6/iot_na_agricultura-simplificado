@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import HumidityLineChart from '../components/sensor/HumidityLineChart';
 import TemperatureLineChart from '../components/sensor/TemperatureLineChart';
 
@@ -48,6 +48,7 @@ const FloatingCard = styled(Paper)(({ theme }) => ({
   maxHeight: '80vh',
   overflowY: 'auto',
 }));
+
 const Home = () => {
   // Define states for filter criteria, pagination, sorting, and selection
   const [seasonFilter, setSeasonFilter] = useState('');
@@ -62,6 +63,7 @@ const Home = () => {
   const [viewType, setViewType] = useState('grid'); // State to manage the view type
   const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
   const [weatherEnabled, setWeatherEnabled] = useState(true);
+  const floatingCardRef = useRef<HTMLDivElement | null>(null);
 
   // Use the mutation hook to fetch filtered data
   const [getSensors, { isLoading, error }] = useGetSensorsMutation();
@@ -114,6 +116,30 @@ const Home = () => {
     }
   };
 
+  const handleViewChange = () => {
+    setViewType((prevType) => (prevType === 'grid' ? 'kanban' : 'grid'));
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      floatingCardRef.current &&
+      !floatingCardRef.current.contains(event.target as Node)
+    ) {
+      setWeatherEnabled(false);
+    }
+  };
+
+  useEffect(() => {
+    if (weatherEnabled) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [weatherEnabled]);
+
   // Render loading state
   if (isLoading) {
     return <FullScreenLoader />;
@@ -139,10 +165,6 @@ const Home = () => {
       soil: sensor.soil,
     })) ?? [];
 
-  const handleViewChange = () => {
-    setViewType((prevType) => (prevType === 'grid' ? 'kanban' : 'grid'));
-  };
-
   return (
     <>
       <PageTitle title={'Filtro de Dados'} />
@@ -155,7 +177,7 @@ const Home = () => {
         }}
       >
         {weatherEnabled && (
-          <FloatingCard>
+          <FloatingCard ref={floatingCardRef}>
             <Weather />
           </FloatingCard>
         )}

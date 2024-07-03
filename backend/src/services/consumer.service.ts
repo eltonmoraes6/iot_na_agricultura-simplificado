@@ -1,7 +1,10 @@
 import { Kafka } from 'kafkajs';
 import { Soil } from '../entities/soil.entity';
+import { IAlert } from '../interfaces/alert.interface';
+import { predictPestsAndDiseases } from '../services/pestsPrediction.service';
 import { AppDataSource } from '../utils/data-source';
 import { createSensor } from './sensors.service';
+
 require('dotenv').config();
 
 const soilRepository = AppDataSource.getRepository(Soil);
@@ -51,6 +54,20 @@ const connectConsumer = async () => {
         // Salvar a entidade Soil com o novo sensor
         const result = await soilRepository.save(soil);
         console.log('Result ========> ', result);
+        console.log('Data inserted into database from Kafka:', sensorData);
+
+        const alerts: IAlert[] = predictPestsAndDiseases(
+          soil.sensor.map((s) => ({
+            id: s.id,
+            temperature: s.temperature,
+            humidity: s.humidity,
+          }))
+        );
+
+        if (alerts.length > 0) {
+          alerts.forEach((alert) => console.log(alert.message));
+        }
+
         console.log('Data inserted into database from Kafka:', sensorData);
       } catch (err: any) {
         console.error('Error inserting data into the database:', err);

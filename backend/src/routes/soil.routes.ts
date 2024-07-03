@@ -1,4 +1,5 @@
 import express from 'express';
+import { getPestsAndDiseasesHandler } from '../controllers/pestsPrediction.controller';
 import {
   calculatePotentialEvapotranspiration,
   calculateSoilHumidityLimits,
@@ -32,5 +33,7 @@ router.get('/soil-humidity-limits', getSoilHumidityLimits);
 router.get('/predict-ideal-temperatures', predictIdealTemperatures);
 
 router.get('/calculate-soil-humidity-limits', calculateSoilHumidityLimits);
+
+router.get('/predict-pests-and-diseases', getPestsAndDiseasesHandler);
 
 export default router;
