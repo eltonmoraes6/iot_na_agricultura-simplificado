@@ -62,7 +62,7 @@ const Home = () => {
 
   const [viewType, setViewType] = useState('grid'); // State to manage the view type
   const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
-  const [weatherEnabled, setWeatherEnabled] = useState(true);
+  const [weatherEnabled, setWeatherEnabled] = useState(false);
   const floatingCardRef = useRef<HTMLDivElement | null>(null);
 
   // Use the mutation hook to fetch filtered data

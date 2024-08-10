@@ -276,19 +276,6 @@ export const calculateAndSaveSoilHumidityLimits = async (): Promise<any> => {
       await soilRepository.save(soil);
     }
   }
-  // let soilResult;
-  // for (const sensor of validSensors) {
-  //   const soil = await soilRepository.findOne({
-  //     where: { id: sensor.soil.id },
-  //   });
-  //   if (soil) {
-  //     soilResult = soil;
-  //   }
-  // }
-  // const minHumidity = Math.min(...inputs.map((input) => input[0])); // Ponto de murcha permanente
-  // const maxHumidity = Math.max(...inputs.map((input) => input[0])); // Capacidade de campo
-  // const minTemperature = predictedTemperature[0][0]; // Temperatura mínima prevista
-  // const maxTemperature = predictedTemperature[0][0]; // Temperatura máxima prevista
 
   return {
     minHumidity: Math.min(...inputs.map((input) => input[0])),

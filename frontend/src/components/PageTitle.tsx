@@ -10,29 +10,27 @@ export const PageTitle: React.FC<PageTitleProps> = ({ title }) => {
     <Box
       sx={{
         backgroundColor: '#ece9e9',
-        // mt: '2rem',
-        height: '8rem',
+        height: { xs: '6rem', md: '8rem' }, // Adjust height for different screen sizes
         textAlign: 'center',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        padding: { xs: '0 1rem', md: '0 2rem' }, // Adjust padding for better responsiveness
       }}
     >
       <Typography
-        variant='h2'
+        variant='h4' // Adjusted typography variant for better responsiveness
         component='h1'
         sx={{
           color: '#1f1e1e',
           fontWeight: 500,
-          marginLeft: 1,
           transition: 'all 0.3s ease-in-out',
           '&:hover': {
             transform: 'scale(1.25)',
-            transformOrigin: 'center center', // Change transform origin to right side
+            transformOrigin: 'center center', // Change transform origin to center
           },
         }}
       >
-        {/* Season Data Bar Chart */}
         {title}
       </Typography>
     </Box>

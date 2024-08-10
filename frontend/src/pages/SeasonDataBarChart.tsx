@@ -9,10 +9,7 @@ import Message from '../components/Message';
 import PageTitle from '../components/PageTitle';
 import DataTable from '../components/sensor/DataTable';
 import SensorDataBarChart from '../components/sensor/SensorDataBarChart';
-import {
-  useGetAllSensorsQuery,
-  useGetSensorsMutation,
-} from '../redux/api/sensorApi';
+import { useGetSensorsMutation } from '../redux/api/sensorApi';
 import { ISensor, PaginationModel } from '../redux/api/types';
 import { filterItems, sortItem } from '../utils/filterInfo';
 
@@ -20,7 +17,7 @@ const SeasonDataBarChart = () => {
   // Define states for filter criteria, pagination, sorting, and selection
 
   const [filter, setFilter] = useState('');
-  const [sort, setSort] = useState('');
+  const [sort, setSort] = useState('created_at'); // Default sort field
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
   const [fields, setFields] = useState('');
   const [paginationModel, setPaginationModel] = useState<PaginationModel>({
@@ -30,18 +27,13 @@ const SeasonDataBarChart = () => {
   const [filteredData, setFilteredData] = useState<ISensor[] | null>(null);
   const [viewType, setViewType] = useState<'chart' | 'grid'>('chart');
 
-  const {
-    isLoading: allSensorsLoading,
-    error: allSensorsFetchError,
-    data: allSensorsData,
-  } = useGetAllSensorsQuery();
   const [getSensors, { isLoading: sensorsLoading, error: sensorsFetchError }] =
     useGetSensorsMutation();
 
   const handleFilter = async () => {
     const { page, pageSize } = paginationModel;
     const pageNumber = page + 1;
-    let queryString = `limit=${pageSize}&page=${pageNumber}`;
+    let queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sortOrder}&sort=${sort}&fields=${fields}`;
 
     if (filter) {
       queryString += `&season=${filter}`;
@@ -57,11 +49,11 @@ const SeasonDataBarChart = () => {
     }
   };
 
-  if (allSensorsLoading || sensorsLoading) {
+  if (sensorsLoading) {
     return <FullScreenLoader />;
   }
 
-  const error = allSensorsFetchError || sensorsFetchError;
+  const error = sensorsFetchError;
 
   const getErrorMessage = (error: FetchBaseQueryError | SerializedError) => {
     if ('status' in error) {
@@ -86,7 +78,7 @@ const SeasonDataBarChart = () => {
     );
   }
 
-  const dataToDisplay = filteredData ?? allSensorsData;
+  const dataToDisplay = filteredData;
 
   // Convert data to IDataTable format for DataTable component
   const dataTableData =

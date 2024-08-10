@@ -52,9 +52,7 @@ const connectConsumer = async () => {
         soil.sensor.push(sensorData);
 
         // Salvar a entidade Soil com o novo sensor
-        const result = await soilRepository.save(soil);
-        console.log('Result ========> ', result);
-        console.log('Data inserted into database from Kafka:', sensorData);
+        await soilRepository.save(soil);
 
         const alerts: IAlert[] = predictPestsAndDiseases(
           soil.sensor.map((s) => ({

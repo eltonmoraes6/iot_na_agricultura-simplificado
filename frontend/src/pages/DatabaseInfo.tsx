@@ -109,22 +109,6 @@ const DatabaseInfo = () => {
     <>
       <PageTitle title={'Banco de Dados'} />
 
-      <Filter
-        filterItem={filterItems}
-        filter={filter}
-        setFilter={setFilter}
-        sort={sort}
-        sortItem={sortItem}
-        setSort={setSort}
-        sortOrder={sortOrder}
-        setSortOrder={setSortOrder}
-        fields={fields}
-        setFields={setFields}
-        paginationModel={paginationModel}
-        setPaginationModel={setPaginationModel}
-        handleFilter={handleFilter}
-      />
-
       <Box
         style={{
           height: 'auto',
@@ -132,6 +116,21 @@ const DatabaseInfo = () => {
           marginBottom: '50px',
         }}
       >
+        <Filter
+          filterItem={filterItems}
+          filter={filter}
+          setFilter={setFilter}
+          sort={sort}
+          sortItem={sortItem}
+          setSort={setSort}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          fields={fields}
+          setFields={setFields}
+          paginationModel={paginationModel}
+          setPaginationModel={setPaginationModel}
+          handleFilter={handleFilter}
+        />
         <Grid container spacing={2} mb={4}>
           <Container maxWidth={false}>
             <DataTable data={dataTableData || []} />

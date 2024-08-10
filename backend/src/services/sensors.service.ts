@@ -81,17 +81,6 @@ export const getDailyAndPeriodAverages = async () => {
   ];
 };
 
-const validSensorKeys = [
-  'id',
-  'humidity',
-  'temperature',
-  'season',
-  // 'location',
-  'created_at',
-  'updated_at',
-  'soil',
-] as const;
-
 const validateFields = (fields: string[]): (keyof Sensor)[] => {
   const validFields: (keyof Sensor)[] = [
     'id',

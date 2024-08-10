@@ -45,7 +45,6 @@ export const Calculate: React.FC<SoilTypeProps> = ({
           currentHumidity: 30,
           fieldCapacity: 50,
         }).unwrap();
-        console.log('Water Deficiency Result:', result.deficiency);
         setWaterDeficiencyResult(result.deficiency);
         setError(null);
       } catch (err) {
@@ -114,20 +113,20 @@ export const Calculate: React.FC<SoilTypeProps> = ({
         justifyContent={'center'}
         alignItems={'center'}
         display={'flex'}
-        ml={4}
+        sx={{ p: { xs: 2, sm: 4, md: 6 } }}
       >
-        <Grid item sm={12} xs={8} md={6}>
+        <Grid item xs={12} sm={8} md={6}>
           <Typography
             color='info'
-            variant='h2'
+            variant='h4'
             sx={{
               textAlign: 'center',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.3s ease-in-out',
               '&:hover': {
-                transform: 'scale(1.25)',
-                transformOrigin: 'center center', // Change transform origin to right side
+                transform: 'scale(1.15)',
+                transformOrigin: 'center center',
               },
             }}
           >
@@ -135,66 +134,66 @@ export const Calculate: React.FC<SoilTypeProps> = ({
             <WaterDamageIcon
               color='info'
               sx={{
-                width: 60,
-                height: 60,
+                width: { xs: 40, sm: 50, md: 60 },
+                height: { xs: 40, sm: 50, md: 60 },
               }}
             />
           </Typography>
           <Grid container>
             {waterDeficiencyResult !== null && (
-              <Grid item sm={12} xs={8} md={6}>
+              <Grid item xs={12} sm={8} md={6}>
                 <WaterIcon color='primary' />
                 <Typography
                   variant='h6'
                   sx={{
                     transition: 'all 0.3s ease-in-out',
                     '&:hover': {
-                      transform: 'scale(1.25)',
-                      transformOrigin: 'center center', // Change transform origin to right side
+                      transform: 'scale(1.15)',
+                      transformOrigin: 'center center',
                     },
                   }}
                 >
                   Deficiência de Água:
                 </Typography>
-                <Typography variant='h3' color={'Highlight'}>
+                <Typography variant='h4' color={'Highlight'}>
                   {waterDeficiencyResult}
                 </Typography>
               </Grid>
             )}
             {potentialEvapotranspirationResult !== null && (
-              <Grid item sm={12} xs={8} md={6}>
+              <Grid item xs={12} sm={8} md={6}>
                 <OpacityIcon color='secondary' />
                 <Typography
                   variant='h6'
                   sx={{
                     transition: 'all 0.3s ease-in-out',
                     '&:hover': {
-                      transform: 'scale(1.25)',
-                      transformOrigin: 'center center', // Change transform origin to right side
+                      transform: 'scale(1.15)',
+                      transformOrigin: 'center center',
                     },
                   }}
                 >
                   Evapotranspiração Potencial:
                 </Typography>
-                <Typography variant='h3' color={'Highlight'}>
+                <Typography variant='h4' color={'Highlight'}>
                   {potentialEvapotranspirationResult}
                 </Typography>
               </Grid>
             )}
           </Grid>
         </Grid>
-        <Grid item sm={12} xs={8} md={6}>
+        <Grid item xs={12} sm={8} md={6}>
           <Typography
             color={'red'}
-            variant='h2'
+            variant='h4'
             sx={{
               textAlign: 'center',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.3s ease-in-out',
               '&:hover': {
-                transform: 'scale(1.25)',
-                transformOrigin: 'center center', // Change transform origin to right side
+                transform: 'scale(1.15)',
+                transformOrigin: 'center center',
               },
             }}
           >
@@ -202,22 +201,22 @@ export const Calculate: React.FC<SoilTypeProps> = ({
             <ThermostatIcon
               color='error'
               sx={{
-                width: 60,
-                height: 60,
+                width: { xs: 40, sm: 50, md: 60 },
+                height: { xs: 40, sm: 50, md: 60 },
               }}
             />
           </Typography>
           <Grid container>
             {idealTemperatureResult !== null && (
               <>
-                <Grid item sm={12} xs={8} md={6}>
+                <Grid item xs={12} sm={8} md={6}>
                   <GaugeChartComponent
                     id='temperature-gauge'
                     title={'Atual'}
                     item={temperature}
                   />
                 </Grid>
-                <Grid item sm={12} xs={8} md={6}>
+                <Grid item xs={12} sm={8} md={6}>
                   <GaugeChartComponent
                     id='temperature-gauge'
                     title={'Ideal'}

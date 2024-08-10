@@ -54,12 +54,10 @@ export const SensorDataBarChart: React.FC<Props> = ({ sensorData }) => {
   const chartData = convertDataForBarChart(sensorData);
 
   return (
-    <ResponsiveContainer width='100%' height='100%'>
+    <ResponsiveContainer width='100%' height={300}>
       <BarChart
-        width={500}
-        height={300}
         data={chartData}
-        // margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
+        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray='3 3' />
         <XAxis dataKey='season' />

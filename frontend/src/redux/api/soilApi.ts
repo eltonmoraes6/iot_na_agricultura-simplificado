@@ -27,7 +27,7 @@ export const soilApi = createApi({
     getSoils: builder.mutation<ISoil[], string>({
       query: (queryString: string) => {
         return {
-          url: `/soils/info/advanced?${queryString.toString()}`,
+          url: `/soils/info/index?${queryString.toString()}`,
           credentials: 'include',
         };
       },

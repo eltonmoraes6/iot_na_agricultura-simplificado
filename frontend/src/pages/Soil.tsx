@@ -112,72 +112,68 @@ const Soil = () => {
   };
 
   return (
-    <>
-      <PageTitle title={'Métricas'} />
+    <Grid>
+      <Container maxWidth='xl'>
+        <PageTitle title={'Métricas'} />
 
-      <Box
-        style={{
-          height: 'auto',
-          width: '100%',
-          marginBottom: '50px',
-        }}
-      >
-        <Box textAlign='right'>
-          <Button
-            // fullWidth
-            sx={{ mb: 2, mt: 2 }}
-            variant='contained'
-            color='primary'
-            size='medium'
-            onClick={handleViewChange} // Function to toggle between views
-          >
-            {viewType === 'grid'
-              ? 'Vizualizar como Tabela'
-              : 'Vizualizar como Gráfico'}
-          </Button>
-        </Box>
-        <SensorFilter
-          filterItem={filterItems}
-          filter={filter}
-          setFilter={setFilter}
-          sort={sort}
-          sortItem={sortItem}
-          setSort={setSort}
-          sortOrder={sortOrder}
-          setSortOrder={setSortOrder}
-          fields={fields}
-          setFields={setFields}
-          paginationModel={paginationModel}
-          setPaginationModel={setPaginationModel}
-          handleFilter={handleFilter}
-        />
-        {viewType === 'grid' ? (
-          <Container
-            maxWidth={false}
-            sx={{ backgroundColor: '#fff', height: '100vh' }}
-          >
-            <Grid container spacing={2} mb={4}>
-              <Grid
-                container
-                rowSpacing={1}
-                columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-              >
+        <Box
+          style={{
+            height: 'auto',
+            width: '100%',
+            marginBottom: '50px',
+          }}
+        >
+          <Box textAlign='right'>
+            <Button
+              // fullWidth
+              sx={{ mb: 2, mt: 2 }}
+              variant='contained'
+              color='primary'
+              size='medium'
+              onClick={handleViewChange} // Function to toggle between views
+            >
+              {viewType === 'grid'
+                ? 'Vizualizar como Tabela'
+                : 'Vizualizar como Gráfico'}
+            </Button>
+          </Box>
+          <SensorFilter
+            filterItem={filterItems}
+            filter={filter}
+            setFilter={setFilter}
+            sort={sort}
+            sortItem={sortItem}
+            setSort={setSort}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            fields={fields}
+            setFields={setFields}
+            paginationModel={paginationModel}
+            setPaginationModel={setPaginationModel}
+            handleFilter={handleFilter}
+          />
+          {viewType === 'grid' ? (
+            <Container
+              maxWidth={false}
+              sx={{ backgroundColor: '#fff', height: '100vh' }}
+            >
+              <Grid container spacing={2} mb={4}>
                 <Calculate
                   soilType={dataTableData[0]?.soilType || 'Latossolos'}
                   temperature={OneSensorData ? OneSensorData[0].temperature : 0}
                 />
               </Grid>
-            </Grid>
-          </Container>
-        ) : (
-          <Grid container spacing={2} mb={4}>
-            <Container maxWidth={false}>
-              <SoilDataTable data={dataTableData || []} />
             </Container>
-          </Grid>
-        )}
-      </Box>
-    </>
+          ) : (
+            <Grid container spacing={2} mb={4}>
+              <Container maxWidth={false}>
+                <SoilDataTable data={dataTableData || []} />
+              </Container>
+            </Grid>
+          )}
+        </Box>
+      </Container>
+    </Grid>
   );
 };
 

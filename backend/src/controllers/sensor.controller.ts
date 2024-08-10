@@ -3,7 +3,6 @@ import { CreateSensorInput } from '../schemas/sensor.schema';
 import {
   createSensor,
   findOneSensor,
-  findSensor,
   findSensorBySeason,
   findSensorsAdvanced,
   getDailyAndPeriodAverages,
@@ -16,16 +15,40 @@ export const indexHandler = async (
   next: NextFunction
 ) => {
   try {
-    const sensors = await findSensor({});
+    const { sort, sortOrder, page, limit, fields } = req.query;
 
-    res.status(200).status(200).json({
+    // Parse filters with error handling for proper conversion to numeric
+    const filters = parseFilters(req.query);
+
+    const queryOptions = {
+      filters,
+      sort: sort
+        ? {
+            field: sort as string,
+            order: (sortOrder as 'ASC' | 'DESC') || 'ASC',
+          }
+        : undefined,
+      pagination: {
+        page: parseInt(page as string, 10) || 1,
+        limit: parseInt(limit as string, 10) || 10,
+      },
+      fields: fields ? (fields as string).split(',') : undefined,
+    };
+
+    const sensors = await findSensorsAdvanced(queryOptions);
+
+    res.status(200).json({
       status: 'success',
+      results: sensors.length,
       data: {
         sensors,
       },
     });
-  } catch (err: any) {
-    next(err);
+  } catch (error: any) {
+    res.status(400).json({
+      status: 'error',
+      message: error.message,
+    });
   }
 };
 
@@ -101,49 +124,6 @@ export const getDailyAndPeriodAveragesHandler = async (
     next(error);
   }
 }; // Type for expected query parameters
-
-export const getAllSensorsHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { sort, sortOrder, page, limit, fields } = req.query;
-
-    // Parse filters with error handling for proper conversion to numeric
-    const filters = parseFilters(req.query);
-
-    const queryOptions = {
-      filters,
-      sort: sort
-        ? {
-            field: sort as string,
-            order: (sortOrder as 'ASC' | 'DESC') || 'ASC',
-          }
-        : undefined,
-      pagination: {
-        page: parseInt(page as string, 10) || 1,
-        limit: parseInt(limit as string, 10) || 10,
-      },
-      fields: fields ? (fields as string).split(',') : undefined,
-    };
-
-    const sensors = await findSensorsAdvanced(queryOptions);
-
-    res.status(200).json({
-      status: 'success',
-      results: sensors.length,
-      data: {
-        sensors,
-      },
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      status: 'error',
-      message: error.message,
-    });
-  }
-};
 
 export const getLastSensor = async (
   req: Request,

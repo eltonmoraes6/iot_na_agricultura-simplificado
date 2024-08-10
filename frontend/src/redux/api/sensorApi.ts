@@ -33,33 +33,14 @@ export const sensorApi = createApi({
     getSensors: builder.mutation<ISensor[], string>({
       query: (queryString: string) => {
         return {
-          url: `/sensors/info/advanced?${queryString.toString()}`,
+          url: `/sensors/info/index?${queryString.toString()}`,
           credentials: 'include',
         };
       },
       transformResponse: (results: { data: { sensors: ISensor[] } }) =>
         results.data.sensors,
     }),
-    getAllSensors: builder.query<ISensor[], void>({
-      query() {
-        return {
-          url: `/sensors/index`,
-          credentials: 'include',
-        };
-      },
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }) => ({
-                type: 'Sensors' as const,
-                id,
-              })),
-              { type: 'Sensors', id: 'LIST' },
-            ]
-          : [{ type: 'Sensors', id: 'LIST' }],
-      transformResponse: (results: { data: { sensors: ISensor[] } }) =>
-        results.data.sensors,
-    }),
+
     // Query to get daily and period-based averages
     getDailyAndPeriodAverages: builder.query<
       IDailyAndPeriodAveragesResponse,
@@ -90,7 +71,6 @@ export const sensorApi = createApi({
 });
 
 export const {
-  useGetAllSensorsQuery,
   useGetOneSensorQuery,
   useGetDailyAndPeriodAveragesQuery,
   useGetSensorsMutation,

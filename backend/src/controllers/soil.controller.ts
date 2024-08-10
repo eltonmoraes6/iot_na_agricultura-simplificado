@@ -3,7 +3,6 @@ import { CreateSoilInput } from '../schemas/soil.schema';
 import {
   calculateAndSaveSoilHumidityLimits,
   createSoil,
-  findSoil,
   findSoilAdvanced,
   idealTemperatureAverage,
   idealTemperatures,
@@ -14,64 +13,6 @@ import {
 import { parseFilters } from '../utils/queryParams';
 
 export const indexHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const soil = await findSoil({});
-
-    res.status(200).status(200).json({
-      status: 'success',
-      data: {
-        soil,
-      },
-    });
-  } catch (err: any) {
-    next(err);
-  }
-};
-
-export const registerSoilHandler = async (
-  req: Request<{}, {}, CreateSoilInput>,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const {
-      minHumidity,
-      maxHumidity,
-      minTemperature,
-      maxTemperature,
-      soilType,
-    } = req.body;
-
-    const soil = await createSoil({
-      minHumidity,
-      maxHumidity,
-      minTemperature,
-      maxTemperature,
-      soilType,
-    });
-
-    res.status(201).json({
-      status: 'success',
-      data: {
-        soil,
-      },
-    });
-  } catch (err: any) {
-    if (err.code === '23505') {
-      return res.status(409).json({
-        status: 'fail',
-        message: 'something went wrong!',
-      });
-    }
-    next(err);
-  }
-};
-
-export const getAllSoilsHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -114,6 +55,45 @@ export const getAllSoilsHandler = async (
   }
 };
 
+export const registerSoilHandler = async (
+  req: Request<{}, {}, CreateSoilInput>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      minHumidity,
+      maxHumidity,
+      minTemperature,
+      maxTemperature,
+      soilType,
+    } = req.body;
+
+    const soil = await createSoil({
+      minHumidity,
+      maxHumidity,
+      minTemperature,
+      maxTemperature,
+      soilType,
+    });
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        soil,
+      },
+    });
+  } catch (err: any) {
+    if (err.code === '23505') {
+      return res.status(409).json({
+        status: 'fail',
+        message: 'something went wrong!',
+      });
+    }
+    next(err);
+  }
+};
+
 export const calculateWaterDeficiency = async (req: Request, res: Response) => {
   try {
     const { currentHumidity, fieldCapacity } = req.body;
@@ -133,7 +113,6 @@ export const calculatePotentialEvapotranspiration = async (
   try {
     const { kc, eto } = req.body;
     const etp = await potentialEvapotranspiration(kc, eto);
-    console.log('etp =======> ', etp);
     res.status(200).json({ etp });
   } catch (error) {
     res.status(500).json({

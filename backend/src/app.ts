@@ -15,9 +15,8 @@ import AppError from './utils/appError';
 import { AppDataSource } from './utils/data-source';
 
 import validateEnv from './utils/validateEnv';
-
-// import './services/arduino.service';
-
+// test
+import './procedures/index';
 import './services/consumer.service';
 import './services/producer.service';
 

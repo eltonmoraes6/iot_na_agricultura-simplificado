@@ -1,4 +1,4 @@
-import { Paper } from '@mui/material';
+import { Box, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
   PaginationState,
@@ -28,6 +28,8 @@ const FloatingCard = styled(Paper)(({ theme }) => ({
   boxShadow: theme.shadows[5],
   maxHeight: '80vh',
   overflowY: 'auto',
+  width: '90%', // Adjusted width for mobile responsiveness
+  maxWidth: '600px', // Maximum width to prevent excessive enlargement
 }));
 
 const columnHelper = createColumnHelper<ISoil>();
@@ -132,96 +134,105 @@ const SoilDataTable = ({ data }: { data: ISoil[] }) => {
   });
 
   return (
-    <div>
-      <div className='search-bar'>
-        <form>
-          <input
-            type='text'
-            placeholder='Buscar...'
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
-        </form>
-      </div>
-      <table className='data-table'>
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id} className='data-table-cell'>
-                  <div
-                    {...{
-                      className: header.column.getCanSort()
-                        ? 'cursor-pointer select-none'
-                        : '',
-                      onClick: header.column.getToggleSortingHandler(),
-                    }}
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                    {{
-                      asc: ' 🔼',
-                      desc: ' 🔽',
-                    }[header.column.getIsSorted() as string] ?? null}
-                  </div>
-                </th>
+    <Box sx={{ mt: 4 }}>
+      <div className='data-table-container'>
+        <div className='search-bar'>
+          <form>
+            <input
+              type='text'
+              placeholder='Buscar...'
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </form>
+        </div>
+        <div className='data-table-wrapper'>
+          <table className='data-table'>
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th key={header.id} className='data-table-cell'>
+                      <div
+                        {...{
+                          className: header.column.getCanSort()
+                            ? 'cursor-pointer select-none'
+                            : '',
+                          onClick: header.column.getToggleSortingHandler(),
+                        }}
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        {{
+                          asc: ' 🔼',
+                          desc: ' 🔽',
+                        }[header.column.getIsSorted() as string] ?? null}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className='data-table-cell'>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className='data-table-cell'>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                  {isCardVisible(row.original.id) && (
+                    <FloatingCard ref={floatingCardRef}>
+                      <SensorDataTable
+                        data={row.original.sensor as ISensor[]}
+                      />
+                    </FloatingCard>
+                  )}
+                </tr>
               ))}
-              {isCardVisible(row.original.id) && (
-                <FloatingCard ref={floatingCardRef}>
-                  <SensorDataTable data={row.original.sensor as ISensor[]} />
-                </FloatingCard>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className='pagination'>
-        <button
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          {'<'}
-        </button>
-        <span>
-          Page{' '}
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of{' '}
-            {table.getPageCount()}
-          </strong>{' '}
-        </span>
-        <button
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          {'>'}
-        </button>
-        <select
-          value={table.getState().pagination.pageSize}
-          onChange={(e) => {
-            table.setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
+            </tbody>
+          </table>
+        </div>
+        <div className='pagination'>
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {'<'}
+          </button>
+          <span>
+            Page{' '}
+            <strong>
+              {table.getState().pagination.pageIndex + 1} of{' '}
+              {table.getPageCount()}
+            </strong>{' '}
+          </span>
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {'>'}
+          </button>
+          <select
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-    </div>
+    </Box>
   );
 };
 
