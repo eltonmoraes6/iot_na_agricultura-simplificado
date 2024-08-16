@@ -1,3 +1,4 @@
+import config from 'config';
 import { Kafka } from 'kafkajs';
 import { Soil } from '../entities/soil.entity';
 import { IAlert } from '../interfaces/alert.interface';
@@ -7,11 +8,15 @@ import { createSensor } from './sensors.service';
 
 require('dotenv').config();
 
+const apacheKafkaConfig = config.get<{ brokers: string; clientId: string }>(
+  'apacheKafka'
+);
+
 const soilRepository = AppDataSource.getRepository(Soil);
 
 const kafka = new Kafka({
-  clientId: 'my-app',
-  brokers: ['localhost:19092'],
+  clientId: apacheKafkaConfig.clientId,
+  brokers: [apacheKafkaConfig.brokers],
 });
 
 const consumer = kafka.consumer({ groupId: 'kafka' });

@@ -21,6 +21,11 @@ export default {
     apiKey: 'OPEN_WEATHER_MAP_API_KEY',
   },
 
+  apacheKafka: {
+    brokers: 'APACHE_KAFKA_BROKERS',
+    clientId: 'APACHE_KAFKA_CLIENT_ID',
+  },
+
   serialPortConfig: {
     baudRate: 'BAUD_RATE',
     comPort: 'COM_PORT',
