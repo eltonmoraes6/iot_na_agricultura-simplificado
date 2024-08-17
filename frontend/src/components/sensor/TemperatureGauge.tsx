@@ -1,29 +1,29 @@
 import { Typography } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
-import { ISensor } from '../../redux/api/types';
 
 interface TemperatureGaugeProps {
   isLoading: boolean;
   isError: unknown;
-  sensors: ISensor[]; // You might want to replace `any[]` with the appropriate type for your sensors
+  // sensors: ISensor[]; // You might want to replace `any[]` with the appropriate type for your sensors
+  temperature: number;
 }
 
 export const TemperatureGauge: React.FC<TemperatureGaugeProps> = ({
   isLoading,
   isError,
-  sensors,
+  temperature,
 }) => {
   // Extract last temperature value from sensorData array
-  const lastTemperature =
-    sensors && sensors.length > 0 ? sensors[sensors.length - 1].temperature : 0;
+  // const lastTemperature =
+  //   sensors && sensors.length > 0 ? sensors[sensors.length - 1].temperature : 0;
 
   return (
     <>
       <Typography color={'red'}>Temperatura</Typography>
-      {!isLoading && !isError && sensors && (
+      {!isLoading && !isError && temperature && (
         <GaugeChart
           id='temperature-gauge'
-          percent={lastTemperature / 100} // Normalize temperature value to a percentage
+          percent={temperature / 100} // Normalize temperature value to a percentage
           arcPadding={0.02}
           arcWidth={0.3}
           colors={['#4BD2D2', '#FFC371', '#FF5F6D']}

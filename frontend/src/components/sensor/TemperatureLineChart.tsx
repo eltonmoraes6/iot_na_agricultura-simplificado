@@ -13,6 +13,8 @@ import {
 } from 'recharts';
 import { ISensor } from '../../redux/api/types';
 
+import './sensor.style.css';
+
 interface TemperatureLineChartProps {
   isLoading: boolean;
   isError: unknown;

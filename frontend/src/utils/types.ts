@@ -57,3 +57,11 @@ export interface IdealTemperatureRequest {
 export interface IdealTemperatureResponse {
   idealTemperature: number;
 }
+
+export interface IdealHumidityRequest {
+  soilType: string;
+}
+
+export interface IdealHumidityResponse {
+  idealHumidity: number;
+}

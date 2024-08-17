@@ -12,10 +12,6 @@ const arduinoConfig = config.get<{ baudRate: string; comPort: string }>(
   'serialPortConfig'
 );
 
-const apacheKafkaConfig = config.get<{ brokers: string; clientId: string }>(
-  'apacheKafka'
-);
-
 const serialPortOptions: SerialPortOpenOptions<any> = {
   path: arduinoConfig.comPort,
   baudRate: parseInt(arduinoConfig.baudRate, 10),
@@ -27,8 +23,8 @@ const parser = new ReadlineParser({ delimiter: '\r\n' });
 arduinoPort.pipe(parser);
 
 const kafka = new Kafka({
-  clientId: apacheKafkaConfig.clientId,
-  brokers: [apacheKafkaConfig.brokers],
+  clientId: 'my-app',
+  brokers: ['192.168.0.115:9092', '<WAN-IP>:9094'],
 });
 
 const producer = kafka.producer();

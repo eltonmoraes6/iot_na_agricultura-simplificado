@@ -90,20 +90,20 @@ export const Calculate: React.FC<SoilTypeProps> = ({
     soilType,
   ]);
 
-  useEffect(() => {
-    console.log('Updated Water Deficiency Result:', waterDeficiencyResult);
-  }, [waterDeficiencyResult]);
+  // useEffect(() => {
+  //   console.log('Updated Water Deficiency Result:', waterDeficiencyResult);
+  // }, [waterDeficiencyResult]);
 
-  useEffect(() => {
-    console.log(
-      'Updated Potential Evapotranspiration Result:',
-      potentialEvapotranspirationResult
-    );
-  }, [potentialEvapotranspirationResult]);
+  // useEffect(() => {
+  //   console.log(
+  //     'Updated Potential Evapotranspiration Result:',
+  //     potentialEvapotranspirationResult
+  //   );
+  // }, [potentialEvapotranspirationResult]);
 
-  useEffect(() => {
-    console.log('Updated Ideal Temperature Result:', idealTemperatureResult);
-  }, [idealTemperatureResult]);
+  // useEffect(() => {
+  //   console.log('Updated Ideal Temperature Result:', idealTemperatureResult);
+  // }, [idealTemperatureResult]);
 
   return (
     <>

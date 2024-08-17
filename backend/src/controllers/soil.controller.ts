@@ -4,6 +4,7 @@ import {
   calculateAndSaveSoilHumidityLimits,
   createSoil,
   findSoilAdvanced,
+  idealHumidityAverage,
   idealTemperatureAverage,
   idealTemperatures,
   potentialEvapotranspiration,
@@ -119,6 +120,17 @@ export const calculatePotentialEvapotranspiration = async (
       message: 'Error calculating potential evapotranspiration',
       error,
     });
+  }
+};
+
+export const getIdealHumidity = async (req: Request, res: Response) => {
+  try {
+    const { soilType } = req.body;
+    const idealHumidity = await idealHumidityAverage(soilType);
+    res.status(200).json(idealHumidity);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error getting ideal humidity', error });
   }
 };
 

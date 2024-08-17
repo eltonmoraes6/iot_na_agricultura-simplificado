@@ -58,6 +58,18 @@ export const idealTemperatureAverage = async (soilType: SoilType) => {
   throw new Error('Soil type not found');
 };
 
+// Monitoramento de Estresse Térmico
+export const idealHumidityAverage = async (soilType: SoilType) => {
+  const soil = await soilRepository.findOne({ where: { soilType } });
+  if (soil) {
+    const minHumidity = parseFloat(soil.minHumidity as unknown as string);
+    const maxHumidity = parseFloat(soil.maxHumidity as unknown as string);
+    const idealHumidity = (maxHumidity + minHumidity) / 2;
+    return { idealHumidity };
+  }
+  throw new Error('Soil type not found');
+};
+
 export const createSoil = async (input: DeepPartial<Soil>) => {
   return soilRepository.save(soilRepository.create(input));
 };

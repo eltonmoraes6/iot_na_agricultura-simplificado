@@ -128,7 +128,7 @@ export default function Layout() {
     }
     if (alerts.length > 0) {
       // setOpen(true);
-      console.log('alerts ====> ', alerts);
+      // console.log('alerts ====> ', alerts);
     }
   }, [alerts]);
 

@@ -1,4 +1,3 @@
-import config from 'config';
 import { Kafka } from 'kafkajs';
 import { Soil } from '../entities/soil.entity';
 import { IAlert } from '../interfaces/alert.interface';
@@ -8,18 +7,14 @@ import { createSensor } from './sensors.service';
 
 require('dotenv').config();
 
-const apacheKafkaConfig = config.get<{ brokers: string; clientId: string }>(
-  'apacheKafka'
-);
-
 const soilRepository = AppDataSource.getRepository(Soil);
 
 const kafka = new Kafka({
-  clientId: apacheKafkaConfig.clientId,
-  brokers: [apacheKafkaConfig.brokers],
+  clientId: 'my-app',
+  brokers: ['192.168.0.115:9092', '<WAN-IP>:9094'],
 });
 
-const consumer = kafka.consumer({ groupId: 'kafka' });
+const consumer = kafka.consumer({ groupId: 'kafka', retry: { retries: 5 } });
 
 const connectConsumer = async () => {
   await consumer.connect();

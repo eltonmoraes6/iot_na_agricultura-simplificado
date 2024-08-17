@@ -1,0 +1,109 @@
+.data-table {
+  width: 100%;
+  border: 1px solid #ddd; /* Border for the entire table */
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid #ddd; /* Border for table header and body cells */
+  padding: 4px 8px; /* Thinner row height */
+  text-align: center; /* Center align text */
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Ellipsis for overflow text */
+}
+
+.data-table th {
+  background-color: #f2f2f2; /* Header cell background color */
+}
+
+.floating-card {
+  position: fixed; /* Fixed position for card */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  z-index: 1000;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 600px;
+}
+
+.search-bar {
+  margin-bottom: 20px;
+}
+
+/* Search Input */
+.search-bar input[type='text'] {
+  padding: 12px 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  font-size: 14px;
+}
+
+.search-bar input[type='text']:focus {
+  border: 1px solid #1976d2; /* Blue border on focus */
+  outline: none; /* Remove default outline */
+}
+
+/* Pagination Buttons */
+.pagination button {
+  background-color: #1976d2; /* Primary color */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button:hover {
+  background-color: #1565c0; /* Darker shade of primary color */
+}
+
+.pagination button:disabled {
+  background-color: #ddd; /* Disabled button color */
+  color: #555; /* Disabled button text color */
+  cursor: not-allowed;
+}
+
+/* Pagination Select */
+.pagination select {
+  background-color: #1976d2; /* Primary color */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.return-date-row {
+  background-color: #e0f7fa; /* Light cyan background */
+}
+
+@media only screen and (max-width: 576px) {
+  .pagination button {
+    padding: 8px 8px;
+    font-size: 14px;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+}

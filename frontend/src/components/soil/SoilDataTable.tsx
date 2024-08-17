@@ -1,4 +1,18 @@
-import { Box, Paper } from '@mui/material';
+import {
+  Box,
+  Button,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TextField,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
   PaginationState,
@@ -14,9 +28,9 @@ import {
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import { ISensor, ISoil } from '../../redux/api/types';
-import '../styles/dataTable.css';
-import SensorDataTable from './SensorDataTable'; // import the new SensorDataTable component
+import SensorDataTable from './SensorDataTable'; // Import the SensorDataTable component
 
+import '../../styles/dataTable.css';
 const FloatingCard = styled(Paper)(({ theme }) => ({
   position: 'fixed',
   top: '50%',
@@ -28,20 +42,22 @@ const FloatingCard = styled(Paper)(({ theme }) => ({
   boxShadow: theme.shadows[5],
   maxHeight: '80vh',
   overflowY: 'auto',
-  width: '90%', // Adjusted width for mobile responsiveness
-  maxWidth: '600px', // Maximum width to prevent excessive enlargement
+  width: '90%',
+  maxWidth: '600px',
 }));
 
 const columnHelper = createColumnHelper<ISoil>();
 
 const SoilDataTable = ({ data }: { data: ISoil[] }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [searchValue, setSearchValue] = useState('');
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
-
   const [visibleCardId, setVisibleCardId] = useState<string | null>(null);
   const floatingCardRef = useRef<HTMLDivElement | null>(null);
 
@@ -72,16 +88,12 @@ const SoilDataTable = ({ data }: { data: ISoil[] }) => {
   }, [visibleCardId]);
 
   const columns = [
-    columnHelper.accessor('id', {
-      header: () => 'ID',
-      cell: (info) => info.getValue(),
-    }),
     columnHelper.accessor('minTemperature', {
       header: () => 'Temperatura Mínima',
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor('maxTemperature', {
-      header: () => 'Temperatura Máxia',
+      header: () => 'Temperatura Máxima',
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor('minHumidity', {
@@ -107,11 +119,16 @@ const SoilDataTable = ({ data }: { data: ISoil[] }) => {
     columnHelper.accessor('sensor', {
       header: () => 'Ações',
       cell: (info) => (
-        <button onClick={() => handleToggle(info.row.original.id)}>
+        <Button
+          size='small'
+          variant='contained'
+          color='primary'
+          onClick={() => handleToggle(info.row.original.id)}
+        >
           {isCardVisible(info.row.original.id)
             ? 'Ocultar Sensores'
             : 'Mostrar Sensores'}
-        </button>
+        </Button>
       ),
     }),
   ];
@@ -134,104 +151,85 @@ const SoilDataTable = ({ data }: { data: ISoil[] }) => {
   });
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <div className='data-table-container'>
-        <div className='search-bar'>
-          <form>
-            <input
-              type='text'
-              placeholder='Buscar...'
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-            />
-          </form>
-        </div>
-        <div className='data-table-wrapper'>
-          <table className='data-table'>
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th key={header.id} className='data-table-cell'>
-                      <div
-                        {...{
-                          className: header.column.getCanSort()
-                            ? 'cursor-pointer select-none'
-                            : '',
-                          onClick: header.column.getToggleSortingHandler(),
-                        }}
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        {{
-                          asc: ' 🔼',
-                          desc: ' 🔽',
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className='data-table-cell'>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
-                  {isCardVisible(row.original.id) && (
+    <Box>
+      <Box sx={{ mb: 2 }}>
+        <TextField
+          type='text'
+          placeholder='Buscar...'
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          fullWidth
+          variant='outlined'
+          size='small'
+        />
+      </Box>
+      <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+        <Table className='data-table'>
+          <TableHead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableCell
+                    key={header.id}
+                    onClick={header.column.getToggleSortingHandler()}
+                    sx={{
+                      cursor: header.column.getCanSort() ? 'pointer' : 'auto',
+                      whiteSpace: 'nowrap',
+                      minWidth: isMobile ? 100 : 'auto', // Adjust minWidth for mobile
+                    }}
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                    {{
+                      asc: ' 🔼',
+                      desc: ' 🔽',
+                    }[header.column.getIsSorted() as string] ?? null}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+                {isCardVisible(row.original.id) && (
+                  <TableCell colSpan={columns.length}>
                     <FloatingCard ref={floatingCardRef}>
                       <SensorDataTable
                         data={row.original.sensor as ISensor[]}
                       />
                     </FloatingCard>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className='pagination'>
-          <button
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {'<'}
-          </button>
-          <span>
-            Page{' '}
-            <strong>
-              {table.getState().pagination.pageIndex + 1} of{' '}
-              {table.getPageCount()}
-            </strong>{' '}
-          </span>
-          <button
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            {'>'}
-          </button>
-          <select
-            value={table.getState().pagination.pageSize}
-            onChange={(e) => {
-              table.setPageSize(Number(e.target.value));
-            }}
-          >
-            {[10, 20, 30, 40, 50].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
+                  </TableCell>
+                )}
+              </TableRow>
             ))}
-          </select>
-        </div>
-      </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Box sx={{ mt: 2 }}>
+        <TablePagination
+          component='div'
+          count={table.getFilteredRowModel().rows.length}
+          page={table.getState().pagination.pageIndex}
+          onPageChange={(_event, newPage) => table.setPageIndex(newPage)}
+          rowsPerPage={table.getState().pagination.pageSize}
+          onRowsPerPageChange={(event) =>
+            table.setPageSize(Number(event.target.value))
+          }
+          rowsPerPageOptions={[5, 10, 20, 30, 40, 50]}
+          labelRowsPerPage='Mostrar'
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} de ${count}`
+          }
+        />
+      </Box>
     </Box>
   );
 };

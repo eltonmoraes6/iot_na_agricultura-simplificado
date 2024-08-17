@@ -1,5 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import {
+  IdealHumidityRequest,
+  IdealHumidityResponse,
   IdealTemperatureRequest,
   IdealTemperatureResponse,
   PotentialEvapotranspirationRequest,
@@ -64,12 +66,24 @@ export const soilApi = createApi({
         body,
       }),
     }),
+
+    getIdealHumidity: builder.mutation<
+      IdealHumidityResponse,
+      IdealHumidityRequest
+    >({
+      query: (body) => ({
+        url: '/soils/get-ideal-humidity',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
 export const {
   useGetSoilQuery,
   useGetSoilsMutation,
+  useGetIdealHumidityMutation,
   useCalculateWaterDeficiencyMutation,
   useCalculatePotentialEvapotranspirationMutation,
   useGetIdealTemperatureMutation,

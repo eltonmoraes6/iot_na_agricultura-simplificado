@@ -26,6 +26,9 @@
   white-space: nowrap; /* Prevent text wrapping */
   overflow: hidden;
   text-overflow: ellipsis; /* Add ellipsis for overflow text */
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .data-table td {

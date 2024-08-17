@@ -4,6 +4,7 @@ import {
   calculatePotentialEvapotranspiration,
   calculateSoilHumidityLimits,
   calculateWaterDeficiency,
+  getIdealHumidity,
   getIdealTemperature,
   getSoilHumidityLimits,
   indexHandler,
@@ -26,6 +27,8 @@ router.post(
   calculatePotentialEvapotranspiration
 );
 router.post('/get-ideal-temperature', getIdealTemperature);
+
+router.post('/get-ideal-humidity', getIdealHumidity);
 // Dados Completos
 // [
 // 	{
