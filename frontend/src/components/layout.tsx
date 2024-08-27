@@ -17,8 +17,9 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 
 import { Alert as AlertType, useFetchAlertsQuery } from '../redux/api/alertApi';
 
-import { Alert, Badge, CircularProgress, Paper } from '@mui/material';
+import { Alert, Badge, Paper } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
+import FullScreenLoader from './FullScreenLoader';
 import {
   mainListItems,
   quaternaryListItems,
@@ -165,8 +166,9 @@ export default function Layout() {
     };
   }, [alertOpen]);
 
-  if (isLoadingAlerts) return <CircularProgress />;
-
+  if (isLoadingAlerts) {
+    return <FullScreenLoader />;
+  }
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />

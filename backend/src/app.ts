@@ -1,77 +1,121 @@
+import 'reflect-metadata';
 require('dotenv').config();
-import config from 'config';
+
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
-import rateLimit from 'express-rate-limit';
+import fs from 'fs';
 import morgan from 'morgan';
 import path from 'path';
 
+import config from '../config/custom-environment-variables';
+import configRoutes from './routes/config.routes';
 import sensorsRouter from './routes/sensor.routes';
 import soilsRouter from './routes/soil.routes';
 import weatherRouter from './routes/weather.routes';
 
 import AppError from './utils/appError';
-import { AppDataSource } from './utils/data-source';
-
+import { initializeMainDataSource } from './utils/data-source';
 import validateEnv from './utils/validateEnv';
-// test
-import './procedures/index';
-import './services/consumer.service';
-import './services/producer.service';
 
-AppDataSource.initialize()
-  .then(async () => {
-    // VALIDATE ENV
-    validateEnv();
+// Initialize the app
+const app = express();
 
-    const app = express();
+// Function to check if configuration is complete
+function checkIfConfigIsComplete(): boolean {
+  try {
+    const configPath = path.join(__dirname, './config/config.json');
+    if (!fs.existsSync(configPath)) {
+      return false;
+    }
+
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+    // Explicitly check if the host is a non-empty string
+    const isHostValid =
+      typeof config.POSTGRES_HOST === 'string' &&
+      config.POSTGRES_HOST.trim() !== '';
+
+    // Check if port is a valid number greater than 0
+    const isPortValid =
+      typeof config.POSTGRES_PORT === 'string' &&
+      parseInt(config.POSTGRES_PORT) > 0;
+
+    return isHostValid && isPortValid;
+  } catch (error) {
+    return false;
+  }
+}
+
+// Initialize application
+async function initializeApp() {
+  try {
+    console.log('Initializing App...');
 
     // TEMPLATE ENGINE
+    app.set('view engine', 'hbs');
+    app.set('views', path.join(__dirname, '../views'));
+
+    // Validate environment variables
+    validateEnv();
 
     // MIDDLEWARE
-
-    // 1. Body parser
     app.use(express.json({ limit: '10kb' }));
-
-    // 2. Logger
+    app.use(express.urlencoded({ extended: true }));
     if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
-    // 3. Cookie Parser
     app.use(cookieParser());
-
-    // 4. Cors
     app.use(
       cors({
-        origin: config.get<string>('origin'),
+        origin: config.cors.origin,
         credentials: true,
       })
     );
-    const limiter = rateLimit({
-      windowMs: 30 * 60 * 1000, // 30 minutes
-      max: 2, // limit each IP to 1 request per windowMs
-    });
 
-    // Serve static files from the build directory
-    app.use(express.static(path.join(__dirname, '../build')));
-    app.use(express.static(path.join(__dirname, '../dist')));
+    // Serve configuration routes
+    app.use('/config', configRoutes);
+
+    // Check if configuration is complete
+    const isConfigComplete = checkIfConfigIsComplete();
+
+    console.log('isConfigComplete =======> ', isConfigComplete);
+
+    if (!isConfigComplete) {
+      console.log(
+        'Configuration is incomplete. Redirecting to configuration page...'
+      );
+      // Serve the Handlebars template for configuration
+      app.get('/config', (req: Request, res: Response) => {
+        res.render('configuration');
+      });
+      return; // Stop further initialization
+    }
+
+    // Initialize main data source
+    console.log('Initializing Main Data Source...');
+    await initializeMainDataSource();
+    console.log('Main Data Source initialized');
+
+    // Serve static files
+    app.use('/', express.static(path.join(__dirname, '../build')));
+    app.use('/', express.static(path.join(__dirname, '../dist')));
 
     // ROUTES
     app.use('/api/sensors', sensorsRouter);
     app.use('/api/soils', soilsRouter);
     app.use('/api/weather', weatherRouter);
 
-    // UNHANDLED ROUTE
+    // Handle 404 errors
     app.all('/404', (req: Request, res: Response, next: NextFunction) => {
       next(new AppError(404, `Route ${req.originalUrl} not found`));
     });
 
-    // Handle all other requests by sending the index.html file
+    // Serve index.html for all other routes
     app.get('*', (req: Request, res: Response) => {
-      res.sendFile(path.join(__dirname, 'index.html'));
+      res.sendFile(path.join(__dirname, '../dist/index.html'));
     });
 
-    // GLOBAL ERROR HANDLER
+    // Global error handler
     app.use(
       (error: AppError, req: Request, res: Response, next: NextFunction) => {
         error.status = error.status || 'error';
@@ -83,11 +127,13 @@ AppDataSource.initialize()
         });
       }
     );
+  } catch (error) {
+    console.error('Error during app initialization:', error);
+    process.exit(1);
+  }
+}
 
-    const port = config.get<number>('port');
-    // Listen on all network interfaces
-    app.listen(port, '0.0.0.0', () => {
-      console.log(`Server started on port: ${port}`);
-    });
-  })
-  .catch((error) => console.log(error));
+// Start the application
+initializeApp();
+
+export default app;

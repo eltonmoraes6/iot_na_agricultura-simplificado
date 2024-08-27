@@ -1,0 +1,108 @@
+<html lang='en'>
+
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Server Configuration</title>
+    <link
+      rel='stylesheet'
+      href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
+    />
+    <link
+      rel='stylesheet'
+      href='https://fonts.googleapis.com/icon?family=Material+Icons'
+    />
+    <style>
+      body { font-family: Roboto, sans-serif; margin: 0; padding: 20px; } h1 {
+      font-size: 24px; margin-bottom: 20px; } form { margin-bottom: 20px; }
+      label { display: block; margin-bottom: 5px; font-weight: 500; }
+      input[type="text"], input[type="password"] { padding: 10px; border: 1px
+      solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box;
+      margin-bottom: 10px; } button { padding: 10px 20px; background-color:
+      #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+      button:hover { background-color: #0069d9; } .container { max-width:
+      1200px; /* Adjust the maximum width as needed */ margin: 0 auto; padding:
+      20px; } .paper-card { background-color: #fff; border-radius: 4px;
+      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); padding: 20px; max-width: 400px;
+      /* Adjust the maximum width as needed */ margin: 0 auto; }
+    </style>
+  </head>
+
+  <body>
+    <div class='grid-container'>
+      <div class='paper-card'>
+
+        <h1>Server Configuration</h1>
+        <form action='/config' method='post'>
+          <label for='postgresHost'>Postgres Host:</label>
+          <input
+            type='text'
+            id='postgresHost'
+            name='POSTGRES_HOST'
+            value='{{config.POSTGRES_HOST}}'
+            required
+          /><br />
+          <label for='postgresPort'>Postgres Port:</label>
+          <input
+            type='text'
+            id='postgresPort'
+            name='POSTGRES_PORT'
+            value='{{config.POSTGRES_PORT}}'
+            required
+          /><br />
+          <label for='postgresUser'>Postgres User:</label>
+          <input
+            type='text'
+            id='postgresUser'
+            name='POSTGRES_USER'
+            value='{{config.POSTGRES_USER}}'
+            required
+          /><br />
+          <label for='postgresPassword'>Postgres Password:</label>
+          <input
+            type='password'
+            id='postgresPassword'
+            name='POSTGRES_PASSWORD'
+            value='{{config.POSTGRES_PASSWORD}}'
+            required
+          /><br />
+
+          <label for='postgresDatabase'>Postgres Database:</label>
+          <input
+            type='text'
+            id='postgresDatabase'
+            name='POSTGRES_DB'
+            value='{{config.POSTGRES_DB}}'
+            required
+          /><br />
+
+          <label for='kafkaBroker1'>Kafka Broker 1:</label>
+          <input
+            type='text'
+            id='kafkaBroker1'
+            name='KAFKA_BROKER_1'
+            value='{{config.KAFKA_BROKER_1}}'
+            required
+          /><br />
+          <label for='kafkaBroker2'>Kafka Broker 2:</label>
+          <input
+            type='text'
+            id='kafkaBroker2'
+            name='KAFKA_BROKER_2'
+            value='{{config.KAFKA_BROKER_2}}'
+            required
+          /><br />
+          <button type='submit'>Save Configuration</button>
+        </form>
+        <form action='/server/start' method='post'>
+          <button type='submit'>Start Server</button>
+        </form>
+        <form action='/server/stop' method='post'>
+          <button type='submit'>Stop Server</button>
+        </form>
+      </div>
+
+    </div>
+  </body>
+
+</html>

@@ -4,10 +4,10 @@ const FullScreenLoader = () => {
   return (
     <Container
       sx={{
-        height: '100vh', // Change to 100vh to cover the entire viewport height
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        height: '100vh', // Optional: If you want the loader to cover the entire viewport
       }}
     >
       <CircularProgress size={120} />

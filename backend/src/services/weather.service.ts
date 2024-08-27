@@ -1,12 +1,12 @@
 import axios from 'axios';
-import config from 'config';
+import config from '../../config/custom-environment-variables';
 
 require('dotenv').config();
 
 import { Weather } from '../entities/weather.entity';
 import { AppDataSource } from '../utils/data-source';
 
-const openWeatherMapConfig = config.get<{ apiKey: string }>('openWeatherMap');
+const openWeatherMapConfig = config.openWeatherMap;
 
 const weatherRepository = AppDataSource.getRepository(Weather);
 

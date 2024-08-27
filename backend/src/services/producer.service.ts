@@ -1,16 +1,14 @@
 import { ReadlineParser } from '@serialport/parser-readline';
-import config from 'config';
 import { Kafka } from 'kafkajs';
 import { SerialPort, SerialPortOpenOptions } from 'serialport';
+import config from '../../config/custom-environment-variables';
 import { Soil } from '../entities/soil.entity';
 import { AppDataSource } from '../utils/data-source';
 require('dotenv').config();
 
 const soilRepository = AppDataSource.getRepository(Soil);
 
-const arduinoConfig = config.get<{ baudRate: string; comPort: string }>(
-  'serialPortConfig'
-);
+const arduinoConfig = config.serialPortConfig;
 
 const serialPortOptions: SerialPortOpenOptions<any> = {
   path: arduinoConfig.comPort,

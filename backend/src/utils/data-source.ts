@@ -1,18 +1,12 @@
-require('dotenv').config();
-import config from 'config';
+// import config from 'config';
 import 'reflect-metadata';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
 
+import config from '../../config/custom-environment-variables';
 import { MainSeeder } from '../seeds/MainSeeder';
 
-const postgresConfig = config.get<{
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  database: string;
-}>('postgresConfig');
+const postgresConfig = config.postgresConfig; // TypeScript should infer the correct type here
 
 const options: DataSourceOptions & SeederOptions = {
   ...postgresConfig,
@@ -26,3 +20,12 @@ const options: DataSourceOptions & SeederOptions = {
 };
 
 export const AppDataSource = new DataSource(options);
+
+export async function initializeMainDataSource() {
+  try {
+    await AppDataSource.initialize();
+    console.log('Main Data Source initialized');
+  } catch (error) {
+    console.log('Error during Main Data Source initialization:', error);
+  }
+}
