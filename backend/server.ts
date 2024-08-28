@@ -1,5 +1,5 @@
 import http from 'http';
-import config from './config/custom-environment-variables';
+import config from './config';
 
 // Import the initialized app from app.ts
 import app from './src/app';

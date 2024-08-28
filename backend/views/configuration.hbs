@@ -1,5 +1,4 @@
 <html lang='en'>
-
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
@@ -17,21 +16,22 @@
       font-size: 24px; margin-bottom: 20px; } form { margin-bottom: 20px; }
       label { display: block; margin-bottom: 5px; font-weight: 500; }
       input[type="text"], input[type="password"] { padding: 10px; border: 1px
-      solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box;
-      margin-bottom: 10px; } button { padding: 10px 20px; background-color:
-      #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-      button:hover { background-color: #0069d9; } .container { max-width:
-      1200px; /* Adjust the maximum width as needed */ margin: 0 auto; padding:
-      20px; } .paper-card { background-color: #fff; border-radius: 4px;
-      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); padding: 20px; max-width: 400px;
-      /* Adjust the maximum width as needed */ margin: 0 auto; }
+      solid #ccc; border-radius: 4px; width: calc(100% - 40px); box-sizing:
+      border-box; margin-bottom: 10px; float: left; } .toggle-password {
+      margin-left: 10px; margin-top: 10px; cursor: pointer; float: right; }
+      button, a.classe2 { padding: 10px 20px; background-color: #007bff; color:
+      #fff; border: none; border-radius: 4px; cursor: pointer; text-align:
+      center; text-decoration: none; display: inline-block; } button:hover,
+      a.classe2:hover { background-color: #0069d9; color: #fff; } .container {
+      max-width: 1200px; margin: 0 auto; padding: 20px; } .paper-card {
+      background-color: #fff; border-radius: 4px; box-shadow: 0 2px 2px rgba(0,
+      0, 0, 0.2); padding: 20px; max-width: 400px; margin: 0 auto; }
     </style>
   </head>
 
   <body>
     <div class='grid-container'>
       <div class='paper-card'>
-
         <h1>Server Configuration</h1>
         <form action='/config' method='post'>
           <label for='postgresHost'>Postgres Host:</label>
@@ -59,13 +59,22 @@
             required
           /><br />
           <label for='postgresPassword'>Postgres Password:</label>
-          <input
-            type='password'
-            id='postgresPassword'
-            name='POSTGRES_PASSWORD'
-            value='{{config.POSTGRES_PASSWORD}}'
-            required
-          /><br />
+          <div style='position: relative;'>
+            <input
+              type='password'
+              id='postgresPassword'
+              name='POSTGRES_PASSWORD'
+              value='{{config.POSTGRES_PASSWORD}}'
+              required
+            />
+            <span
+              class='material-icons toggle-password'
+              onclick='togglePasswordVisibility()'
+            >
+              visibility_off
+            </span>
+          </div>
+          <br />
 
           <label for='postgresDatabase'>Postgres Database:</label>
           <input
@@ -76,22 +85,24 @@
             required
           /><br />
 
-          <label for='kafkaBroker1'>Kafka Broker 1:</label>
+          <label for='kafkaBrokers'>Kafka Brokers:</label>
           <input
             type='text'
-            id='kafkaBroker1'
-            name='KAFKA_BROKER_1'
-            value='{{config.KAFKA_BROKER_1}}'
+            id='kafkaBrokers'
+            name='KAFKA_BROKERS'
+            value='{{config.KAFKA_BROKERS}}'
             required
           /><br />
-          <label for='kafkaBroker2'>Kafka Broker 2:</label>
+
+          <label for='openWeatherMap'>Open Weather Map API KEY:</label>
           <input
             type='text'
-            id='kafkaBroker2'
-            name='KAFKA_BROKER_2'
-            value='{{config.KAFKA_BROKER_2}}'
+            id='openWeatherMap'
+            name='OPEN_WEATHER_MAP_API_KEY'
+            value='{{config.OPEN_WEATHER_MAP_API_KEY}}'
             required
           /><br />
+
           <button type='submit'>Save Configuration</button>
         </form>
         <form action='/server/start' method='post'>
@@ -100,9 +111,17 @@
         <form action='/server/stop' method='post'>
           <button type='submit'>Stop Server</button>
         </form>
+        <a href='/' class='classe2'>HOME Page</a>
       </div>
-
     </div>
-  </body>
 
+    <script>
+      function togglePasswordVisibility() { const passwordField =
+      document.getElementById('postgresPassword'); const toggleIcon =
+      document.querySelector('.toggle-password'); if (passwordField.type ===
+      'password') { passwordField.type = 'text'; toggleIcon.textContent =
+      'visibility'; } else { passwordField.type = 'password';
+      toggleIcon.textContent = 'visibility_off'; } }
+    </script>
+  </body>
 </html>

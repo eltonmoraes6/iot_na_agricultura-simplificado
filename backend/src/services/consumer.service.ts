@@ -5,13 +5,15 @@ import { predictPestsAndDiseases } from '../services/pestsPrediction.service';
 import { AppDataSource } from '../utils/data-source';
 import { createSensor } from './sensors.service';
 
+import config from '../../config';
+
 require('dotenv').config();
 
 const soilRepository = AppDataSource.getRepository(Soil);
 
 const kafka = new Kafka({
-  clientId: 'my-app',
-  brokers: ['192.168.0.115:9092', '<WAN-IP>:9094'],
+  clientId: config.kafkaConfig.clientId,
+  brokers: config.kafkaConfig.brokers,
 });
 
 const consumer = kafka.consumer({ groupId: 'kafka', retry: { retries: 5 } });

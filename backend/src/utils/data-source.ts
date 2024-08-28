@@ -3,10 +3,10 @@ import 'reflect-metadata';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
 
-import config from '../../config/custom-environment-variables';
+import config from '../../config';
 import { MainSeeder } from '../seeds/MainSeeder';
 
-const postgresConfig = config.postgresConfig; // TypeScript should infer the correct type here
+const postgresConfig = config.postgresConfig;
 
 const options: DataSourceOptions & SeederOptions = {
   ...postgresConfig,

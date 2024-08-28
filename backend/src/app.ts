@@ -8,11 +8,14 @@ import fs from 'fs';
 import morgan from 'morgan';
 import path from 'path';
 
-import config from '../config/custom-environment-variables';
+import config from '../config';
 import configRoutes from './routes/config.routes';
 import sensorsRouter from './routes/sensor.routes';
 import soilsRouter from './routes/soil.routes';
 import weatherRouter from './routes/weather.routes';
+
+import './services/consumer.service';
+import './services/producer.service';
 
 import AppError from './utils/appError';
 import { initializeMainDataSource } from './utils/data-source';
@@ -53,6 +56,8 @@ async function initializeApp() {
     console.log('Initializing App...');
 
     // TEMPLATE ENGINE
+    app.use('/', express.static(path.join(__dirname, '../views')));
+
     app.set('view engine', 'hbs');
     app.set('views', path.join(__dirname, '../views'));
 

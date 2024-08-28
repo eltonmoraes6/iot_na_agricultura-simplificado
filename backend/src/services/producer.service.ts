@@ -1,7 +1,7 @@
 import { ReadlineParser } from '@serialport/parser-readline';
 import { Kafka } from 'kafkajs';
 import { SerialPort, SerialPortOpenOptions } from 'serialport';
-import config from '../../config/custom-environment-variables';
+import config from '../../config';
 import { Soil } from '../entities/soil.entity';
 import { AppDataSource } from '../utils/data-source';
 require('dotenv').config();
@@ -21,8 +21,8 @@ const parser = new ReadlineParser({ delimiter: '\r\n' });
 arduinoPort.pipe(parser);
 
 const kafka = new Kafka({
-  clientId: 'my-app',
-  brokers: ['192.168.0.115:9092', '<WAN-IP>:9094'],
+  clientId: config.kafkaConfig.clientId,
+  brokers: config.kafkaConfig.brokers,
 });
 
 const producer = kafka.producer();

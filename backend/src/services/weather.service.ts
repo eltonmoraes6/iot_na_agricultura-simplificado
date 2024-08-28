@@ -1,5 +1,5 @@
 import axios from 'axios';
-import config from '../../config/custom-environment-variables';
+import config from '../../config';
 
 require('dotenv').config();
 
