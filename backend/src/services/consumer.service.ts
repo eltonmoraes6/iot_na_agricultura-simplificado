@@ -14,6 +14,7 @@ const soilRepository = AppDataSource.getRepository(Soil);
 const kafka = new Kafka({
   clientId: config.kafkaConfig.clientId,
   brokers: config.kafkaConfig.brokers,
+  connectionTimeout: 3000,
 });
 
 const consumer = kafka.consumer({ groupId: 'kafka', retry: { retries: 5 } });

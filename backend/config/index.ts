@@ -61,15 +61,15 @@ const config: Config = {
       '',
   },
   serialPortConfig: {
-    baudRate: process.env.BAUD_RATE || '',
-    comPort: process.env.COM_PORT || '',
+    baudRate: jsonConfig.BAUD_RATE || process.env.BAUD_RATE || '',
+    comPort: jsonConfig.COM_PORT || process.env.COM_PORT || '',
   },
   kafkaConfig: {
     clientId:
       jsonConfig.KAFKA_CLIENT_ID || process.env.KAFKA_CLIENT_ID || 'my-app', // Default clientId
     brokers: jsonConfig.KAFKA_BROKERS?.split(',') ||
       process.env.KAFKA_BROKERS?.split(',') || [
-        '192.168.0.113:9092',
+        '192.168.0.115:9092',
         '<WAN-IP>:9094',
       ], // Use array from JSON or split comma-separated environment variable
   },

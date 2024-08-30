@@ -8,11 +8,9 @@ require('dotenv').config();
 
 const soilRepository = AppDataSource.getRepository(Soil);
 
-const arduinoConfig = config.serialPortConfig;
-
 const serialPortOptions: SerialPortOpenOptions<any> = {
-  path: arduinoConfig.comPort,
-  baudRate: parseInt(arduinoConfig.baudRate, 10),
+  path: config.serialPortConfig.comPort,
+  baudRate: parseInt(config.serialPortConfig.baudRate, 10),
 };
 
 const arduinoPort = new SerialPort(serialPortOptions);
@@ -23,6 +21,7 @@ arduinoPort.pipe(parser);
 const kafka = new Kafka({
   clientId: config.kafkaConfig.clientId,
   brokers: config.kafkaConfig.brokers,
+  connectionTimeout: 3000,
 });
 
 const producer = kafka.producer();
@@ -55,7 +54,7 @@ const getBrazilianSeason = (date = new Date()) => {
 };
 
 arduinoPort.on('open', () => {
-  console.log(`Connected to Arduino on ${arduinoConfig.comPort}`);
+  console.log(`Connected to Arduino on ${config.serialPortConfig.comPort}`);
 });
 
 parser.on('data', async (data: any) => {

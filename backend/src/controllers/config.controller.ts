@@ -15,6 +15,8 @@ export function handleConfigFormSubmission(req: Request, res: Response): void {
     POSTGRES_PASSWORD,
     KAFKA_BROKERS,
     OPEN_WEATHER_MAP_API_KEY,
+    BAUD_RATE,
+    COM_PORT,
   } = req.body;
 
   const config = {
@@ -25,6 +27,8 @@ export function handleConfigFormSubmission(req: Request, res: Response): void {
     POSTGRES_PASSWORD,
     KAFKA_BROKERS,
     OPEN_WEATHER_MAP_API_KEY,
+    BAUD_RATE,
+    COM_PORT,
   };
 
   saveConfig(config);
