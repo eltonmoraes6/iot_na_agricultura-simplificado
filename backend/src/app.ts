@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import winston from 'winston';
+
 require('dotenv').config();
 
 import cookieParser from 'cookie-parser';
@@ -8,7 +10,6 @@ import fs from 'fs';
 import morgan from 'morgan';
 import path from 'path';
 
-import config from '../config';
 import configRoutes from './routes/config.routes';
 import sensorsRouter from './routes/sensor.routes';
 import soilsRouter from './routes/soil.routes';
@@ -55,6 +56,41 @@ async function initializeApp() {
   try {
     console.log('Initializing App...');
 
+    // Winston Logger Configuration
+    const logger = winston.createLogger({
+      level: 'info',
+      format: winston.format.combine(
+        winston.format.timestamp({
+          format: 'YYYY-MM-DD HH:mm:ss',
+        }),
+        winston.format.errors({ stack: true }),
+        winston.format.splat(),
+        winston.format.json()
+      ),
+      defaultMeta: { service: 'ViaRoteiros' },
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.colorize(),
+            winston.format.simple()
+          ),
+        }),
+        new winston.transports.File({
+          filename: 'logs/error.log',
+          level: 'error',
+        }),
+        new winston.transports.File({ filename: 'logs/combined.log' }),
+      ],
+    });
+
+    if (process.env.NODE_ENV !== 'production') {
+      logger.add(
+        new winston.transports.Console({
+          format: winston.format.simple(),
+        })
+      );
+    }
+
     // TEMPLATE ENGINE
     app.use('/', express.static(path.join(__dirname, '../views')));
 
@@ -72,7 +108,7 @@ async function initializeApp() {
     app.use(cookieParser());
     app.use(
       cors({
-        origin: config.cors.origin,
+        origin: true,
         credentials: true,
       })
     );
@@ -120,9 +156,15 @@ async function initializeApp() {
       res.sendFile(path.join(__dirname, '../dist/index.html'));
     });
 
-    // Global error handler
+    // GLOBAL ERROR HANDLER
     app.use(
       (error: AppError, req: Request, res: Response, next: NextFunction) => {
+        logger.error(
+          `StatusCode: ${error.statusCode || 500}, Message: ${
+            error.message
+          }, Stack: ${error.stack}`
+        );
+
         error.status = error.status || 'error';
         error.statusCode = error.statusCode || 500;
 

@@ -40,6 +40,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import SensorFilter from '../components/Filter';
 import { GaugeChartComponent } from '../components/GaugeChartComponent';
 
+import WaterFlowIndicator from '../components/waterFlow/WaterFlowIndicator';
 import {
   useCalculatePotentialEvapotranspirationMutation,
   useCalculateWaterDeficiencyMutation,
@@ -567,9 +568,15 @@ const Home = () => {
                     )}
                     {/* waterDeficiencyResult */}
                     {waterDeficiencyResult !== null && (
-                      <Grid item xs={12} sm={12} md={6}>
+                      <Grid item xs={12} sm={12} md={4}>
                         <Item>
-                          <WaterIcon color='primary' />
+                          <WaterIcon
+                            color='primary'
+                            sx={{
+                              fontSize: 48,
+                              animation: 'pulse 2s infinite',
+                            }}
+                          />
                           <Typography
                             variant='h6'
                             sx={{
@@ -582,7 +589,7 @@ const Home = () => {
                           >
                             Deficiência de Água:
                           </Typography>
-                          <Typography variant='h4' color={'Highlight'}>
+                          <Typography variant='h2' color={'Highlight'}>
                             {waterDeficiencyResult}
                           </Typography>
                         </Item>
@@ -590,9 +597,15 @@ const Home = () => {
                     )}
                     {/* potentialEvapotranspirationResult */}
                     {potentialEvapotranspirationResult !== null && (
-                      <Grid item xs={12} sm={12} md={6}>
+                      <Grid item xs={12} sm={12} md={4}>
                         <Item>
-                          <OpacityIcon color='secondary' />
+                          <OpacityIcon
+                            color='secondary'
+                            sx={{
+                              fontSize: 48,
+                              animation: 'pulse 2s infinite',
+                            }}
+                          />
                           <Typography
                             variant='h6'
                             sx={{
@@ -605,12 +618,22 @@ const Home = () => {
                           >
                             Evapotranspiração Potencial:
                           </Typography>
-                          <Typography variant='h4' color={'Highlight'}>
+                          <Typography variant='h2' color={'Highlight'}>
                             {potentialEvapotranspirationResult}
                           </Typography>
                         </Item>
                       </Grid>
                     )}
+                    {/* WaterFlowIndicator */}
+                    <Grid item xs={12} sm={12} md={4}>
+                      <Item>
+                        <WaterFlowIndicator
+                          isIrrigated={true}
+                          waterFlowRate={10}
+                          totalWaterUsed={150}
+                        />
+                      </Item>
+                    </Grid>
                   </Grid>
                 </>
               )}
