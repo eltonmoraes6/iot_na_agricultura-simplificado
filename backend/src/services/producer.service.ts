@@ -2,11 +2,13 @@ import { ReadlineParser } from '@serialport/parser-readline';
 import { Kafka } from 'kafkajs';
 import { SerialPort, SerialPortOpenOptions } from 'serialport';
 import config from '../../config';
+import { Season } from '../entities/season.entity';
 import { Soil } from '../entities/soil.entity';
 import { AppDataSource } from '../utils/data-source';
 require('dotenv').config();
 
 const soilRepository = AppDataSource.getRepository(Soil);
+const seasonRepository = AppDataSource.getRepository(Season);
 
 const serialPortOptions: SerialPortOpenOptions<any> = {
   path: config.serialPortConfig.comPort,
@@ -82,11 +84,20 @@ parser.on('data', async (data: any) => {
       return;
     }
 
+    const season = await seasonRepository.findOneBy({
+      season: getBrazilianSeason(),
+    });
+
+    if (!season) {
+      console.warn('season value required:', season);
+      return;
+    }
+
     const sensorData = {
       temperature: parseFloat(parsedData.temperature),
       humidity: parseFloat(parsedData.humidity),
-      season: getBrazilianSeason(),
-      soil: soil?.id,
+      season: season.season,
+      soil: soil.soilType,
     };
 
     if (isNaN(sensorData.temperature) || isNaN(sensorData.humidity)) {

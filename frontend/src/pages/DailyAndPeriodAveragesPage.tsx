@@ -10,11 +10,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import DailyAndPeriodAveragesDataTable from '../components/DailyAndPeriodAveragesDataTable';
 import FullScreenLoader from '../components/FullScreenLoader';
 import Message from '../components/Message';
 import PageTitle from '../components/PageTitle';
-import DailyAndPeriodAveragesDataTable from '../components/sensor/DailyAndPeriodAveragesDataTable';
-import { useGetDailyAndPeriodAveragesQuery } from '../redux/api/sensorApi';
+import { useGetAveragesQuery } from '../redux/api/metricApi';
 
 interface DataItem {
   period: string;
@@ -23,7 +23,7 @@ interface DataItem {
 }
 
 const DailyAndPeriodAveragesPage: React.FC = () => {
-  const { data, isLoading, isError } = useGetDailyAndPeriodAveragesQuery(); // Fetch the data
+  const { data, isLoading, isError } = useGetAveragesQuery(''); // Fetch the data
 
   const [viewType, setViewType] = useState<'chart' | 'grid'>('chart');
 

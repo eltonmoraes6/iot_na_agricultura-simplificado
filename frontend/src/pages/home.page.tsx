@@ -3,85 +3,41 @@ import {
   Button,
   Container,
   Grid,
+  MenuItem,
   Paper,
   Switch,
+  TextField,
   Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { createColumnHelper } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import HumidityLineChart from '../components/sensor/HumidityLineChart';
-import TemperatureLineChart from '../components/sensor/TemperatureLineChart';
-
-import OpacityIcon from '@mui/icons-material/Opacity';
-import moment from 'moment';
-import DataTable from '../components/DataTable';
-import Filter from '../components/Filter';
-import FullScreenLoader from '../components/FullScreenLoader';
-import Message from '../components/Message';
+import { GaugeChartComponent } from '../components/GaugeChartComponent';
 import PageTitle from '../components/PageTitle';
-// import ThermostatIcon from '@mui/icons-material/Thermostat';
-import WaterIcon from '@mui/icons-material/Water';
-// import WaterDamageIcon from '@mui/icons-material/WaterDamage';
-import SoilDataTable from '../components/soil/SoilDataTable';
+import ReusableSensorComponent from '../components/ReusableSensorComponent ';
 import Weather from '../components/weather/Weather';
 import {
-  useGetOneSensorQuery,
-  useGetSensorsMutation,
-} from '../redux/api/sensorApi';
-import {
-  useGetIdealHumidityMutation,
-  useGetSoilsMutation,
-} from '../redux/api/soilApi';
-import { ISensor, ISoil, PaginationModel } from '../redux/api/types';
-import { filterItems, sortItem } from '../utils/filterInfo';
-import { FilterItem, SortItem } from '../utils/types';
-
-import { createColumnHelper } from '@tanstack/react-table';
-import SensorFilter from '../components/Filter';
-import { GaugeChartComponent } from '../components/GaugeChartComponent';
-
-import WaterFlowIndicator from '../components/waterFlow/WaterFlowIndicator';
+  useGetHumiditiesMutation,
+  useGetLatestHumidityQuery,
+} from '../redux/api/humidityApi';
 import {
   useCalculatePotentialEvapotranspirationMutation,
   useCalculateWaterDeficiencyMutation,
-  useGetIdealTemperatureMutation,
-} from '../redux/api/soilApi';
-const columnHelper = createColumnHelper<ISensor>();
+  useGetMetricsMutation,
+} from '../redux/api/metricApi';
+import {
+  useGetLatestTemperatureQuery,
+  useGetTemperaturesMutation,
+} from '../redux/api/temperatureApi';
+import { IMetric } from '../redux/types/metricTypes';
 
-const columns = [
-  // columnHelper.accessor('id', {
-  //   header: () => 'ID',
-  //   cell: (info) => info.getValue(),
-  // }),
-  columnHelper.accessor('temperature', {
-    header: () => 'Temperatura',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('humidity', {
-    header: () => 'Umidade',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('season', {
-    header: () => 'Estações do Ano',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('created_at', {
-    header: () => 'Criação',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('updated_at', {
-    header: () => 'Edição',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('soil', {
-    header: () => 'Solo',
-    cell: (info) => info.getValue()?.soilType || 'N/A',
-  }),
-  columnHelper.accessor('soil', {
-    header: () => 'Umidade Máxima',
-    cell: (info) => info.getValue()?.maxHumidity || 'N/A',
-  }),
-];
+import OpacityIcon from '@mui/icons-material/Opacity';
+import WaterIcon from '@mui/icons-material/Water';
+import MetricLineChart from '../components/MetricLineChart';
+import WaterFlowIndicator from '../components/waterFlow/WaterFlowIndicator';
+import { PaginationModel } from '../redux/api/types';
+import { IHumidity } from '../redux/types/humidityTypes';
+import { ITemperature } from '../redux/types/temperatureTypes';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -106,195 +62,85 @@ const FloatingCard = styled(Paper)(({ theme }) => ({
   overflowY: 'auto',
 }));
 
-const soilFilterItems: FilterItem[] = [
-  { id: 1, value: 'Latossolos' },
-  { id: 2, value: 'Argissolos' },
-  { id: 3, value: 'Neossolos' },
+const columnHelper = createColumnHelper<IMetric>();
+
+const soilColumns = [
+  columnHelper.accessor('id', {
+    header: 'ID',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('minTemperature', {
+    header: 'Temperatura Mínima',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('maxTemperature', {
+    header: 'Temperatura Máxima',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('minHumidity', {
+    header: 'Umidade Mínima',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('maxHumidity', {
+    header: 'Umidade Máxima',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('soilType', {
+    header: 'Tipo de Solo',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('season', {
+    header: 'Estação do Ano',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('created_at', {
+    header: 'Criação',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('updated_at', {
+    header: 'Edição',
+    cell: (info) => info.getValue(),
+  }),
 ];
 
-const soilSortItem: SortItem[] = [
+const metricsFilterItems: { id: number; value: string }[] = [];
+
+const sortItems = [
   { id: 0, value: 'id' },
-  { id: 1, value: 'soilType' },
-  { id: 2, value: 'minHumidity' },
-  { id: 3, value: 'maxHumidity' },
-  { id: 4, value: 'minTemperature' },
   { id: 5, value: 'created_at' },
   { id: 6, value: 'updated_at' },
-  { id: 7, value: 'sensor ' },
 ];
 
-const Home = () => {
-  // Define states for filter criteria, pagination, sorting, and selection
-
-  // Unique states for sensor data
-  const [sensorFilter, setSensorFilter] = useState('');
-  const [sensorSort, setSensorSort] = useState('created_at');
-  const [sensorSortOrder, setSensorSortOrder] = useState<'ASC' | 'DESC'>(
-    'DESC'
-  );
-  const [sensorFields, setSensorFields] = useState(''); // Default fields
-  const [sensorPagination, setSensorPagination] = useState<PaginationModel>({
-    page: 0,
-    pageSize: 10,
-  });
-
-  // Unique states for soil data
-  const [soilFilter, setSoilFilter] = useState('');
-  const [soilSort, setSoilSort] = useState('created_at');
-  const [soilSortOrder, setSoilSortOrder] = useState<'ASC' | 'DESC'>('DESC');
-  const [soilFields, setSoilFields] = useState(''); // Default fields
-  const [soilPagination, setSoilPagination] = useState<PaginationModel>({
-    page: 0,
-    pageSize: 10,
-  });
-
-  const [viewType, setViewType] = useState('grid'); // State to manage the view type
-
-  const [filteredSoilData, setFilteredSoilData] = useState<ISoil[] | null>(
-    null
-  );
-  const { data: OneSensorData } = useGetOneSensorQuery('');
-
-  const [filteredSensorData, setFilteredSensorData] = useState<
-    ISensor[] | null
-  >(null);
+const HomePage = () => {
   const [weatherEnabled, setWeatherEnabled] = useState(false);
   const floatingCardRef = useRef<HTMLDivElement | null>(null);
 
-  // Use the mutation hook to fetch filtered data
-  const [getSensors, { isLoading, error }] = useGetSensorsMutation();
+  const [pagination, setPagination] = useState<PaginationModel>({
+    page: 0,
+    pageSize: 10,
+  });
+  const [sort, setSort] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
 
-  const fetchSensors = useCallback(
-    async (queryString: string) => {
-      try {
-        const result = (await getSensors(queryString).unwrap()) as ISensor[];
-        if (result) {
-          setFilteredSensorData(result);
-        }
-      } catch (error) {
-        console.error('Error fetching filtered data:', error);
-      }
-    },
-    [getSensors]
-  );
+  const { data: humi } = useGetLatestHumidityQuery('');
 
-  useEffect(() => {
-    const { page, pageSize } = sensorPagination;
-    const pageNumber = page + 1;
-    let queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sensorSortOrder}&sort=${sensorSort}&fields=${sensorFields}`;
+  const { data: temp } = useGetLatestTemperatureQuery('');
 
-    if (sensorFilter) {
-      queryString += `&season=${sensorFilter}`;
-    }
+  const [getMetrics, { data: metricsData, isError, isLoading }] =
+    useGetMetricsMutation();
 
-    fetchSensors(queryString);
-  }, [
-    sensorFilter,
-    fetchSensors,
-    sensorPagination,
-    sensorSortOrder,
-    sensorSort,
-    sensorFields,
-  ]);
-
-  const [getSoils, { isLoading: soilsLoading, error: soilsError }] =
-    useGetSoilsMutation();
-
-  const fetchSoils = useCallback(
-    async (queryString: string) => {
-      try {
-        const result = (await getSoils(queryString).unwrap()) as ISoil[];
-        if (result) {
-          setFilteredSoilData(result);
-        }
-      } catch (error) {
-        console.error('Error fetching filtered data:', error);
-      }
-    },
-    [getSoils]
-  );
-
-  useEffect(() => {
-    const { page, pageSize } = soilPagination;
-    const pageNumber = page + 1;
-    let soilQueryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${soilSortOrder}&sort=${soilSort}&fields=${soilFields}`;
-
-    if (soilFilter) {
-      soilQueryString += `&soilType=${soilFilter}`;
-    }
-
-    fetchSoils(soilQueryString);
-  }, [
-    soilFilter,
-    fetchSoils,
-    soilPagination,
-    soilSortOrder,
-    soilSort,
-    soilFields,
-  ]);
-
-  const handleSoilFilter = () => {
-    const { page, pageSize } = soilPagination;
-    const pageNumber = page + 1;
-    let soilQueryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${soilSortOrder}&sort=${soilSort}&fields=${soilFields}`;
-    if (soilFilter) {
-      soilQueryString += `&soilType=${soilFilter}`;
-    }
-
-    fetchSoils(soilQueryString);
-  };
-
-  const handleFilter = async () => {
-    const { page, pageSize } = sensorPagination;
-
-    // Convert 0-based index to 1-based for server-side pagination
-    const pageNumber = page + 1;
-
-    let queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sensorSortOrder}&sort=${sensorSort}&fields=${sensorFields}`;
-
-    if (sensorFilter) {
-      queryString += `&season=${sensorFilter}`;
-    }
-
-    try {
-      const result = (await getSensors(queryString).unwrap()) as ISensor[];
-      if (result) {
-        setFilteredSensorData(result); // Store filtered data in state
-      }
-    } catch (error) {
-      console.error('Error fetching filtered data:', error);
-    }
-  };
-
-  const handleViewChange = () => {
-    setViewType((prevType) => (prevType === 'grid' ? 'kanban' : 'grid'));
-  };
-
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      floatingCardRef.current &&
-      !floatingCardRef.current.contains(event.target as Node)
-    ) {
-      setWeatherEnabled(false);
-    }
-  };
-
-  useEffect(() => {
-    if (weatherEnabled) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [weatherEnabled]);
+  const [
+    getTemperatures,
+    { isError: temperatureIsError, isLoading: temperatureIsLoading },
+  ] = useGetTemperaturesMutation();
+  const [
+    getHumidities,
+    { isError: humidityIsError, isLoading: humidityIsLoading },
+  ] = useGetHumiditiesMutation();
 
   const [calculateWaterDeficiency] = useCalculateWaterDeficiencyMutation();
   const [calculatePotentialEvapotranspiration] =
     useCalculatePotentialEvapotranspirationMutation();
-  const [getIdealTemperature] = useGetIdealTemperatureMutation();
-  const [getIdealHumidity] = useGetIdealHumidityMutation();
 
   const [waterDeficiencyResult, setWaterDeficiencyResult] = useState<
     number | null
@@ -303,31 +149,20 @@ const Home = () => {
     potentialEvapotranspirationResult,
     setPotentialEvapotranspirationResult,
   ] = useState<number | null>(null);
-  const [idealTemperatureResult, setIdealTemperatureResult] = useState<
-    number | null
-  >(null);
 
-  const [idealHumidityResult, setIdealHumidityResult] = useState<number | null>(
-    null
-  );
+  // Access the latest metric object
+  const latestMetric =
+    metricsData && metricsData.length > 0
+      ? metricsData[metricsData.length - 1]
+      : null;
 
-  const soilDataToDisplay = filteredSoilData;
+  useEffect(() => {
+    getHumidities('');
+  }, [getHumidities]);
 
-  const soilDataTable: ISoil[] = useMemo(() => {
-    return (
-      soilDataToDisplay?.map((soil) => ({
-        id: soil.id,
-        minTemperature: soil.minTemperature,
-        maxTemperature: soil.maxTemperature,
-        minHumidity: soil.minHumidity,
-        maxHumidity: soil.maxHumidity,
-        soilType: soil.soilType,
-        created_at: soil.created_at,
-        updated_at: soil.updated_at,
-        sensor: soil.sensor,
-      })) ?? []
-    );
-  }, [soilDataToDisplay]);
+  useEffect(() => {
+    getTemperatures('');
+  }, [getTemperatures]);
 
   useEffect(() => {
     const handleWaterDeficiency = async () => {
@@ -353,65 +188,80 @@ const Home = () => {
         console.error('Failed to calculate potential evapotranspiration:', err);
       }
     };
-
-    const handleIdealTemperature = async () => {
-      try {
-        const result = await getIdealTemperature({
-          soilType: soilDataTable[0]?.soilType || 'Latossolos',
-        }).unwrap();
-        setIdealTemperatureResult(result.idealTemperature);
-      } catch (err) {
-        console.error('Failed to get ideal temperature:', err);
-      }
-    };
-
-    const handleIdealHumidity = async () => {
-      try {
-        const result = await getIdealHumidity({
-          soilType: soilDataTable[0]?.soilType || 'Latossolos',
-        }).unwrap();
-        setIdealHumidityResult(result.idealHumidity);
-      } catch (err) {
-        console.error('Failed to get ideal humidity:', err);
-      }
-    };
-
     handleWaterDeficiency();
     handlePotentialEvapotranspiration();
-    handleIdealTemperature();
-    handleIdealHumidity();
-  }, [
-    calculateWaterDeficiency,
-    calculatePotentialEvapotranspiration,
-    getIdealTemperature,
-    getIdealHumidity,
-    soilDataTable,
-  ]);
+  }, [calculateWaterDeficiency, calculatePotentialEvapotranspiration]);
 
-  // Render loading state
-  if (isLoading || soilsLoading) {
-    return <FullScreenLoader />;
-  }
+  const [humidityFilteredData, setHumidityFilteredData] = useState<
+    IHumidity[] | null
+  >(null);
+  const [temperatureFilteredData, setTemperatureFilteredData] = useState<
+    ITemperature[] | null
+  >(null);
 
-  // Handle errors from both the initial query and the mutation
-  if (error || soilsError) {
-    return <Typography color='error'>An unexpected error occurred</Typography>;
-  }
+  const fetchHumidityData = useCallback(
+    async (queryString: string) => {
+      try {
+        const result = await getHumidities(queryString); // result contains { data } or { error }
+        if ('data' in result && result.data) {
+          setHumidityFilteredData(result.data); // Set the actual humidities array
+        }
+      } catch (error) {
+        console.error(`Error fetching data:`, error);
+      }
+    },
+    [getHumidities]
+  );
 
-  // Determine which data set to use for the DataGrid
-  const sensorDataToDisplay = filteredSensorData;
+  const fetchTemperatureData = useCallback(
+    async (queryString: string) => {
+      try {
+        const result = await getTemperatures(queryString); // result contains { data } or { error }
+        if ('data' in result && result.data) {
+          setTemperatureFilteredData(result.data); // Set the actual humidities array
+        }
+      } catch (error) {
+        console.error(`Error fetching data:`, error);
+      }
+    },
+    [getTemperatures]
+  );
 
-  // Convert data to IDataTable format for DataTable component
-  const sensorDataTable =
-    sensorDataToDisplay?.map((sensor) => ({
-      id: sensor.id,
-      temperature: sensor.temperature,
-      season: sensor.season,
-      humidity: sensor.humidity,
-      created_at: moment(sensor.created_at).format('DD/MM/YYYY'),
-      updated_at: moment(sensor.updated_at).format('DD/MM/YYYY'),
-      soil: sensor.soil,
-    })) ?? [];
+  useEffect(() => {
+    const { page, pageSize } = pagination;
+    const pageNumber = page + 1;
+    const queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sortOrder}&sort=${sort}`;
+
+    fetchHumidityData(queryString);
+    fetchTemperatureData(queryString);
+  }, [pagination, sortOrder, sort, fetchHumidityData, fetchTemperatureData]);
+
+  const handleFilter = () => {
+    const { page, pageSize } = pagination;
+    const pageNumber = page + 1;
+    const queryString = `limit=${pageSize}&page=${pageNumber}&sortOrder=${sortOrder}&sort=${sort}`;
+    fetchHumidityData(queryString);
+    fetchTemperatureData(queryString);
+  };
+
+  const humidityDataToDisplay = humidityFilteredData;
+  const temperatureDataToDisplay = temperatureFilteredData;
+
+  const humidityDataTable: IHumidity[] = useMemo(() => {
+    return (
+      humidityDataToDisplay?.map((item) => ({
+        ...item,
+      })) ?? []
+    );
+  }, [humidityDataToDisplay]);
+
+  const temperatureDataTable: ITemperature[] = useMemo(() => {
+    return (
+      temperatureDataToDisplay?.map((item) => ({
+        ...item,
+      })) ?? []
+    );
+  }, [temperatureDataToDisplay]);
 
   return (
     <>
@@ -429,242 +279,328 @@ const Home = () => {
               <Weather />
             </FloatingCard>
           )}
+
+          {/* Filter Items */}
+
+          <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+            sx={{ mb: 4 }}
+          >
+            <Grid item sm={6} md={2} xs={12}>
+              <TextField
+                label='Página'
+                variant='outlined'
+                margin='normal'
+                type='number'
+                value={pagination.page + 1} // Display 1-based index to user
+                onChange={(e) =>
+                  setPagination((prev) => ({
+                    ...prev,
+                    page: parseInt(e.target.value, 10) - 1,
+                  }))
+                }
+                size='small'
+                fullWidth
+              />
+            </Grid>
+            <Grid item sm={6} md={2} xs={12}>
+              <TextField
+                label='Limite'
+                variant='outlined'
+                margin='normal'
+                type='number'
+                value={pagination.pageSize}
+                onChange={(e) =>
+                  setPagination((prev) => ({
+                    ...prev,
+                    pageSize: parseInt(e.target.value, 10),
+                  }))
+                }
+                size='small'
+                fullWidth
+              />
+            </Grid>
+            <Grid item sm={6} md={3} xs={12}>
+              <TextField
+                label='Ordenar por'
+                variant='outlined'
+                margin='normal'
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                size='small'
+                fullWidth
+                select
+              >
+                {sortItems.map((option) => (
+                  <MenuItem key={option.id} value={option.value}>
+                    {option.value}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item sm={6} md={3} xs={12}>
+              <TextField
+                label='Ordem'
+                variant='outlined'
+                margin='normal'
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'ASC' | 'DESC')}
+                size='small'
+                fullWidth
+                select
+              >
+                {['ASC', 'DESC'].map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid item sm={6} md={2} xs={12}>
+              <Button
+                variant='contained'
+                color='primary'
+                sx={{ mt: 2 }}
+                size='medium'
+                fullWidth
+                onClick={handleFilter}
+              >
+                Aplicar Filtro
+              </Button>
+            </Grid>
+          </Grid>
+
           <Box
             textAlign='right'
             display='flex'
-            justifyContent='space-between'
+            // justifyContent='space-between'
             alignItems='center'
           >
-            <Box display='flex' alignItems='center'>
-              <Switch
-                checked={weatherEnabled}
-                onChange={() => setWeatherEnabled(!weatherEnabled)}
-                name='weatherSwitch'
-                color='primary'
-              />
-              <Typography>Ativar clima</Typography>
-            </Box>
-
-            <Button
-              // fullWidth
-              sx={{ mb: 2, mt: 2 }}
-              variant='contained'
+            <Switch
+              checked={weatherEnabled}
+              onChange={() => setWeatherEnabled(!weatherEnabled)}
+              name='weatherSwitch'
               color='primary'
-              size='small'
-              onClick={handleViewChange} // Function to toggle between views
-            >
-              {viewType === 'grid' ? 'Vizualizar Tabela' : 'Vizualizar Gráfico'}
-            </Button>
+            />
+            <Typography>Ativar clima</Typography>
           </Box>
 
-          <Filter
-            filterItem={filterItems}
-            filter={sensorFilter}
-            setFilter={setSensorFilter}
-            sort={sensorSort}
-            sortItem={sortItem}
-            setSort={setSensorSort}
-            sortOrder={sensorSortOrder}
-            setSortOrder={setSensorSortOrder}
-            fields={sensorFields}
-            setFields={setSensorFields}
-            paginationModel={sensorPagination}
-            setPaginationModel={setSensorPagination}
-            handleFilter={handleFilter}
-          />
-          {viewType === 'grid' ? (
+          <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+          >
+            {/* HumidityLineChart */}
+            <Grid item sm={6} xs={12} md={6}>
+              <Item>
+                <MetricLineChart
+                  isLoading={humidityIsLoading}
+                  isError={humidityIsError}
+                  data={humidityDataTable ?? []}
+                  dataKey='id'
+                  valueField='humidity'
+                  unit='%'
+                  chartTitle='Umidade'
+                  color='red'
+                />
+              </Item>
+            </Grid>
+            <Grid item sm={6} xs={12} md={6}>
+              {/* TemperatureLineChart */}
+              <Item>
+                <MetricLineChart
+                  isLoading={temperatureIsLoading}
+                  isError={temperatureIsError}
+                  data={temperatureDataTable ?? []}
+                  dataKey='id'
+                  valueField='temperature'
+                  unit='°C'
+                  chartTitle='Temperatura'
+                  color='red'
+                />
+              </Item>
+            </Grid>
+
+            <Grid item sm={6} xs={12} md={6}>
+              <Item>
+                <GaugeChartComponent
+                  id='humidity-gauge'
+                  title={'Umidade Atual'}
+                  item={humi ? humi[0].humidity : 0}
+                  isError={isError}
+                  isLoading={isLoading}
+                />
+              </Item>
+            </Grid>
+
+            <Grid item sm={6} xs={12} md={6}>
+              <Item>
+                <GaugeChartComponent
+                  id='temperature-gauge'
+                  title={'Temperatura Atual'}
+                  item={temp ? temp[0].temperature : 0}
+                  isError={isError}
+                  isLoading={isLoading}
+                />
+              </Item>
+            </Grid>
+            {/* Season */}
+            <Grid item sm={6} xs={12} md={6}>
+              <Item>
+                <Typography variant='h3' color={'black'}>
+                  Estação do Ano
+                </Typography>
+                <Typography color={'black'}>{latestMetric?.season}</Typography>
+              </Item>
+            </Grid>
+            {/* Soil Type */}
+            <Grid item sm={6} xs={12} md={6}>
+              <Item>
+                <Typography variant='h3' color={'black'}>
+                  Tipo de Solo
+                </Typography>
+                <Typography color={'black'}>
+                  {latestMetric?.soilType}
+                </Typography>
+              </Item>
+            </Grid>
+
+            {/* idealHumidityResult */}
             <>
-              {sensorDataToDisplay?.length === 0 ? (
-                <Box maxWidth='sm' sx={{ mx: 'auto', py: '5rem' }}>
-                  <Message type='info' title='Info'>
-                    No posts at the moment
-                  </Message>
-                </Box>
-              ) : (
-                <>
-                  {/* LineChart */}
-                  <Grid
-                    container
-                    rowSpacing={1}
-                    columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-                  >
-                    {/* HumidityLineChart */}
-                    <Grid item sm={6} xs={12} md={6}>
-                      <Item>
-                        <HumidityLineChart
-                          sensors={sensorDataToDisplay ?? []}
-                          isError={error}
-                          isLoading={isLoading}
-                        />
-                      </Item>
-                    </Grid>
-                    <Grid item sm={6} xs={12} md={6}>
-                      {/* TemperatureLineChart */}
-                      <Item>
-                        <TemperatureLineChart
-                          sensors={sensorDataToDisplay ?? []}
-                          isError={error}
-                          isLoading={isLoading}
-                        />
-                      </Item>
-                    </Grid>
-                    {/* idealHumidityResult */}
-                    {idealHumidityResult !== null && (
-                      <>
-                        <Grid item sm={6} xs={12} md={3}>
-                          <Item>
-                            <GaugeChartComponent
-                              id='humidity-gauge'
-                              title={'Umidade Atual'}
-                              item={
-                                OneSensorData ? OneSensorData[0].humidity : 0
-                              }
-                              isError={error}
-                              isLoading={isLoading}
-                            />
-                          </Item>
-                        </Grid>
-                        <Grid item sm={6} xs={12} md={3}>
-                          <Item>
-                            <GaugeChartComponent
-                              id='humidity-gauge'
-                              title={'Umidade Ideal'}
-                              item={idealHumidityResult}
-                              isError={error}
-                              isLoading={isLoading}
-                            />
-                          </Item>
-                        </Grid>
-                      </>
-                    )}
-                    {/* idealTemperatureResult */}
-                    {idealTemperatureResult !== null && (
-                      <>
-                        <Grid item sm={6} xs={12} md={3}>
-                          <Item>
-                            <GaugeChartComponent
-                              id='temperature-gauge'
-                              title={'Temperatura Atual'}
-                              item={
-                                OneSensorData ? OneSensorData[0].temperature : 0
-                              }
-                              isError={error}
-                              isLoading={isLoading}
-                            />
-                          </Item>
-                        </Grid>
-                        <Grid item sm={6} xs={12} md={3}>
-                          <Item>
-                            <GaugeChartComponent
-                              id='temperature-gauge'
-                              title={'Temperatura Ideal'}
-                              item={idealTemperatureResult}
-                              isError={error}
-                              isLoading={isLoading}
-                            />
-                          </Item>
-                        </Grid>
-                      </>
-                    )}
-                    {/* waterDeficiencyResult */}
-                    {waterDeficiencyResult !== null && (
-                      <Grid item xs={12} sm={12} md={4}>
-                        <Item>
-                          <WaterIcon
-                            color='primary'
-                            sx={{
-                              fontSize: 48,
-                              animation: 'pulse 2s infinite',
-                            }}
-                          />
-                          <Typography
-                            variant='h6'
-                            sx={{
-                              transition: 'all 0.3s ease-in-out',
-                              '&:hover': {
-                                transform: 'scale(1.15)',
-                                transformOrigin: 'center center',
-                              },
-                            }}
-                          >
-                            Deficiência de Água:
-                          </Typography>
-                          <Typography variant='h2' color={'Highlight'}>
-                            {waterDeficiencyResult}
-                          </Typography>
-                        </Item>
-                      </Grid>
-                    )}
-                    {/* potentialEvapotranspirationResult */}
-                    {potentialEvapotranspirationResult !== null && (
-                      <Grid item xs={12} sm={12} md={4}>
-                        <Item>
-                          <OpacityIcon
-                            color='secondary'
-                            sx={{
-                              fontSize: 48,
-                              animation: 'pulse 2s infinite',
-                            }}
-                          />
-                          <Typography
-                            variant='h6'
-                            sx={{
-                              transition: 'all 0.3s ease-in-out',
-                              '&:hover': {
-                                transform: 'scale(1.15)',
-                                transformOrigin: 'center center',
-                              },
-                            }}
-                          >
-                            Evapotranspiração Potencial:
-                          </Typography>
-                          <Typography variant='h2' color={'Highlight'}>
-                            {potentialEvapotranspirationResult}
-                          </Typography>
-                        </Item>
-                      </Grid>
-                    )}
-                    {/* WaterFlowIndicator */}
-                    <Grid item xs={12} sm={12} md={4}>
-                      <Item>
-                        <WaterFlowIndicator
-                          isIrrigated={true}
-                          waterFlowRate={10}
-                          totalWaterUsed={150}
-                        />
-                      </Item>
-                    </Grid>
-                  </Grid>
-                </>
-              )}
+              <Grid item sm={6} xs={12} md={3}>
+                <Item>
+                  <GaugeChartComponent
+                    id='humidity-gauge'
+                    title={'Umidade mínima'}
+                    item={latestMetric?.minHumidity ?? 0}
+                    isError={isError}
+                    isLoading={isLoading}
+                  />
+                </Item>
+              </Grid>
+              <Grid item sm={6} xs={12} md={3}>
+                <Item>
+                  <GaugeChartComponent
+                    id='humidity-gauge'
+                    title={'Umidade máxima'}
+                    item={latestMetric?.maxHumidity ?? 0}
+                    isError={humidityIsError}
+                    isLoading={humidityIsLoading}
+                  />
+                </Item>
+              </Grid>
             </>
-          ) : (
-            <Box sx={{ overflowX: 'auto' }}>
-              <DataTable columns={columns} data={sensorDataTable || []} />
-              {/* Soil */}
-              <PageTitle title={'Solo'} />
-              <SensorFilter
-                filterItem={soilFilterItems}
-                filter={soilFilter}
-                setFilter={setSoilFilter}
-                sort={soilSort}
-                sortItem={soilSortItem}
-                setSort={setSoilSort}
-                sortOrder={soilSortOrder}
-                setSortOrder={setSoilSortOrder}
-                fields={soilFields}
-                setFields={setSoilFields}
-                paginationModel={soilPagination}
-                setPaginationModel={setSoilPagination}
-                handleFilter={handleSoilFilter}
-              />
-              <SoilDataTable data={soilDataTable || []} />
-            </Box>
-          )}
+
+            {/* idealTemperatureResult */}
+            <>
+              <Grid item sm={6} xs={12} md={3}>
+                <Item>
+                  <GaugeChartComponent
+                    id='temperature-gauge'
+                    title={'Temperatura Máxima'}
+                    item={latestMetric?.minTemperature ?? 0}
+                    isError={isError}
+                    isLoading={isLoading}
+                  />
+                </Item>
+              </Grid>
+              <Grid item sm={6} xs={12} md={3}>
+                <Item>
+                  <GaugeChartComponent
+                    id='temperature-gauge'
+                    title={'Temperatura Mínima'}
+                    item={latestMetric?.maxTemperature ?? 0}
+                    isError={isError}
+                    isLoading={isLoading}
+                  />
+                </Item>
+              </Grid>
+            </>
+
+            {/* waterDeficiencyResult */}
+
+            <Grid item xs={12} sm={12} md={4}>
+              <Item>
+                <WaterIcon
+                  color='primary'
+                  sx={{
+                    fontSize: 48,
+                    animation: 'pulse 2s infinite',
+                  }}
+                />
+                <Typography
+                  variant='h6'
+                  sx={{
+                    transition: 'all 0.3s ease-in-out',
+                    '&:hover': {
+                      transform: 'scale(1.15)',
+                      transformOrigin: 'center center',
+                    },
+                  }}
+                >
+                  Deficiência de Água:
+                </Typography>
+                <Typography variant='h2' color={'Highlight'}>
+                  {waterDeficiencyResult}
+                </Typography>
+              </Item>
+            </Grid>
+
+            {/* potentialEvapotranspirationResult */}
+
+            <Grid item xs={12} sm={12} md={4}>
+              <Item>
+                <OpacityIcon
+                  color='secondary'
+                  sx={{
+                    fontSize: 48,
+                    animation: 'pulse 2s infinite',
+                  }}
+                />
+                <Typography
+                  variant='h6'
+                  sx={{
+                    transition: 'all 0.3s ease-in-out',
+                    '&:hover': {
+                      transform: 'scale(1.15)',
+                      transformOrigin: 'center center',
+                    },
+                  }}
+                >
+                  Evapotranspiração Potencial:
+                </Typography>
+                <Typography variant='h2' color={'Highlight'}>
+                  {potentialEvapotranspirationResult}
+                </Typography>
+              </Item>
+            </Grid>
+
+            {/* WaterFlowIndicator */}
+            <Grid item xs={12} sm={12} md={4}>
+              <Item>
+                <WaterFlowIndicator
+                  isIrrigated={true}
+                  waterFlowRate={10}
+                  totalWaterUsed={150}
+                />
+              </Item>
+            </Grid>
+          </Grid>
+          <ReusableSensorComponent<IMetric>
+            title='Tipo de Solo'
+            getMutation={getMetrics}
+            filterType='soilType'
+            filterItems={metricsFilterItems}
+            sortItems={sortItems}
+            columns={soilColumns}
+          />
         </Container>
       </Box>
     </>
   );
 };
 
-export default Home;
+export default HomePage;

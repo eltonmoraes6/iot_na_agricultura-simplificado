@@ -13,7 +13,7 @@ export const alertApi = createApi({
   baseQuery: customFetchBase,
   endpoints: (builder) => ({
     fetchAlerts: builder.query<Alert[], string>({
-      query: () => `/soils/predict-pests-and-diseases`,
+      query: () => `/pests-prediction/predict-pests-and-diseases`,
     }),
   }),
 });

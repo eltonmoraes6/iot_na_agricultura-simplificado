@@ -11,8 +11,13 @@ import morgan from 'morgan';
 import path from 'path';
 
 import configRoutes from './routes/config.routes';
-import sensorsRouter from './routes/sensor.routes';
+import humidityRouter from './routes/humidity.routes';
+import metricsRouter from './routes/metric.routes';
+import pestsPrediction from './routes/pests.Prediction.routes';
+import seasonRouter from './routes/season.routes';
 import soilsRouter from './routes/soil.routes';
+import temperatureRouter from './routes/temperature.routes';
+
 import weatherRouter from './routes/weather.routes';
 
 import './services/consumer.service';
@@ -142,9 +147,13 @@ async function initializeApp() {
     app.use('/', express.static(path.join(__dirname, '../dist')));
 
     // ROUTES
-    app.use('/api/sensors', sensorsRouter);
+    app.use('/api/metrics', metricsRouter);
     app.use('/api/soils', soilsRouter);
     app.use('/api/weather', weatherRouter);
+    app.use('/api/temperatures', temperatureRouter);
+    app.use('/api/humidities', humidityRouter);
+    app.use('/api/seasons', seasonRouter);
+    app.use('/api/pests-prediction', pestsPrediction);
 
     // Handle 404 errors
     app.all('/404', (req: Request, res: Response, next: NextFunction) => {

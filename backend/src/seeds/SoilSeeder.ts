@@ -10,30 +10,18 @@ export class SoilSeeder implements Seeder {
   ): Promise<void> {
     const soilRepository = dataSource.getRepository(Soil);
 
-    const userData = [
+    const soilData = [
       {
         soilType: SoilType.ARGISSOLO, // Replace with desired soil type
-        minHumidity: 10.5,
-        maxHumidity: 25.0,
-        minTemperature: 15.0,
-        maxTemperature: 30.0,
       },
       {
         soilType: SoilType.LATOSSOLO, // Replace with desired soil type
-        minHumidity: 10.5,
-        maxHumidity: 25.0,
-        minTemperature: 15.0,
-        maxTemperature: 30.0,
       },
       {
         soilType: SoilType.NEOSSOLO, // Replace with desired soil type
-        minHumidity: 10.5,
-        maxHumidity: 25.0,
-        minTemperature: 15.0,
-        maxTemperature: 30.0,
       },
     ];
-    const newUser = soilRepository.create(userData);
-    await soilRepository.save(newUser);
+    const newSoil = soilRepository.create(soilData);
+    await soilRepository.save(newSoil);
   }
 }

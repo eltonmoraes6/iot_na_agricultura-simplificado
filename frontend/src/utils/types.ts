@@ -65,3 +65,19 @@ export interface IdealHumidityRequest {
 export interface IdealHumidityResponse {
   idealHumidity: number;
 }
+
+export interface IdealTemperatureResponse {
+  idealTemperature: number;
+}
+
+export interface HumidityLimitsResponse {
+  minHumidity: number;
+  maxHumidity: number;
+  predictedTemperature: number;
+}
+
+export interface LimitsResponse {
+  humidity: number;
+  temperature: number;
+  season: string;
+}

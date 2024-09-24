@@ -1,12 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateSensorInput } from '../schemas/sensor.schema';
+import { CreateSeasonInput } from '../schemas/season.schema';
 import {
-  createSensor,
-  findOneSensor,
-  findSensorBySeason,
-  findSensorsAdvanced,
-  getDailyAndPeriodAverages,
-} from '../services/sensors.service';
+  createSeason,
+  findSeasonById,
+  findSeasonsAdvanced,
+} from '../services/season.service';
 import { parseFilters } from '../utils/queryParams';
 
 export const indexHandler = async (
@@ -35,7 +33,7 @@ export const indexHandler = async (
       fields: fields ? (fields as string).split(',') : undefined,
     };
 
-    const sensors = await findSensorsAdvanced(queryOptions);
+    const sensors = await findSeasonsAdvanced(queryOptions);
 
     res.status(200).json({
       status: 'success',
@@ -63,7 +61,7 @@ export const findSeasonByHandler = async (
     if (!season) {
       res.status(500).json({ message: 'Error' });
     }
-    const sensors = await findSensorBySeason(season);
+    const sensors = await findSeasonById(season);
 
     res.status(200).json({
       status: 'success',
@@ -76,25 +74,18 @@ export const findSeasonByHandler = async (
   }
 };
 
-export const registerSensorHandler = async (
-  req: Request<{}, {}, CreateSensorInput>,
+export const registerSeasonHandler = async (
+  req: Request<{}, {}, CreateSeasonInput>,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { humidity, season, temperature, soil } = req.body;
-    // const soilData = { id: '4d8b5a3d-36c7-4fa1-b3f9-5dd16a1e1103' }; // Assuming 'id' is the primary key
-    const sensor = await createSensor({
-      humidity,
-      season,
-      temperature,
-      soil: { id: soil },
-    });
+    const season = await createSeason({ season: req.body.season });
 
     res.status(201).json({
       status: 'success',
       data: {
-        sensor,
+        season,
       },
     });
   } catch (err: any) {
@@ -105,46 +96,5 @@ export const registerSensorHandler = async (
       });
     }
     next(err);
-  }
-};
-
-export const getDailyAndPeriodAveragesHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const averages = await getDailyAndPeriodAverages();
-
-    res.status(200).json({
-      status: 'success',
-      data: averages,
-    });
-  } catch (error) {
-    next(error);
-  }
-}; // Type for expected query parameters
-
-export const getLastSensor = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const sensors = await findOneSensor();
-
-    res.status(200).json({
-      status: 'success',
-      results: sensors.length,
-      data: {
-        sensors,
-      },
-    });
-  } catch (error) {
-    // Handle errors appropriately
-    res.status(400).json({
-      status: 'error',
-      message: error,
-    });
   }
 };

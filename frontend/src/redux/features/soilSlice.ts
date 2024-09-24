@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ISoilResponse } from '../api/types';
+import { ISoilResponse } from '../types/soilTypes';
 
 interface ISoilState {
   soil: ISoilResponse | null;
