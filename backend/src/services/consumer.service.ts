@@ -5,9 +5,11 @@ import { Temperature } from '../entities/temperature.entity';
 import { predictPestsAndDiseases } from '../services/pestsPrediction.service';
 import { AppDataSource } from '../utils/data-source';
 
+import { DeepPartial } from 'typeorm';
 import config from '../../config';
 import { Metric } from '../entities/metric.entity';
 import { Season } from '../entities/season.entity';
+import { WaterFlowIndicator } from '../entities/waterFlowIndicator.entity';
 
 require('dotenv').config();
 
@@ -15,6 +17,7 @@ const soilRepository = AppDataSource.getRepository(Soil);
 const seasonRepository = AppDataSource.getRepository(Season);
 const temperatureRepository = AppDataSource.getRepository(Temperature);
 const humidityRepository = AppDataSource.getRepository(Humidity);
+const waterFlowRepository = AppDataSource.getRepository(WaterFlowIndicator);
 
 const metricRepository = AppDataSource.getRepository(Metric);
 
@@ -55,6 +58,33 @@ const connectConsumer = async () => {
         if (!season) {
           throw new Error('Season not found');
         }
+
+        const waterFlowIndicatorData: DeepPartial<WaterFlowIndicator> = {
+          waterFlowRate: parseFloat(sensorData.flow), // Ensure this is a number
+          totalWaterUsed: parseFloat(sensorData.totalWaterUsed), // Assuming this comes from your parsed data
+          isIrrigated:
+            sensorData.isIrrigated !== undefined
+              ? sensorData.isIrrigated
+              : false, // Default to false if not present
+        };
+
+        // Only add dates if they are present
+        if (sensorData.startIrrigationTime) {
+          waterFlowIndicatorData.startIrrigationTime = new Date(
+            sensorData.startIrrigationTime
+          );
+        }
+
+        if (sensorData.stopIrrigationTime) {
+          waterFlowIndicatorData.stopIrrigationTime = new Date(
+            sensorData.stopIrrigationTime
+          );
+        }
+
+        const waterFlowIndicator = waterFlowRepository.create(
+          waterFlowIndicatorData
+        );
+        await waterFlowRepository.save(waterFlowIndicator);
 
         // Insert temperature and humidity data
         const temperature = temperatureRepository.create({

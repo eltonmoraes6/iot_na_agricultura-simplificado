@@ -1,25 +1,25 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { alertApi } from './api/alertApi';
-import { sensorApi } from './api/sensorApi';
-import { soilApi } from './api/soilApi';
-import { weatherApi } from './api/weatherApi';
-
 import { humidityApi } from './api/humidityApi';
 import { metricApi } from './api/metricApi';
 import { seasonApi } from './api/seasonApi';
+import { sensorApi } from './api/sensorApi';
 import { settingsApi } from './api/settingsApi';
+import { soilApi } from './api/soilApi';
 import { temperatureApi } from './api/temperatureApi';
-
-import sensorReducer from './features/sensorSlice';
-import soilReducer from './features/soilSlice';
-import weatherReducer from './features/weatherSlice';
+import { waterFlowApi } from './api/waterFlow';
+import { weatherApi } from './api/weatherApi';
 
 import humidityReducer from './features/humiditySlice';
 import metricReducer from './features/metricSlice';
 import seasonReducer from './features/seasonSlice';
+import sensorReducer from './features/sensorSlice';
 import settingsReducer from './features/settingsSlice';
+import soilReducer from './features/soilSlice';
 import temperatureReducer from './features/temperatureSlice';
+import waterFlowReducer from './features/waterFlowSlice';
+import weatherReducer from './features/weatherSlice';
 
 export const store = configureStore({
   reducer: {
@@ -40,6 +40,8 @@ export const store = configureStore({
     seasonState: seasonReducer,
     [settingsApi.reducerPath]: settingsApi.reducer,
     settingsState: settingsReducer,
+    [waterFlowApi.reducerPath]: waterFlowApi.reducer,
+    waterFlowState: waterFlowReducer,
   },
   devTools: import.meta.env.VITE_NODE_ENV === 'development',
   middleware: (getDefaultMiddleware) =>
@@ -53,6 +55,7 @@ export const store = configureStore({
       metricApi.middleware,
       seasonApi.middleware,
       settingsApi.middleware,
+      waterFlowApi.middleware,
     ]),
 });
 

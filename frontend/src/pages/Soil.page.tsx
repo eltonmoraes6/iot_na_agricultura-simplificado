@@ -1,4 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
+import moment from 'moment';
 import ReusableSensorComponent from '../components/ReusableSensorComponent ';
 import { useGetSoilsMutation } from '../redux/api/soilApi';
 import { ISoil } from '../redux/types/soilTypes';
@@ -16,11 +17,11 @@ const soilColumns = [
   }),
   columnHelper.accessor('created_at', {
     header: 'Criação',
-    cell: (info) => info.getValue(),
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY HH:mm:ss'), // Format using moment
   }),
   columnHelper.accessor('updated_at', {
     header: 'Edição',
-    cell: (info) => info.getValue(),
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY HH:mm:ss'), // Format using moment
   }),
 ];
 

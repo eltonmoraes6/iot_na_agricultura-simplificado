@@ -18,7 +18,7 @@ import seasonRouter from './routes/season.routes';
 import settingsRoutes from './routes/settings.routes';
 import soilsRouter from './routes/soil.routes';
 import temperatureRouter from './routes/temperature.routes';
-
+import waterFlowIndicatorRouter from './routes/waterFlowIndicator.routes';
 import weatherRouter from './routes/weather.routes';
 
 import './services/consumer.service';
@@ -156,6 +156,7 @@ async function initializeApp() {
     app.use('/api/seasons', seasonRouter);
     app.use('/api/pests-prediction', pestsPrediction);
     app.use('/api/settings', settingsRoutes);
+    app.use('/api/water', waterFlowIndicatorRouter);
 
     // Handle 404 errors
     app.all('/404', (req: Request, res: Response, next: NextFunction) => {

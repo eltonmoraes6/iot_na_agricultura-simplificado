@@ -1,5 +1,6 @@
 import { Typography } from '@mui/material';
 import { createColumnHelper } from '@tanstack/react-table';
+import moment from 'moment';
 import { useEffect, useMemo } from 'react';
 import FullScreenLoader from '../components/FullScreenLoader';
 import ReusableSensorComponent from '../components/ReusableSensorComponent ';
@@ -39,11 +40,11 @@ const soilColumns = [
   }),
   columnHelper.accessor('created_at', {
     header: 'Criação',
-    cell: (info) => info.getValue(),
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY HH:mm:ss'), // Format using moment
   }),
   columnHelper.accessor('updated_at', {
     header: 'Edição',
-    cell: (info) => info.getValue(),
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY HH:mm:ss'), // Format using moment
   }),
 ];
 

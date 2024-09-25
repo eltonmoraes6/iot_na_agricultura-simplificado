@@ -72,9 +72,13 @@ parser.on('data', async (data: any) => {
   try {
     const parsedData = JSON.parse(data);
 
-    if (!parsedData.temperature || !parsedData.humidity) {
-      console.warn('Incomplete data:', parsedData);
-      return;
+    // Validate required data
+    const requiredFields = ['temperature', 'humidity', 'flow', 'startTime'];
+    for (const field of requiredFields) {
+      if (!parsedData[field]) {
+        console.warn(`Incomplete data: missing ${field}`, parsedData);
+        return;
+      }
     }
 
     const soil = await soilRepository.findOneBy({ soilType: 'Argissolos' });
@@ -98,6 +102,10 @@ parser.on('data', async (data: any) => {
       humidity: parseFloat(parsedData.humidity),
       season: season.season,
       soil: soil.soilType,
+      flow: parseFloat(parsedData.flow),
+      startTime: parsedData.startTime,
+      totalWaterUsed: parseFloat(parsedData.totalWaterUsed), // Ensure to add this line
+      isIrrigated: parsedData.isIrrigated, // Make sure to handle this field properly
     };
 
     if (isNaN(sensorData.temperature) || isNaN(sensorData.humidity)) {

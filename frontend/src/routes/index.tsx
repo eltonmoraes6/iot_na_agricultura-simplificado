@@ -25,7 +25,6 @@ const AppRoutes = () => {
         <Route path='water' element={<WaterPage />} />
         <Route path='settings' element={<SettingsPage />} />
         <Route path='metrics' element={<MetricsPage />} />
-
         <Route
           path='daily-and-period-averages'
           element={<DailyAndPeriodAveragesPage />}

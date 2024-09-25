@@ -1,4 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
+import moment from 'moment';
 import ReusableSensorComponent from '../components/ReusableSensorComponent ';
 import { useGetSeasonsMutation } from '../redux/api/seasonApi';
 import { ISeason } from '../redux/types/seasonTypes';
@@ -16,11 +17,11 @@ const seasonColumns = [
   }),
   columnHelper.accessor('created_at', {
     header: 'Criação',
-    cell: (info) => info.getValue(),
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY HH:mm:ss'), // Format using moment
   }),
   columnHelper.accessor('updated_at', {
     header: 'Edição',
-    cell: (info) => info.getValue(),
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY HH:mm:ss'), // Format using moment
   }),
 ];
 

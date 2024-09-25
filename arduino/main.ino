@@ -11,61 +11,65 @@ int analogMax = 1000; // dry soil
 #include <stdlib.h>
 
 // Function to generate simulated temperature in Celsius
-float generateTemperature()
-{
+float generateTemperature() {
   // Generate a random temperature between 20°C and 30°C
-  float temperature = rand() % 1100 / 100.0 + 20.0;
-  return temperature;
+  return rand() % 1100 / 100.0 + 20.0;
 }
 
 // Function to generate simulated humidity percentage
-float generateHumidity()
-{
+float generateHumidity() {
   // Generate a random humidity between 40% and 60%
-  float humidity = rand() % 2100 / 100.0 + 40.0;
-  return humidity;
+  return rand() % 2100 / 100.0 + 40.0;
 }
 
-void setup()
-{
+// Function to generate simulated water flow rate
+float generateWaterFlowRate() {
+  // Generate a random water flow rate
+  return rand() % 200 + 100; // Example: between 100 and 300 liters/hour
+}
+
+// Function to simulate total water used
+float generateTotalWaterUsed() {
+  // Generate a random total water used
+  return rand() % 5000 + 1000; // Example: between 1000 and 6000 liters
+}
+
+// Function to simulate irrigation status
+bool isIrrigated() {
+  return rand() % 2 == 0; // Randomly true or false
+}
+
+void setup() {
   Serial.begin(9600);
   pinMode(entradaDigital, INPUT);
 }
 
-void loop()
-{
-  // Generate simulated temperature and humidity
+void loop() {
+  // Generate simulated temperature, humidity, water flow rate, total water used
   float temperature = generateTemperature();
   float humidity = generateHumidity();
+  float waterFlowRate = generateWaterFlowRate();
+  float totalWaterUsed = generateTotalWaterUsed();
+  bool irrigated = isIrrigated();
 
-  // Send temperature and humidity data to serial port
-  // Serial.print(temperature);
-  // Serial.print(',');
-  // Serial.println(humidity);
+  // Read the digital and analog sensors
   dSensor = digitalRead(entradaDigital);
   aSensor = analogRead(entradaAnalogica);
 
-  // Serial.print("Leitura entrada digital: ");
-  // Serial.println(dSensor);
-
-  // Serial.print("Leitura entrada analógica: ");
-  // Serial.println(aSensor);
-  // Serial.println();
-
   // Map analog reading to percentage (0% to 100%)
   int moisturePercentage = map(aSensor, analogMin, analogMax, 0, 100);
-
-  // Ensure percentage stays within 0-100% range
   moisturePercentage = constrain(moisturePercentage, 0, 100);
 
   // Create a JSON object
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<300> doc;
 
   // Add sensor data to the JSON object
   doc["temperature"] = temperature;
   doc["humidity"] = moisturePercentage;
-  // Add data to the JSON object
-  // doc["soil_moisture_percentage"] = moisturePercentage;
+  doc["flow"] = waterFlowRate;
+  doc["totalWaterUsed"] = totalWaterUsed;
+  doc["isIrrigated"] = irrigated;
+  doc["startTime"] = millis(); // Example start time (can adjust as needed)
 
   // Convert JSON object to string
   String output;
@@ -73,5 +77,5 @@ void loop()
 
   // Send JSON string over the serial port
   Serial.println(output);
-  delay(600000);
+  delay(60000); // Send data every minute
 }

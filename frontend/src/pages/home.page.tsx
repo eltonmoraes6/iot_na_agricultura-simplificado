@@ -33,6 +33,7 @@ import { IMetric } from '../redux/types/metricTypes';
 
 import OpacityIcon from '@mui/icons-material/Opacity';
 import WaterIcon from '@mui/icons-material/Water';
+import moment from 'moment';
 import MetricLineChart from '../components/MetricLineChart';
 import WaterFlowIndicator from '../components/waterFlow/WaterFlowIndicator';
 import { PaginationModel } from '../redux/api/types';
@@ -95,11 +96,11 @@ const soilColumns = [
   }),
   columnHelper.accessor('created_at', {
     header: 'Criação',
-    cell: (info) => info.getValue(),
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY HH:mm:ss'), // Format using moment
   }),
   columnHelper.accessor('updated_at', {
     header: 'Edição',
-    cell: (info) => info.getValue(),
+    cell: (info) => moment(info.getValue()).format('DD/MM/YYYY HH:mm:ss'), // Format using moment
   }),
 ];
 
