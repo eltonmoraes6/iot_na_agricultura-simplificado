@@ -590,7 +590,7 @@ const HomePage = () => {
             </Grid>
           </Grid>
           <ReusableSensorComponent<IMetric>
-            title='Tipo de Solo'
+            title='Métricas'
             getMutation={getMetrics}
             filterType='soilType'
             filterItems={metricsFilterItems}

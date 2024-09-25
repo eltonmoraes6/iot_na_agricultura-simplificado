@@ -13,8 +13,9 @@ import path from 'path';
 import configRoutes from './routes/config.routes';
 import humidityRouter from './routes/humidity.routes';
 import metricsRouter from './routes/metric.routes';
-import pestsPrediction from './routes/pests.Prediction.routes';
+import pestsPrediction from './routes/pests.prediction.routes';
 import seasonRouter from './routes/season.routes';
+import settingsRoutes from './routes/settings.routes';
 import soilsRouter from './routes/soil.routes';
 import temperatureRouter from './routes/temperature.routes';
 
@@ -154,6 +155,7 @@ async function initializeApp() {
     app.use('/api/humidities', humidityRouter);
     app.use('/api/seasons', seasonRouter);
     app.use('/api/pests-prediction', pestsPrediction);
+    app.use('/api/settings', settingsRoutes);
 
     // Handle 404 errors
     app.all('/404', (req: Request, res: Response, next: NextFunction) => {

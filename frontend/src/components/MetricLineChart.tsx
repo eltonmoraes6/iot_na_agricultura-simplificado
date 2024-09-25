@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, Typography } from '@mui/material';
 import moment from 'moment-timezone';
 import { useState } from 'react';
 import {
@@ -20,6 +20,8 @@ interface MetricLineChartProps<T> {
   unit?: string; // Optional unit to display
   chartTitle: string; // Title for the chart
   color: string; // Color of the chart
+  height?: number;
+  width?: number;
 }
 
 interface TooltipProps<T> {
@@ -61,6 +63,8 @@ export const MetricLineChart = <T extends Record<string, any>>({
   color,
   unit,
   valueField,
+  width,
+  height,
 }: MetricLineChartProps<T>) => {
   const [selectedRange, setSelectedRange] = useState('today');
 
@@ -144,19 +148,32 @@ export const MetricLineChart = <T extends Record<string, any>>({
       </ButtonGroup>
 
       {!isLoading && !isError && filteredData && (
-        <LineChart width={500} height={300} data={chartData}>
-          <CartesianGrid strokeDasharray='3 3' />
-          <XAxis dataKey='time' />
-          <YAxis />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend />
-          <Line
-            dot={false}
-            type='monotone'
-            dataKey='value' // Dynamic key
-            stroke={color}
-          />
-        </LineChart>
+        <Box
+          sx={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            display: 'flex',
+          }}
+        >
+          <LineChart
+            width={width ? width : 500}
+            height={height ? height : 300}
+            data={chartData}
+            style={{}}
+          >
+            <CartesianGrid strokeDasharray='3 3' />
+            <XAxis dataKey='time' />
+            <YAxis />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            <Line
+              dot={false}
+              type='monotone'
+              dataKey='value' // Dynamic key
+              stroke={color}
+            />
+          </LineChart>
+        </Box>
       )}
     </>
   );

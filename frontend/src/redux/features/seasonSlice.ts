@@ -1,24 +1,24 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ISeasonResponse } from '../types/seasonTypes';
 
-interface ISoilState {
-  soil: ISeasonResponse | null;
+interface ISeasonState {
+  season: ISeasonResponse | null;
 }
 
-const initialState: ISoilState = {
-  soil: null,
+const initialState: ISeasonState = {
+  season: null,
 };
 
 export const seasonSlice = createSlice({
   initialState,
   name: 'seasonSlice',
   reducers: {
-    soilState: (state, action: PayloadAction<ISeasonResponse>) => {
-      state.soil = action.payload;
+    seasonState: (state, action: PayloadAction<ISeasonResponse>) => {
+      state.season = action.payload;
     },
   },
 });
 
 export default seasonSlice.reducer;
 
-export const { soilState } = seasonSlice.actions;
+export const { seasonState } = seasonSlice.actions;

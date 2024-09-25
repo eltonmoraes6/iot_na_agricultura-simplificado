@@ -2,7 +2,6 @@ import { Kafka } from 'kafkajs';
 import { Humidity } from '../entities/humidity.entity';
 import { Soil } from '../entities/soil.entity';
 import { Temperature } from '../entities/temperature.entity';
-import { IAlert } from '../interfaces/alert.interface';
 import { predictPestsAndDiseases } from '../services/pestsPrediction.service';
 import { AppDataSource } from '../utils/data-source';
 
@@ -98,16 +97,12 @@ const connectConsumer = async () => {
         await metricRepository.save(metric); // Saving the metric to the database
 
         // Prepare data for pest prediction
-        const alerts: IAlert[] = predictPestsAndDiseases([
-          {
-            id: soil.id,
-            temperature: sensorData.temperature,
-            humidity: sensorData.humidity,
-          },
-        ]);
+        const alerts = predictPestsAndDiseases();
 
-        if (alerts.length > 0) {
-          alerts.forEach((alert) => console.log(alert.message));
+        if ((await alerts).length > 0) {
+          (await alerts).forEach((alert: { message: any }) =>
+            console.log(alert.message)
+          );
         }
 
         console.log('Data inserted into database from Kafka:', sensorData);

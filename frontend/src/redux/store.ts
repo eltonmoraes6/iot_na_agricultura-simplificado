@@ -8,6 +8,7 @@ import { weatherApi } from './api/weatherApi';
 import { humidityApi } from './api/humidityApi';
 import { metricApi } from './api/metricApi';
 import { seasonApi } from './api/seasonApi';
+import { settingsApi } from './api/settingsApi';
 import { temperatureApi } from './api/temperatureApi';
 
 import sensorReducer from './features/sensorSlice';
@@ -17,6 +18,7 @@ import weatherReducer from './features/weatherSlice';
 import humidityReducer from './features/humiditySlice';
 import metricReducer from './features/metricSlice';
 import seasonReducer from './features/seasonSlice';
+import settingsReducer from './features/settingsSlice';
 import temperatureReducer from './features/temperatureSlice';
 
 export const store = configureStore({
@@ -36,6 +38,8 @@ export const store = configureStore({
     metricState: metricReducer,
     [seasonApi.reducerPath]: seasonApi.reducer,
     seasonState: seasonReducer,
+    [settingsApi.reducerPath]: settingsApi.reducer,
+    settingsState: settingsReducer,
   },
   devTools: import.meta.env.VITE_NODE_ENV === 'development',
   middleware: (getDefaultMiddleware) =>
@@ -48,6 +52,7 @@ export const store = configureStore({
       temperatureApi.middleware,
       metricApi.middleware,
       seasonApi.middleware,
+      settingsApi.middleware,
     ]),
 });
 
